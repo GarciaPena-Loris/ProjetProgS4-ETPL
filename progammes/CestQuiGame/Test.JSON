@@ -7,6 +7,7 @@
             "image": "samuel.jpg",
             "prenom": "Samuel",
             "genre": "homme",
+            "etat": "vivant",
             "cheveux": "blanc",
             "lunettes": "oui",
             "chauve": "oui"
@@ -15,6 +16,7 @@
             "image": "leon.jpg",
             "prenom": "Léon",
             "genre": "homme",
+            "etat": "mort",
             "cheveux": "blond",
             "lunettes": "oui",
             "chauve": "non"
