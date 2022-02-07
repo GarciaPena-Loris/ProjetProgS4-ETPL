@@ -1,0 +1,34 @@
+{
+    "images": "../images/",
+    "ligne": "3",
+    "colonne": "1",
+    "personnages": {
+        "0": {
+            "image": "samuel.jpg",
+            "prenom": "Samuel",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "blanc",
+            "lunettes": "oui",
+            "chauve": "oui"
+        },
+        "1": {
+            "image": "leon.jpg",
+            "prenom": "Léon",
+            "genre": "vivant",
+            "etat": "mort",
+            "cheveux": "blond",
+            "lunettes": "oui",
+            "chauve": "non"
+        },
+        "2": {
+            "image": "simon.jpg",
+            "prenom": "Simon",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "blanc",
+            "lunettes": "oui",
+            "chauve": "non"
+        }
+    }
+}
