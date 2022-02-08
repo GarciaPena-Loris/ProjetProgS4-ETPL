@@ -43,17 +43,17 @@ public class Game {
         return false;
     }
 
-    public void verifierElimination(String images, String ligne, String colonne) {
+    public void verifierElimination(String images, int ligne, int colonne) {
         sauvegarderPartieEnCour(images, ligne, colonne);
         
     }
 
-    public void sauvegarderPartieEnCour(String images, String ligne, String colonne) {
+    public void sauvegarderPartieEnCour(String images, int ligne, int colonne) {
         // sauvegarde de la partie
         JSONObject partieSave = new JSONObject();
         partieSave.put("images", String.valueOf(images));
-        partieSave.put("ligne", ligne);
-        partieSave.put("colonne", colonne);
+        partieSave.put("ligne", String.valueOf(ligne));
+        partieSave.put("colonne", String.valueOf(colonne));
         partieSave.put("difficulte", String.valueOf(difficulte));
         partieSave.put("personnagesChoisi", personnageChoisi);
 

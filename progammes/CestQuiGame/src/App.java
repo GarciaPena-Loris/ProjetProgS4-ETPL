@@ -19,7 +19,7 @@ public final class App {
             
             Game partieEnCour = new Game(Difficulte.normal, personnages, ligne, colonne);
             partieEnCour.afficheEtatPartie();
-            partieEnCour.verifierElimination((String)js.get("images"), (String)js.get("ligne"), (String)js.get("colonne"));
+            partieEnCour.verifierElimination(cheminVersImages, ligne, colonne);
         }
 
         catch (FileNotFoundException e) {
