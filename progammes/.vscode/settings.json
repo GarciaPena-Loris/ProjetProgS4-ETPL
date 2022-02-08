@@ -1,6 +1,6 @@
 {
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "c:\\Users\\loloy\\Desktop\\cours\\L2_Info\\Sem2\\ProjetProgS4-ETPL\\librairies\\json-simple-1.1.1.jar"
+        "../librairies/json-simple-1.1.1.jar"
     ]
 }

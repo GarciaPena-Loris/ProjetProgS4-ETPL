@@ -15,8 +15,8 @@
         "1": {
             "image": "leon.jpg",
             "prenom": "Léon",
-            "genre": "vivant",
-            "etat": "mort",
+            "genre": "homme",
+            "etat": "vivant",
             "cheveux": "blond",
             "lunettes": "oui",
             "chauve": "non"

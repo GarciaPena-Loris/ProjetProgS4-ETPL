@@ -43,14 +43,37 @@ public class Game {
         return false;
     }
 
-    public void verifierElimination() {
-        // verifier qu'il a pas eliminer la mauvaise personne
+    public void verifierElimination(String images, String ligne, String colonne) {
+        sauvegarderPartieEnCour(images, ligne, colonne);
+        
+    }
 
-        // sauvegarder
-        // double boucle dans laquelle tu ajoute chaque element de "listePersonnages"
-        // dans notre Json de sauvegarde.
-        // enregistrer quelquepart
+    public void sauvegarderPartieEnCour(String images, String ligne, String colonne) {
+        // sauvegarde de la partie
+        JSONObject partieSave = new JSONObject();
+        partieSave.put("images", String.valueOf(images));
+        partieSave.put("ligne", ligne);
+        partieSave.put("colonne", colonne);
+        partieSave.put("difficulte", String.valueOf(difficulte));
+        partieSave.put("personnagesChoisi", personnageChoisi);
 
+        JSONArray array = new JSONArray();
+        JSONObject listePerso = new JSONObject();
+        int i = 0;
+        for (JSONObject[] personnages : listePersonnages) {
+            for (JSONObject personnage : personnages) {
+                listePerso.put(String.valueOf(i), personnage);
+                i++;
+            }
+        }
+        array.add(listePerso);
+        partieSave.put("personnages", array);
+
+        try (FileWriter file = new FileWriter(new File("CestQuiGame/bin/save.json"))) {
+            file.write(partieSave.toJSONString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

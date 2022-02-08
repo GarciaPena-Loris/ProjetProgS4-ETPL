@@ -1,0 +1,44 @@
+{
+    "personnages": [{
+        "0": {
+            "image": "samuel.jpg",
+            "cheveux": "blanc",
+            "genre": "homme",
+            "lunettes": "oui",
+            "prenom": "Samuel",
+            "etat": "vivant",
+            "chauve": "oui"
+        },
+        "1": {
+            "image": "leon.jpg",
+            "cheveux": "blond",
+            "genre": "homme",
+            "lunettes": "oui",
+            "prenom": "Léon",
+            "etat": "vivant",
+            "chauve": "non"
+        },
+        "2": {
+            "image": "simon.jpg",
+            "cheveux": "blanc",
+            "genre": "homme",
+            "lunettes": "oui",
+            "prenom": "Simon",
+            "etat": "vivant",
+            "chauve": "non"
+        }
+    }],
+    "images": "..\/images\/",
+    "ligne": "3",
+    "personnagesChoisi": {
+        "image": "samuel.jpg",
+        "cheveux": "blanc",
+        "genre": "homme",
+        "lunettes": "oui",
+        "prenom": "Samuel",
+        "etat": "vivant",
+        "chauve": "oui"
+    },
+    "difficulte": "normal",
+    "colonne": "1"
+}
