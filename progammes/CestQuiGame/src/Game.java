@@ -51,12 +51,6 @@ public class Game {
         return correspondPersonnage;
     }
 
-    public boolean verifierReponse(String key, String value) {
-        if (personnageChoisi.get(key) != null)
-            return personnageChoisi.get(key).equals(value);
-        return false;
-    }
-
     public List<String> getListeAttributs() {
         List<String> attributs = new ArrayList<>(listePersonnages[0][0].keySet());
         attributs.remove("image");
