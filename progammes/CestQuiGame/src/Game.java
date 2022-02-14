@@ -42,11 +42,16 @@ public class Game {
         System.out.println("\nPersonnage choisi : " + this.personnageChoisi);
     }
 
-    public boolean verifierReponse(HashMap<String, String> propositions) {
+    public boolean verifierReponse(HashMap<String, String> propositions, String[] listConnecteurs) {
         boolean correspondPersonnage = true;
+        int i = 0;
         for (String key : propositions.keySet()) {
             if (personnageChoisi.get(key) != null && propositions.get(key) != null)
-                correspondPersonnage &= personnageChoisi.get(key).equals(propositions.get(key));
+                if (listConnecteurs[i] == "et") {
+                    correspondPersonnage &= personnageChoisi.get(key).equals(propositions.get(key));
+                } else {
+                    correspondPersonnage |= personnageChoisi.get(key).equals(propositions.get(key));
+                }
         }
         return correspondPersonnage;
     }
@@ -54,7 +59,22 @@ public class Game {
     public List<String> getListeAttributs() {
         List<String> attributs = new ArrayList<>(listePersonnages[0][0].keySet());
         attributs.remove("image");
+        attributs.remove("etat");
         return attributs;
+    }
+
+    public List<String> getListeValeurs(String attribut) {
+        List<String> valeurs = new ArrayList<>();
+
+        for (JSONObject[] jsonObjects : listePersonnages) {
+            for (JSONObject personnage : jsonObjects) {
+                String value = (String) personnage.get(attribut);
+                if (value != null)
+                    if (!valeurs.contains(value))
+                        valeurs.add(value);
+            }
+        }
+        return valeurs;
     }
 
     public boolean estQuestionBinaire(String attribut) {
