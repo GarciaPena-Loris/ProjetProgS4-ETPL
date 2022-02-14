@@ -1,4 +1,8 @@
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
@@ -38,14 +42,38 @@ public class Game {
         System.out.println("\nPersonnage choisi : " + this.personnageChoisi);
     }
 
-    public boolean verifierReponse(String question) {
-
+    public boolean verifierReponse(HashMap<String, String> propositions) {
+        for (String key : propositions.keySet()) {
+            if (personnageChoisi.get(key) != null)
+                return personnageChoisi.get(key).equals("oui");
+            
+        }
         return false;
+    }
+
+    public boolean verifierReponse(String key, String value) {
+        if (personnageChoisi.get(key) != null)
+            return personnageChoisi.get(key).equals(value);
+        return false;
+    }
+
+    public List<String> getListeAttributs() {
+        List<String> attributs = new ArrayList<>(listePersonnages[0][0].keySet());
+        attributs.remove("image");
+        return attributs;
+    }
+
+    public boolean estQuestionBinaire(String attribut) {
+        String value = (String) listePersonnages[0][0].get(attribut);
+        if (value == null) {
+            return false;
+        }
+        return value.equals("oui") || value.equals("non");
     }
 
     public void verifierElimination(String images, int ligne, int colonne) {
         sauvegarderPartieEnCour(images, ligne, colonne);
-        
+
     }
 
     public void sauvegarderPartieEnCour(String images, int ligne, int colonne) {

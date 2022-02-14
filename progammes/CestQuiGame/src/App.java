@@ -1,7 +1,7 @@
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
 import java.io.*;
+import java.util.List;
 
 public final class App {
     public static void main(String[] args) throws Exception {
@@ -13,13 +13,16 @@ public final class App {
             JSONObject js = (JSONObject) new JSONParser().parse(new FileReader("Test.json"));
 
             String cheminVersImages = (String) js.get("images");
-            int ligne = Integer.parseInt((String) js.get("ligne"));
-            int colonne = Integer.parseInt((String) js.get("colonne"));
+            int lignes = Integer.parseInt((String) js.get("ligne"));
+            int colonnes = Integer.parseInt((String) js.get("colonne"));
             JSONObject personnages = (JSONObject) js.get("personnages");
             
-            Game partieEnCour = new Game(Difficulte.normal, personnages, ligne, colonne);
+            Game partieEnCour = new Game(Difficulte.normal, personnages, lignes, colonnes);
             partieEnCour.afficheEtatPartie();
-            partieEnCour.verifierElimination(cheminVersImages, ligne, colonne);
+            partieEnCour.verifierElimination(cheminVersImages, lignes, colonnes);
+            
+            List<String> listeAttributs = partieEnCour.getListeAttributs();
+            boolean estBinaire = partieEnCour.estQuestionBinaire("chauve");
         }
 
         catch (FileNotFoundException e) {
