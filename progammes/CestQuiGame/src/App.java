@@ -1,6 +1,7 @@
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
 import java.io.*;
+import java.util.HashMap;
 import java.util.List;
 
 public final class App {
@@ -23,6 +24,13 @@ public final class App {
             
             List<String> listeAttributs = partieEnCour.getListeAttributs();
             boolean estBinaire = partieEnCour.estQuestionBinaire("chauve");
+
+            HashMap<String, String> questions = new HashMap<>();
+            questions.put("cheveux", "blond");
+            questions.put("lunettes", "oui");
+            questions.put("chauve", "non");
+            partieEnCour.verifierReponse(questions);
+            
         }
 
         catch (FileNotFoundException e) {

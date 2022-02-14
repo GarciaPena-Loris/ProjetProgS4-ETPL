@@ -43,12 +43,12 @@ public class Game {
     }
 
     public boolean verifierReponse(HashMap<String, String> propositions) {
+        boolean correspondPersonnage = true;
         for (String key : propositions.keySet()) {
-            if (personnageChoisi.get(key) != null)
-                return personnageChoisi.get(key).equals("oui");
-            
+            if (personnageChoisi.get(key) != null && propositions.get(key) != null)
+                correspondPersonnage &= personnageChoisi.get(key).equals(propositions.get(key));
         }
-        return false;
+        return correspondPersonnage;
     }
 
     public boolean verifierReponse(String key, String value) {
