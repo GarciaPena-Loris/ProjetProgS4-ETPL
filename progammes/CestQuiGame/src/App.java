@@ -25,18 +25,18 @@ public final class App {
             List<String> listeAttributs = partieEnCour.getListeAttributs();
             List<String> listeValeurs = partieEnCour.getListeValeurs("cheveux");
 
-            System.out.println(listeAttributs);
-            System.out.println(listeValeurs);
-
             boolean estBinaire = partieEnCour.estQuestionBinaire("chauve");
 
             HashMap<String, String> questions = new HashMap<>();
-            questions.put("cheveux", "blond");
-            questions.put("lunettes", "oui");
-            questions.put("chauve", "non");
+
+            //questions.put("cheveux", "blond");
+            //questions.put("lunettes", "oui");
+            // questions.put("chauve", "non");
             String[] listConnec = {"et", "et", "ou"};
             boolean reponseQuestion = partieEnCour.verifierReponse(questions, listConnec);
             System.out.println(reponseQuestion);
+
+            partieEnCour.NbrePersonnagesACocher(questions);
 
         }
 

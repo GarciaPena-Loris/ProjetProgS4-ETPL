@@ -77,6 +77,24 @@ public class Game {
         return valeurs;
     }
 
+    public int NbrePersonnagesACocher(HashMap<String, String> propositions) {
+        int i = 0, j = 0;
+        for (JSONObject[] jsonObjects : listePersonnages) {
+            for (JSONObject personnage : jsonObjects) {
+                for (String key : propositions.keySet()) {
+                    if (personnage.containsValue(propositions.get(key)) && personnage.get("etat").equals("vivant")) {
+                        i++;
+                    }
+                }
+                if (personnage.get("etat").equals("vivant")) {
+                    j++;
+                }
+            }
+        }
+        System.out.println("Elimination de " + i + " sur " + j);
+        return i;
+    }
+
     public boolean estQuestionBinaire(String attribut) {
         String value = (String) listePersonnages[0][0].get(attribut);
         if (value == null) {
