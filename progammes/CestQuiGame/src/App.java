@@ -4,11 +4,42 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 
-public final class App {
+//javafx
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+
+public class App extends Application {
+
+    @Override
+    public void start(Stage primaryStage) {
+        Parent root;
+        try {
+            root = FXMLLoader.load(getClass().getResource("MainScene.fxml"));
+            Scene scene = new Scene(root);
+
+            primaryStage.setTitle("Hello World!");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public static void main(String[] args) throws Exception {
+        launch(args);
+
         System.out.println("Hello World!");
         // Creer et afficher le menu
-        // en fonction des choix créer une interface de QuiEstCe (difficulte / sauvegarde)
+        // en fonction des choix créer une interface de QuiEstCe (difficulte /
+        // sauvegarde)
 
         try {
             JSONObject js = (JSONObject) new JSONParser().parse(new FileReader("Test.json"));
@@ -17,11 +48,12 @@ public final class App {
             int lignes = Integer.parseInt((String) js.get("ligne"));
             int colonnes = Integer.parseInt((String) js.get("colonne"));
             JSONObject personnages = (JSONObject) js.get("personnages");
-            
-            Game partieEnCour = new Game(Difficulte.normal, personnages, lignes, colonnes);
+
+            Game partieEnCour = new Game(Difficulte.normal, personnages, lignes,
+                    colonnes);
             partieEnCour.afficheEtatPartie();
             partieEnCour.verifierElimination(cheminVersImages, lignes, colonnes);
-            
+
             List<String> listeAttributs = partieEnCour.getListeAttributs();
             List<String> listeValeurs = partieEnCour.getListeValeurs("cheveux");
 
@@ -29,11 +61,12 @@ public final class App {
 
             HashMap<String, String> questions = new HashMap<>();
 
-            //questions.put("cheveux", "blond");
-            //questions.put("lunettes", "oui");
+            // questions.put("cheveux", "blond");
+            // questions.put("lunettes", "oui");
             // questions.put("chauve", "non");
-            String[] listConnec = {"et", "et", "ou"};
-            boolean reponseQuestion = partieEnCour.verifierReponse(questions, listConnec);
+            String[] listConnec = { "et", "et", "ou" };
+            boolean reponseQuestion = partieEnCour.verifierReponse(questions,
+                    listConnec);
             System.out.println(reponseQuestion);
 
             partieEnCour.NbrePersonnagesACocher(questions);
@@ -48,4 +81,5 @@ public final class App {
             e.printStackTrace();
         }
     }
+
 }
