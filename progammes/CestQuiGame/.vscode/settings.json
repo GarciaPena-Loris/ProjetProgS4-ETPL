@@ -3,6 +3,6 @@
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "c:\\Users\\loloy\\Desktop\\cours\\L2_Info\\Sem2\\ProjetProgS4-ETPL\\Librairies\\json-simple-1.1.1.jar"
+        "../Librairies/json-simple-1.1.1.jar"
     ]
 }
