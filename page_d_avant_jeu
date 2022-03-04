@@ -16,11 +16,11 @@
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="360.0" prefWidth="598.0">
                <children>
-                  <ImageView fitHeight="292.0" fitWidth="598.0" pickOnBounds="true">
-                     <image>
-                        <Image url="@../../../../Téléchargements/images/Logo-QuiEstce.jpg" />
-                     </image>
-                  </ImageView>
+               //   <ImageView fitHeight="292.0" fitWidth="598.0" pickOnBounds="true">
+               //      <image>
+               //         <Image url="" />
+               //      </image>
+               //   </ImageView>
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
