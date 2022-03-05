@@ -5,14 +5,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
@@ -38,14 +36,9 @@ public class MainSceneController {
     private AnchorPane AnchorPaneId;
     @FXML
     private MenuButton buttonAttribut1;
-    @FXML
-    private MenuItem etAjoutQuestion;
-    @FXML
-    private MenuItem ouAjoutQuestion;
 
     private static Game partieEnCour;
     private static List<String> listeAttributs;
-    private static ArrayList<String> listeConjonction = new ArrayList<>();
     private static ArrayList<String> listeAttributsChoisi = new ArrayList<>();
 
     // initialize et met la grille dans la partie central
@@ -88,7 +81,7 @@ public class MainSceneController {
             for (int i = 0; i < 6; i++) {
                 for (int j = 0; j < 4; j++) {
                     // Label label=new Label("YO");
-                    String url = "C:/Users/loloy/Desktop/cours/L2_Info/Sem2/ProjetProgS4-ETPL/images/personnages/imageonline-co-split-image-"
+                    String url = "F:/DossierLoris/MonProfil/MesDocumentEcole/Fac/S4/ProjetProgS4-ETPL/images/personnages/imageonline-co-split-image-"
                             + compteur + ".png";
                     String urlImage = url;
                     Image imagePerso = new Image(urlImage);
@@ -103,12 +96,7 @@ public class MainSceneController {
             }
             borderPaneId.setCenter(grilleperso);
 
-            for (int i = 0; i < listeAttributs.size(); i++) {
-                MenuItem attribut = new MenuItem(listeAttributs.get(i));
-                buttonAttribut1.getItems().add(attribut);
-                attribut.setId(buttonAttribut1.getId() + i);
-                attribut.setOnAction(attributSelectedEvent);
-            }
+            creerDernierMenuBouton(buttonAttribut1);
         }
 
         catch (FileNotFoundException e) {
@@ -143,6 +131,26 @@ public class MainSceneController {
         }
     }
 
+    private void creerDernierMenuBouton(MenuButton menuButtonAttribut) {
+        int compteur = 1;
+        menuButtonAttribut.getItems().clear();
+        for (String attribut : listeAttributs) {
+            if (!listeAttributsChoisi.contains(attribut)) {
+                MenuItem newAttribut = new MenuItem(attribut);
+                menuButtonAttribut.getItems().add(newAttribut);
+                newAttribut.setId(menuButtonAttribut.getId() + compteur);
+                newAttribut.setOnAction(attributSelectedEvent);
+            }
+            compteur++;
+        }
+        if (listeAttributsChoisi.size() == listeAttributs.size() - 1) {
+            MenuItem attribut = new MenuItem("___");
+            menuButtonAttribut.getItems().add(attribut);
+            attribut.setId(menuButtonAttribut.getId() + compteur);
+            attribut.setOnAction(attributSelectedEvent);
+        }
+    }
+
     // Met en texte le choix selectionné et fait apparaitre les valeusr de
     // l'attribut selectionner si valeurs y a
     EventHandler<ActionEvent> attributSelectedEvent = new EventHandler<>() {
@@ -163,9 +171,8 @@ public class MainSceneController {
                 AnchorPaneId.getChildren().remove(buttonAjout);
 
             // affichage deuxieme bouton
-            MenuButton valueButton = (MenuButton) mainScene
-                    .lookup("#buttonValeur" + currentItem.getId().substring(currentItem.getId().length() - 2,
-                            currentItem.getId().length() - 1));
+            MenuButton valueButton = (MenuButton) mainScene.lookup("#buttonValeur" + currentItem.getId()
+                    .substring(currentItem.getId().length() - 2, currentItem.getId().length() - 1));
             boolean estBinaire = partieEnCour.estQuestionBinaire(selectedAttribut);
 
             if (!estBinaire) {
@@ -179,15 +186,13 @@ public class MainSceneController {
                     AnchorPaneId.getChildren().remove(valueButton);
                 } else {
                     MenuButton menuButtonValeurs = new MenuButton("___");
-                    menuButtonValeurs
-                            .setId("buttonValeur" + currentItem.getId().substring(currentItem.getId().length() - 2,
-                                    currentItem.getId().length() - 1));
+                    menuButtonValeurs.setId("buttonValeur" + currentItem.getId()
+                            .substring(currentItem.getId().length() - 2, currentItem.getId().length() - 1));
 
                     // placement du bouton
                     AnchorPane.setTopAnchor(menuButtonValeurs, currentMenuButton.getLayoutY());
-                    AnchorPane.setLeftAnchor(menuButtonValeurs,
-                            currentMenuButton.getLayoutX() + 35
-                                    + (new Text(selectedAttribut)).getBoundsInLocal().getWidth());
+                    AnchorPane.setLeftAnchor(menuButtonValeurs, currentMenuButton.getLayoutX() + 35
+                            + (new Text(selectedAttribut)).getBoundsInLocal().getWidth());
                     AnchorPaneId.getChildren().add(menuButtonValeurs);
 
                     // attribution des valeurs en fonction de l'attribut selectionné
@@ -214,7 +219,7 @@ public class MainSceneController {
             String selectedValue = currentItem.getText();
             ((MenuButton) borderPaneId.getScene()
                     .lookup("#" + currentItem.getId().substring(0, currentItem.getId().length() - 1)))
-                    .setText(selectedValue);
+                            .setText(selectedValue);
 
             creerBoutonAjoutQuestion();
         }
@@ -236,17 +241,19 @@ public class MainSceneController {
             }
 
             // ajoute bouton supprimer question (supprime attribut de la liste)
-            Button buttonDelete = new Button("Supprimer question");
-            buttonDelete.setId("buttonDelete" + (listeAttributsChoisi.size() + 1));
-            AnchorPane.setTopAnchor(buttonDelete, currentMenuButtonAttribut.getLayoutY());
-            AnchorPane.setRightAnchor(buttonDelete, 20.0);
-            buttonDelete.setOnAction(deleteQuestionEvent);
-            AnchorPaneId.getChildren().add(buttonDelete);
+            Button deleteButton = new Button("Supprimer question");
+            deleteButton.setId("deleteButton" + (listeAttributsChoisi.size() + 1));
+            AnchorPane.setTopAnchor(deleteButton, currentMenuButtonAttribut.getLayoutY());
+            AnchorPane.setRightAnchor(deleteButton, 20.0);
+            deleteButton.setOnAction(deleteQuestionEvent);
+            AnchorPaneId.getChildren().add(deleteButton);
 
             // ajout l'attribut a la liste
             listeAttributsChoisi.add(currentMenuButtonAttribut.getText());
 
             MenuButton buttonAjout = (MenuButton) borderPaneId.getScene().lookup("#buttonAjoutQuestion");
+            buttonAjout.setVisible(false);
+            buttonAjout.setId("disabled");
 
             Label texteAjoutQuestion = new Label(currentItem.getText() + " le personnage est-il/a-t-il :");
             texteAjoutQuestion.setId("questionText" + (listeAttributsChoisi.size() + 1));
@@ -260,24 +267,7 @@ public class MainSceneController {
             AnchorPane.setLeftAnchor(menuButtonAttribut, 168.0);
             AnchorPaneId.getChildren().add(menuButtonAttribut);
 
-            int compteur = 1;
-            for (String attribut : listeAttributs) {
-                if (!listeAttributsChoisi.contains(attribut)) {
-                    MenuItem newAttribut = new MenuItem(attribut);
-                    menuButtonAttribut.getItems().add(newAttribut);
-                    newAttribut.setId(menuButtonAttribut.getId() + compteur);
-                    newAttribut.setOnAction(attributSelectedEvent);
-                }
-                compteur++;
-            }
-            if (listeAttributsChoisi.size() == listeAttributs.size() - 1) {
-                MenuItem attribut = new MenuItem("___");
-                menuButtonAttribut.getItems().add(attribut);
-                attribut.setId(menuButtonAttribut.getId() + compteur);
-                attribut.setOnAction(attributSelectedEvent);
-            }
-            buttonAjout.setVisible(false);
-            buttonAjout.setId("disabled");
+            creerDernierMenuBouton(menuButtonAttribut);
         }
         // gerer quand nbattribut > 10
     };
@@ -288,19 +278,101 @@ public class MainSceneController {
             Button currentButton = (Button) actionEvent.getSource();
             int currentFlour = Integer.parseInt(currentButton.getId().substring(12,
                     currentButton.getId().length()));
-            System.out.println(currentFlour);
+            Scene scene = borderPaneId.getScene();
+            String attributActuel = ((MenuButton) scene.lookup("#buttonAttribut" + currentFlour)).getText();
+            // if (listeAttributsChoisi.size() == 1) {
+            //     System.out.println("une seul attribut: ");
+            //     creerDernierMenuBouton(
+            //             (MenuButton) scene.lookup("#buttonAttribut1"));
+
+            //     MenuButton buttonValue = (MenuButton) scene
+            //             .lookup("#buttonValeur1");
+            //     if (buttonValue != null)
+            //         AnchorPaneId.getChildren().remove(buttonValue);
+
+            //     creerBoutonAjoutQuestion();
+            //     AnchorPaneId.getChildren()
+            //         .remove(scene.lookup("#questionText1"));
+            // }
+            // recuperation attribut de la liste
+
+            for (int i = currentFlour; i <= listeAttributsChoisi.size(); i++) {
+                System.out.println("aaaaaaaaaaaaaaaaaaé" + i);
+                // le texte
+                System.out.println(((Label) scene.lookup("#questionText" + (i + 1))).getText());
+                System.out.println(((MenuButton) scene.lookup("#buttonAttribut" + (i + 1))).getText());
+                ((Label) scene.lookup("#questionText" + i)).setText(
+                        ((Label) scene.lookup("#questionText" + (i + 1))).getText());
+
+                // l'attribut
+                ((MenuButton) scene.lookup("#buttonAttribut" + i)).setText(
+                        ((MenuButton) scene.lookup("#buttonAttribut" + (i + 1))).getText());
+
+                // valeur
+                MenuButton currentValueButton = (MenuButton) scene.lookup("#buttonValeur" + i);
+                MenuButton nextValueButton = (MenuButton) scene.lookup("#buttonValeur" + (i + 1));
+
+                if (currentValueButton == null && nextValueButton != null) {
+                    // creer le bouton avec la valeur
+                    MenuButton menuButtonAttribut = new MenuButton(nextValueButton.getText());
+                    menuButtonAttribut.setId("buttonValeur" + i);
+                    AnchorPane.setTopAnchor(menuButtonAttribut,
+                            ((MenuButton) scene.lookup("#buttonAttribut" + i)).getLayoutY());
+                    AnchorPane.setLeftAnchor(menuButtonAttribut, nextValueButton.getLayoutX());
+                    menuButtonAttribut.setDisable(true);
+                    AnchorPaneId.getChildren().add(menuButtonAttribut);
+                } else if (currentValueButton != null && nextValueButton != null) {
+                    // changer la valeur
+                    AnchorPaneId.getChildren().remove(currentValueButton);
+                    MenuButton menuButtonAttribut = new MenuButton(nextValueButton.getText());
+                    menuButtonAttribut.setId("buttonValeur" + i);
+                    AnchorPane.setTopAnchor(menuButtonAttribut,
+                            ((MenuButton) scene.lookup("#buttonAttribut" + i)).getLayoutY());
+                    AnchorPane.setLeftAnchor(menuButtonAttribut, nextValueButton.getLayoutX());
+                    menuButtonAttribut.setDisable(true);
+                    AnchorPaneId.getChildren().add(menuButtonAttribut);
+                } else if (currentValueButton != null && nextValueButton == null) {
+                    // supprimer le bouton
+                    AnchorPaneId.getChildren().remove(currentValueButton);
+                }
+            }
+
+            // supprimer le dernier
+            AnchorPaneId.getChildren()
+                    .remove(scene.lookup("#questionText" + (listeAttributsChoisi.size() + 1)));
+            AnchorPaneId.getChildren()
+                    .remove(scene.lookup("#buttonAttribut" + (listeAttributsChoisi.size() + 1)));
+            MenuButton lastValueButton = (MenuButton) scene
+                    .lookup("#buttonValeur" + (listeAttributsChoisi.size() + 1));
+            if (lastValueButton != null)
+                AnchorPaneId.getChildren().remove(lastValueButton);
+            AnchorPaneId.getChildren().remove(scene.lookup("#deleteButton" + (listeAttributsChoisi.size())));
+
+            // supprime l'element de la liste
+            listeAttributsChoisi.remove(attributActuel);
+            creerDernierMenuBouton(
+                    (MenuButton) scene.lookup("#buttonAttribut" + (listeAttributsChoisi.size() + 1)));
+
+            // supprime le bouton d'ajout s'il y est
+            if (scene.lookup("#buttonAjoutQuestion") != null) {
+                AnchorPaneId.getChildren().remove(scene.lookup("#buttonAjoutQuestion"));
+            }
+
+            // reactive le dernier et ajouter le bouton ajoutquestion si besoin
+            MenuButton lastUsableAttributButton = (MenuButton) scene
+                    .lookup("#buttonAttribut" + (listeAttributsChoisi.size() + 1));
+            MenuButton lastUsableValueButton = (MenuButton) scene
+                    .lookup("#buttonValeur" + (listeAttributsChoisi.size() + 1));
+
+            lastUsableAttributButton.setDisable(false);
+            if (lastUsableValueButton != null)
+                lastUsableValueButton.setDisable(false);
+            creerBoutonAjoutQuestion();
+
             if (currentFlour == 1) {
-                System.out.println("first");
-            } else if (currentFlour == listeAttributs.size()) {
-                System.out.println("second");
-            } else if (currentFlour == listeAttributsChoisi.size()) {
-                System.out.println("third");
-            } else {
-                System.out.println("else");
-                System.out.println("#questionText" + (currentFlour + 1));
-                ((Label) borderPaneId.getScene().lookup("#questionText" + currentFlour)).setText(
-                        ((Label) borderPaneId.getScene().lookup("#questionText" + (currentFlour + 1))).getText());
+                System.out.println("first: ");
             }
         }
+
     };
 }
