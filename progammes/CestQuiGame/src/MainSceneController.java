@@ -35,6 +35,8 @@ public class MainSceneController {
     @FXML
     private AnchorPane AnchorPaneId;
     @FXML
+    private Label questionText1;
+    @FXML
     private MenuButton buttonAttribut1;
 
     private static Game partieEnCour;
@@ -81,7 +83,7 @@ public class MainSceneController {
             for (int i = 0; i < 6; i++) {
                 for (int j = 0; j < 4; j++) {
                     // Label label=new Label("YO");
-                    String url = "F:/DossierLoris/MonProfil/MesDocumentEcole/Fac/S4/ProjetProgS4-ETPL/images/personnages/imageonline-co-split-image-"
+                    String url = "C:/Users/loloy/Desktop/cours/L2_Info/Sem2/ProjetProgS4-ETPL/images/personnages/imageonline-co-split-image-"
                             + compteur + ".png";
                     String urlImage = url;
                     Image imagePerso = new Image(urlImage);
@@ -128,6 +130,26 @@ public class MainSceneController {
             AnchorPane.setLeftAnchor(buttonAjoutQuestion, 5.);
 
             AnchorPaneId.getChildren().add(buttonAjoutQuestion);
+        }
+    }
+
+    private void deplacerValueButton(MenuButton boutonSuivant, int ligne) {
+        MenuButton menuButtonValeur = new MenuButton(boutonSuivant.getText());
+        menuButtonValeur.setId("buttonValeur" + ligne);
+        AnchorPane.setTopAnchor(menuButtonValeur,
+        ((MenuButton) borderPaneId.getScene().lookup("#buttonAttribut" + ligne)).getLayoutY());
+        AnchorPane.setLeftAnchor(menuButtonValeur, boutonSuivant.getLayoutX());
+        menuButtonValeur.setDisable(true);
+        AnchorPaneId.getChildren().add(menuButtonValeur);
+
+        if (boutonSuivant.getText().equals("___") || listeAttributsChoisi.size() == 2) {
+            List<String> listeValeurs = partieEnCour.getListeValeurs(((MenuButton) borderPaneId.getScene().lookup("#buttonAttribut" + ligne)).getText());
+            for (int i = 0; i < listeValeurs.size(); i++) {
+                MenuItem valeurs = new MenuItem(listeValeurs.get(i));
+                valeurs.setId(menuButtonValeur.getId() + i);
+                valeurs.setOnAction(valeurSelectedEvent);
+                menuButtonValeur.getItems().add(valeurs);
+            }
         }
     }
 
@@ -219,7 +241,7 @@ public class MainSceneController {
             String selectedValue = currentItem.getText();
             ((MenuButton) borderPaneId.getScene()
                     .lookup("#" + currentItem.getId().substring(0, currentItem.getId().length() - 1)))
-                            .setText(selectedValue);
+                    .setText(selectedValue);
 
             creerBoutonAjoutQuestion();
         }
@@ -280,27 +302,9 @@ public class MainSceneController {
                     currentButton.getId().length()));
             Scene scene = borderPaneId.getScene();
             String attributActuel = ((MenuButton) scene.lookup("#buttonAttribut" + currentFlour)).getText();
-            // if (listeAttributsChoisi.size() == 1) {
-            //     System.out.println("une seul attribut: ");
-            //     creerDernierMenuBouton(
-            //             (MenuButton) scene.lookup("#buttonAttribut1"));
-
-            //     MenuButton buttonValue = (MenuButton) scene
-            //             .lookup("#buttonValeur1");
-            //     if (buttonValue != null)
-            //         AnchorPaneId.getChildren().remove(buttonValue);
-
-            //     creerBoutonAjoutQuestion();
-            //     AnchorPaneId.getChildren()
-            //         .remove(scene.lookup("#questionText1"));
-            // }
-            // recuperation attribut de la liste
 
             for (int i = currentFlour; i <= listeAttributsChoisi.size(); i++) {
-                System.out.println("aaaaaaaaaaaaaaaaaaé" + i);
                 // le texte
-                System.out.println(((Label) scene.lookup("#questionText" + (i + 1))).getText());
-                System.out.println(((MenuButton) scene.lookup("#buttonAttribut" + (i + 1))).getText());
                 ((Label) scene.lookup("#questionText" + i)).setText(
                         ((Label) scene.lookup("#questionText" + (i + 1))).getText());
 
@@ -314,23 +318,11 @@ public class MainSceneController {
 
                 if (currentValueButton == null && nextValueButton != null) {
                     // creer le bouton avec la valeur
-                    MenuButton menuButtonAttribut = new MenuButton(nextValueButton.getText());
-                    menuButtonAttribut.setId("buttonValeur" + i);
-                    AnchorPane.setTopAnchor(menuButtonAttribut,
-                            ((MenuButton) scene.lookup("#buttonAttribut" + i)).getLayoutY());
-                    AnchorPane.setLeftAnchor(menuButtonAttribut, nextValueButton.getLayoutX());
-                    menuButtonAttribut.setDisable(true);
-                    AnchorPaneId.getChildren().add(menuButtonAttribut);
+                    deplacerValueButton(nextValueButton, i);
                 } else if (currentValueButton != null && nextValueButton != null) {
                     // changer la valeur
                     AnchorPaneId.getChildren().remove(currentValueButton);
-                    MenuButton menuButtonAttribut = new MenuButton(nextValueButton.getText());
-                    menuButtonAttribut.setId("buttonValeur" + i);
-                    AnchorPane.setTopAnchor(menuButtonAttribut,
-                            ((MenuButton) scene.lookup("#buttonAttribut" + i)).getLayoutY());
-                    AnchorPane.setLeftAnchor(menuButtonAttribut, nextValueButton.getLayoutX());
-                    menuButtonAttribut.setDisable(true);
-                    AnchorPaneId.getChildren().add(menuButtonAttribut);
+                    deplacerValueButton(nextValueButton, i);
                 } else if (currentValueButton != null && nextValueButton == null) {
                     // supprimer le bouton
                     AnchorPaneId.getChildren().remove(currentValueButton);
@@ -367,10 +359,14 @@ public class MainSceneController {
             lastUsableAttributButton.setDisable(false);
             if (lastUsableValueButton != null)
                 lastUsableValueButton.setDisable(false);
-            creerBoutonAjoutQuestion();
+            if (!lastUsableAttributButton.getText().equals("___")
+                    && (lastUsableValueButton == null || !lastUsableValueButton.getText().equals("___")))
+                creerBoutonAjoutQuestion();
 
             if (currentFlour == 1) {
-                System.out.println("first: ");
+                String premierTexte = ((Label) scene.lookup("#questionText1")).getText();
+                premierTexte = "L" + premierTexte.substring(4, premierTexte.length());
+                ((Label) scene.lookup("#questionText1")).setText(premierTexte);
             }
         }
 

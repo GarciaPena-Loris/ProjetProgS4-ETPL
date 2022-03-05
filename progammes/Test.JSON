@@ -10,16 +10,20 @@
             "etat": "vivant",
             "cheveux": "blanc",
             "lunettes": "oui",
-            "chauve": "oui"
+            "chauve": "oui",
+            "moustache/barbe": "non",
+            "chapeau": "non"
         },
         "1": {
             "image": "leon.jpg",
-            "prenom": "Leon",
+            "prenom": "Léon",
             "genre": "homme",
             "etat": "vivant",
             "cheveux": "blond",
             "lunettes": "oui",
-            "chauve": "non"
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "non"
         },
         "2": {
             "image": "simon.jpg",
@@ -28,7 +32,240 @@
             "etat": "vivant",
             "cheveux": "blanc",
             "lunettes": "oui",
-            "chauve": "non"
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "non"
+        },
+        "3": {
+            "image": "martin.jpg",
+            "prenom": "Martin",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "blanc",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "oui"
+        },
+        "4": {
+            "image": "luc.jpg",
+            "prenom": "Luc",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "noir",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "non"
+        },
+        "5": {
+            "image": "clara.jpg",
+            "prenom": "Clara",
+            "genre": "femme",
+            "etat": "vivant",
+            "cheveux": "roux",
+            "lunettes": "oui",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "oui"
+        },
+        "6": {
+            "image": "anita.jpg",
+            "prenom": "Anita",
+            "genre": "femme",
+            "etat": "vivant",
+            "cheveux": "blond",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "non"
+        },
+        "7": {
+            "image": "alfred.jpg",
+            "prenom": "Alfred",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "roux",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "oui",
+            "chapeau": "non"
+        },
+        "8": {
+            "image": "suzane.jpg",
+            "prenom": "Suzane",
+            "genre": "femme",
+            "etat": "vivant",
+            "cheveux": "blanc",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "non"
+        },
+        "9": {
+            "image": "romeo.jpg",
+            "prenom": "Roméo",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "brun",
+            "lunettes": "non",
+            "chauve": "oui",
+            "moustache/barbe": "oui",
+            "chapeau": "non"
+        },
+        "10": {
+            "image": "omar.jpg",
+            "prenom": "Omar",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "roux",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "non"
+        },
+        "11": {
+            "image": "manu.jpg",
+            "prenom": "Manu",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "brun",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "oui",
+            "chapeau": "non"
+        },
+        "12": {
+            "image": "lucas.jpg",
+            "prenom": "Lucas",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "roux",
+            "lunettes": "non",
+            "chauve": "oui",
+            "moustache/barbe": "non",
+            "chapeau": "non"
+        },
+        "13": {
+            "image": "mario.jpg",
+            "prenom": "Mario",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "blond",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "oui",
+            "chapeau": "non"
+        },
+        "14": {
+            "image": "jeremie.jpg",
+            "prenom": "Jéremie",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "brun",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "oui"
+        },
+        "15": {
+            "image": "max.jpg",
+            "prenom": "Max",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "noir",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "oui",
+            "chapeau": "non"
+        },
+        "16": {
+            "image": "timeo.jpg",
+            "prenom": "Timéo",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "noir",
+            "lunettes": "oui",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "non"
+        },
+        "17": {
+            "image": "oscar.jpg",
+            "prenom": "Oscar",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "brun",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "non"
+        },
+        "18": {
+            "image": "eric.jpg",
+            "prenom": "Eric",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "blanc",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "non"
+        },
+        "19": {
+            "image": "marina.jpg",
+            "prenom": "Marina",
+            "genre": "femme",
+            "etat": "vivant",
+            "cheveux": "brun",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "oui"
+        },
+        "20": {
+            "image": "tony.jpg",
+            "prenom": "Tony",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "roux",
+            "lunettes": "non",
+            "chauve": "oui",
+            "moustache/barbe": "oui",
+            "chapeau": "non"
+        },
+        "21": {
+            "image": "felix.jpg",
+            "prenom": "Félix",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "blond",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "oui"
+        },
+        "22": {
+            "image": "charlie.jpg",
+            "prenom": "Charlie",
+            "genre": "homme",
+            "etat": "vivant",
+            "cheveux": "blond",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "oui",
+            "chapeau": "non"
+        },
+        "23": {
+            "image": "anna.jpg",
+            "prenom": "Anna",
+            "genre": "femme",
+            "etat": "vivant",
+            "cheveux": "noir",
+            "lunettes": "non",
+            "chauve": "non",
+            "moustache/barbe": "non",
+            "chapeau": "non"
         }
     }
 }
