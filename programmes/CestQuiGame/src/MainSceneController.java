@@ -19,13 +19,13 @@ import org.json.simple.parser.*;
 import javafx.event.EventHandler;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class MainSceneController {
     private static Game partieEnCour;
     private static List<String> listeAttributs;
     private static ArrayList<String> listeAttributsChoisi = new ArrayList<>();
+    private static ArrayList<String> listePersoSelectionne = new ArrayList<>();
     private static boolean attendSelection = false;
 
     @FXML
@@ -59,22 +59,43 @@ public class MainSceneController {
             GridPane grilleperso = new GridPane();
             grilleperso.setHgap(colonnes);
             grilleperso.setVgap(lignes);
-            int compteur = 1;
             grilleperso.setMaxSize(100, 50);
-            for (int i = 0; i < colonnes; i++) {
-                for (int j = 0; j < lignes; j++) {
-                    // a changer
-                    String url = "F:/DossierLoris/MonProfil/MesDocumentEcole/Fac/S4/ProjetProgS4-ETPL/programmes/images/personnages/imageonline-co-split-image-"
-                            + compteur + ".png";
-                    String urlImage = url;
+
+            FilenameFilter imageFiltre = new FilenameFilter() {
+                @Override
+                public boolean accept(final File dir, final String name) {
+                    for (final String ext : new String[] {
+                            "png", "jpg" }) {
+                        if (name.endsWith("." + ext)) {
+                            return (true);
+                        }
+                    }
+                    return (false);
+                }
+            };
+
+            int x = 0; // collones
+            int y = 0; // ligne
+            File dossierImage = new File(cheminVersImages);
+            if (dossierImage.isDirectory()) {
+                for (File image : dossierImage.listFiles(imageFiltre)) {
+                    String nomImage = image.getName();
+
+                    String urlImage = image.getAbsolutePath();
                     Image imagePerso = new Image(urlImage);
                     ImageView imageViewPerso = new ImageView(imagePerso);
                     imageViewPerso.setFitHeight(100);
                     imageViewPerso.setFitWidth(70);
-                    imageViewPerso.setId("image_" + i + "_" + j);
+                    imageViewPerso
+                            .setId(nomImage.substring(0, nomImage.length() - 4) + "_" + x + "_" + y);
                     imageViewPerso.setOnMouseClicked(afficheCibleEvent);
-                    grilleperso.add(imageViewPerso, i, j);
-                    compteur++;
+                    grilleperso.add(imageViewPerso, x, y);
+
+                    x++;
+                    if (x == colonnes) {
+                        x = 0;
+                        y++;
+                    }
                 }
             }
             borderPaneId.setCenter(grilleperso);
@@ -302,19 +323,18 @@ public class MainSceneController {
         @Override
         public void handle(ActionEvent actionEvent) {
             Button currentButton = (Button) actionEvent.getSource();
-            int currentFlour = Integer.parseInt(currentButton.getId().substring(12,
-                    currentButton.getId().length()));
+            int currentFlour = Integer.parseInt(currentButton.getId().substring(12, currentButton.getId().length()));
             Scene scene = borderPaneId.getScene();
             String attributActuel = ((MenuButton) scene.lookup("#buttonAttribut" + currentFlour)).getText();
 
             for (int i = currentFlour; i <= listeAttributsChoisi.size(); i++) {
                 // le texte
-                ((Label) scene.lookup("#questionText" + i)).setText(
-                        ((Label) scene.lookup("#questionText" + (i + 1))).getText());
+                ((Label) scene.lookup("#questionText" + i))
+                        .setText(((Label) scene.lookup("#questionText" + (i + 1))).getText());
 
                 // l'attribut
-                ((MenuButton) scene.lookup("#buttonAttribut" + i)).setText(
-                        ((MenuButton) scene.lookup("#buttonAttribut" + (i + 1))).getText());
+                ((MenuButton) scene.lookup("#buttonAttribut" + i))
+                        .setText(((MenuButton) scene.lookup("#buttonAttribut" + (i + 1))).getText());
 
                 // valeur
                 MenuButton currentValueButton = (MenuButton) scene.lookup("#buttonValeur" + i);
@@ -334,20 +354,16 @@ public class MainSceneController {
             }
 
             // supprimer le dernier
-            AnchorPaneId.getChildren()
-                    .remove(scene.lookup("#questionText" + (listeAttributsChoisi.size() + 1)));
-            AnchorPaneId.getChildren()
-                    .remove(scene.lookup("#buttonAttribut" + (listeAttributsChoisi.size() + 1)));
-            MenuButton lastValueButton = (MenuButton) scene
-                    .lookup("#buttonValeur" + (listeAttributsChoisi.size() + 1));
+            AnchorPaneId.getChildren().remove(scene.lookup("#questionText" + (listeAttributsChoisi.size() + 1)));
+            AnchorPaneId.getChildren().remove(scene.lookup("#buttonAttribut" + (listeAttributsChoisi.size() + 1)));
+            MenuButton lastValueButton = (MenuButton) scene.lookup("#buttonValeur" + (listeAttributsChoisi.size() + 1));
             if (lastValueButton != null)
                 AnchorPaneId.getChildren().remove(lastValueButton);
             AnchorPaneId.getChildren().remove(scene.lookup("#deleteButton" + (listeAttributsChoisi.size())));
 
             // supprime l'element de la liste
             listeAttributsChoisi.remove(attributActuel);
-            creerDernierMenuBouton(
-                    (MenuButton) scene.lookup("#buttonAttribut" + (listeAttributsChoisi.size() + 1)));
+            creerDernierMenuBouton((MenuButton) scene.lookup("#buttonAttribut" + (listeAttributsChoisi.size() + 1)));
 
             // reactive le dernier et ajouter le bouton ajoutquestion si besoin
             MenuButton lastUsableAttributButton = (MenuButton) scene
@@ -377,33 +393,103 @@ public class MainSceneController {
     EventHandler<ActionEvent> valiquerQuestionEvent = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
-            System.out.println("Valider");
-            Scene scene = borderPaneId.getScene();
+            ArrayList<String> listeQuestion = new ArrayList<>();
 
+            // recuperer les valeurs et enleve
+            Scene scene = borderPaneId.getScene();
             ArrayList<String> listeAttribut = new ArrayList<>();
             ArrayList<String> listeValeur = new ArrayList<>();
             ArrayList<String> listeConnecteur = new ArrayList<>();
 
+            boolean aPlusieurQuestion = false;
             // cree les talbeaus attribut valeur et conecteur
             for (int i = 1; i <= listeAttributsChoisi.size() + 1; i++) {
+                // recuperer attributs
                 MenuButton buttonAttribut = (MenuButton) scene.lookup("#buttonAttribut" + i);
-                if (buttonAttribut != null) {
+                if (buttonAttribut != null && !buttonAttribut.getText().equals("___")) {
+                    MenuButton buttonValeur = (MenuButton) scene.lookup("#buttonValeur" + i);
                     listeAttribut.add(buttonAttribut.getText());
 
-                    MenuButton buttonValeur = (MenuButton) scene.lookup("#buttonValeur" + i);
-                    if (buttonAttribut != null) {
-                        listeValeur.add(buttonAttribut.getText());
-                    } else
+                    // recuperer valeurs
+                    if (buttonValeur == null) {
                         listeValeur.add("oui");
+                        listeQuestion.add(buttonAttribut.getText());
+                    } else if (!buttonValeur.getText().equals("___")) {
+                        listeValeur.add(buttonValeur.getText());
+                        listeQuestion.add(buttonAttribut.getText() + " " + buttonValeur.getText());
 
-                    
-                    String connecteur = ((String) ((Label)scene.lookup("#questionText" + i)).getText()).substring(0, 3);
-                    listeConnecteur.add(connecteur);
+                    } else {
+                        listeAttribut.remove(buttonAttribut.getText());
+                    }
+
+                    // recuperer connecteur
+                    if (i > 1) {
+                        aPlusieurQuestion = true;
+                        Label connecteur = (Label) scene.lookup("#questionText" + i);
+                        if (connecteur != null) {
+                            System.out.println(i);
+                            String textConnecteur = connecteur.getText().substring(0, 2);
+                            listeConnecteur.add(textConnecteur);
+                            String valI = textConnecteur + " " + listeQuestion.get(i - 1);
+                            listeQuestion.remove(i - 1);
+                            listeQuestion.add(valI);
+                        }
+                    }
                 }
             }
 
+            AnchorPaneId.getChildren().clear();
+
             // verifier reponse
-            // partieEnCour.verifierReponse();
+            boolean reponseQuestion = partieEnCour.verifierReponse(listeAttribut, listeValeur, listeConnecteur);
+            attendSelection = true;
+
+            // afiche la reponse
+            Label reponseText = new Label();
+            if (reponseQuestion) {
+                if (aPlusieurQuestion) {
+                    String reponse = "La réponse est : VRAI.\nVos critères étaient : ";
+                    for (String question : listeQuestion) {
+                        reponse += question + "\n";
+                    }
+                    reponseText.setText(reponse + ".");
+                } else {
+                    String reponse = "La réponse est : VRAI.\nVotre critère était : ";
+                    for (String question : listeQuestion) {
+                        reponse += question + "\n";
+                    }
+                    reponseText.setText(reponse + ".");
+                }
+            } else {
+                if (aPlusieurQuestion) {
+                    String reponse = "La réponse est : FAUX.\nVos critères étaient : ";
+                    for (String question : listeQuestion) {
+                        reponse += question + "\n";
+                    }
+                    reponseText.setText(reponse + ".");
+                } else {
+                    String reponse = "La réponse est : FAUX.\nVotre critère était : ";
+                    for (String question : listeQuestion) {
+                        reponse += question + "\n";
+                    }
+                    reponseText.setText(reponse + ".");
+                }
+            }
+            AnchorPane.setTopAnchor(reponseText, 5.);
+            AnchorPane.setLeftAnchor(reponseText, 5.);
+            AnchorPaneId.getChildren().add(reponseText);
+
+            // affiche texte pour selection personnage + ajout bouton validation selection
+            Label validationText = new Label("Veuillez cliquer sur les personnages à éliminer.");
+            AnchorPane.setTopAnchor(validationText, (listeQuestion.size() * 40.) + 20.);
+            AnchorPane.setLeftAnchor(validationText, 5.);
+            AnchorPaneId.getChildren().add(validationText);
+
+            Button validerValidation = new Button("Valider");
+            AnchorPane.setTopAnchor(validerValidation, 5.);
+            AnchorPane.setRightAnchor(validerValidation, 20.);
+            validerValidation.setOnAction(varifierEliminationEvent);
+            AnchorPaneId.getChildren().add(validerValidation);
 
         }
     };
@@ -429,13 +515,29 @@ public class MainSceneController {
 
                     borderPaneId.getChildren().add(imageViewCible);
 
-                    // change id perso
+                    // mettre dans la liste le perso éliminé
+                    System.out.println(persoActuel);
+                    System.out.println(persoActuel.getImage());
+                    listePersoSelectionne.add(
+                            persoActuel.getImage().getUrl().substring(0, persoActuel.getImage().getUrl().length() - 3));
 
                 } else {
                     borderPaneId.getChildren().remove((ImageView) borderPaneId.getScene()
                             .lookup("#cible_" + coordonnee[1] + "_" + coordonnee[2]));
+                    listePersoSelectionne.remove(
+                            persoActuel.getImage().getUrl().substring(0, persoActuel.getImage().getUrl().length() - 3));
                 }
             }
+        }
+    };
+
+    EventHandler<ActionEvent> varifierEliminationEvent = new EventHandler<>() {
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            // tue tous les personnages selectionné
+            // enleve tous les boutons
+            // remet les permiers boutons si on a pas éliminé le mauvais perso
+            
         }
     };
 }

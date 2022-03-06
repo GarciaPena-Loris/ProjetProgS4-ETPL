@@ -13,7 +13,7 @@
             <children>
                 <AnchorPane fx:id="AnchorPaneId" prefHeight="200.0" prefWidth="200.0">
                     <children>
-                        <Label fx:id="questionText1" layoutY="5.0" text="Le personnage est-il/a-t-il :" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0" />
+                        <Label fx:id="questionText1" layoutY="5.0" text="Le personnage est-il ou a-t-il :" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0" />
                         <MenuButton fx:id="buttonAttribut1" layoutX="168.0" layoutY="1.0" text="___" textOverrun="CLIP" wrapText="true" />
                     </children>
                 </AnchorPane>
