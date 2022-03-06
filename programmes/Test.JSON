@@ -1,7 +1,7 @@
 {
     "images": "../images/",
-    "ligne": "3",
-    "colonne": "1",
+    "ligne": "4",
+    "colonne": "6",
     "personnages": {
         "0": {
             "image": "samuel.jpg",

@@ -42,16 +42,15 @@ public class Game {
         System.out.println("\nPersonnage choisi : " + this.personnageChoisi);
     }
 
-    public boolean verifierReponse(HashMap<String, String> propositions, String[] listConnecteurs) {
+    public boolean verifierReponse(String[] listeAttribut, String[] listeValeurs, String[] listConnecteurs) {
         boolean correspondPersonnage = true;
         int i = 0;
-        for (String key : propositions.keySet()) {
-            if (personnageChoisi.get(key) != null && propositions.get(key) != null)
-                if (listConnecteurs[i] == "et") {
-                    correspondPersonnage &= personnageChoisi.get(key).equals(propositions.get(key));
-                } else {
-                    correspondPersonnage |= personnageChoisi.get(key).equals(propositions.get(key));
-                }
+        for (String attribut : listeAttribut) {
+            if (listConnecteurs[i] == "et") {
+                correspondPersonnage &= personnageChoisi.get(attribut).equals(listeValeurs[i]);
+            } else {
+                correspondPersonnage |= personnageChoisi.get(attribut).equals(listeValeurs[i]);
+            }
         }
         return correspondPersonnage;
     }
