@@ -3,6 +3,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
@@ -83,7 +84,7 @@ public class MainSceneController {
             for (int i = 0; i < 6; i++) {
                 for (int j = 0; j < 4; j++) {
                     // Label label=new Label("YO");
-                    String url = "C:/Users/loloy/Desktop/cours/L2_Info/Sem2/ProjetProgS4-ETPL/images/personnages/imageonline-co-split-image-"
+                    String url = "F:/DossierLoris/MonProfil/MesDocumentEcole/Fac/S4/ProjetProgS4-ETPL/images/personnages/imageonline-co-split-image-"
                             + compteur + ".png";
                     String urlImage = url;
                     Image imagePerso = new Image(urlImage);
@@ -111,6 +112,11 @@ public class MainSceneController {
     }
 
     private void creerBoutonAjoutQuestion() {
+        MenuButton ancienButtonAjout = (MenuButton) borderPaneId.getScene().lookup("#buttonAjoutQuestion");
+        if (ancienButtonAjout != null) {
+            AnchorPaneId.getChildren().remove(ancienButtonAjout);
+        }
+
         if (listeAttributsChoisi.size() + 1 < listeAttributs.size()) {
             // creer le bouton pour ajouter une question
             MenuButton buttonAjoutQuestion = new MenuButton("Ajouter question");
@@ -137,13 +143,14 @@ public class MainSceneController {
         MenuButton menuButtonValeur = new MenuButton(boutonSuivant.getText());
         menuButtonValeur.setId("buttonValeur" + ligne);
         AnchorPane.setTopAnchor(menuButtonValeur,
-        ((MenuButton) borderPaneId.getScene().lookup("#buttonAttribut" + ligne)).getLayoutY());
+                ((MenuButton) borderPaneId.getScene().lookup("#buttonAttribut" + ligne)).getLayoutY());
         AnchorPane.setLeftAnchor(menuButtonValeur, boutonSuivant.getLayoutX());
         menuButtonValeur.setDisable(true);
         AnchorPaneId.getChildren().add(menuButtonValeur);
 
         if (boutonSuivant.getText().equals("___") || listeAttributsChoisi.size() == 2) {
-            List<String> listeValeurs = partieEnCour.getListeValeurs(((MenuButton) borderPaneId.getScene().lookup("#buttonAttribut" + ligne)).getText());
+            List<String> listeValeurs = partieEnCour.getListeValeurs(
+                    ((MenuButton) borderPaneId.getScene().lookup("#buttonAttribut" + ligne)).getText());
             for (int i = 0; i < listeValeurs.size(); i++) {
                 MenuItem valeurs = new MenuItem(listeValeurs.get(i));
                 valeurs.setId(menuButtonValeur.getId() + i);
@@ -170,6 +177,22 @@ public class MainSceneController {
             menuButtonAttribut.getItems().add(attribut);
             attribut.setId(menuButtonAttribut.getId() + compteur);
             attribut.setOnAction(attributSelectedEvent);
+        }
+    }
+
+    private void creerBoutonValider() {
+        Button ancienButtonValider = (Button) borderPaneId.getScene().lookup("#buttonValiderQuestion");
+        if (ancienButtonValider != null) {
+            AnchorPaneId.getChildren().remove(ancienButtonValider);
+        }
+        if (((MenuButton) borderPaneId.getScene().lookup("#buttonAttribut1")).getText() != "___") {
+            Button buttonValiderQuestion = new Button("Valider");
+            buttonValiderQuestion.setId("buttonValiderQuestion");
+            buttonValiderQuestion.setOnAction(valiquerQuestionEvent);
+
+            AnchorPane.setTopAnchor(buttonValiderQuestion, (listeAttributsChoisi.size() + 1) * 40.); // a changer
+            AnchorPane.setRightAnchor(buttonValiderQuestion, 20.);
+            AnchorPaneId.getChildren().add(buttonValiderQuestion);
         }
     }
 
@@ -229,6 +252,7 @@ public class MainSceneController {
                 if (valueButton != null)
                     AnchorPaneId.getChildren().remove(valueButton);
                 creerBoutonAjoutQuestion();
+                creerBoutonValider();
             }
         }
     };
@@ -244,6 +268,7 @@ public class MainSceneController {
                     .setText(selectedValue);
 
             creerBoutonAjoutQuestion();
+            creerBoutonValider();
         }
     };
 
@@ -256,6 +281,7 @@ public class MainSceneController {
                     .lookup("#buttonAttribut" + currentItem.getId());
             MenuButton currentMenuButtonValue = (MenuButton) borderPaneId.getScene()
                     .lookup("#buttonValeur" + currentItem.getId());
+
             // desactiver le bouton
             currentMenuButtonAttribut.setDisable(true);
             if (currentMenuButtonValue != null) {
@@ -345,11 +371,6 @@ public class MainSceneController {
             creerDernierMenuBouton(
                     (MenuButton) scene.lookup("#buttonAttribut" + (listeAttributsChoisi.size() + 1)));
 
-            // supprime le bouton d'ajout s'il y est
-            if (scene.lookup("#buttonAjoutQuestion") != null) {
-                AnchorPaneId.getChildren().remove(scene.lookup("#buttonAjoutQuestion"));
-            }
-
             // reactive le dernier et ajouter le bouton ajoutquestion si besoin
             MenuButton lastUsableAttributButton = (MenuButton) scene
                     .lookup("#buttonAttribut" + (listeAttributsChoisi.size() + 1));
@@ -360,15 +381,25 @@ public class MainSceneController {
             if (lastUsableValueButton != null)
                 lastUsableValueButton.setDisable(false);
             if (!lastUsableAttributButton.getText().equals("___")
-                    && (lastUsableValueButton == null || !lastUsableValueButton.getText().equals("___")))
+                    && (lastUsableValueButton == null || !lastUsableValueButton.getText().equals("___"))) {
                 creerBoutonAjoutQuestion();
-
+            }
+            
             if (currentFlour == 1) {
                 String premierTexte = ((Label) scene.lookup("#questionText1")).getText();
                 premierTexte = "L" + premierTexte.substring(4, premierTexte.length());
                 ((Label) scene.lookup("#questionText1")).setText(premierTexte);
             }
+            
+            //deplacer le bouton valider
+            creerBoutonValider();
         }
+    };
 
+    EventHandler<ActionEvent> valiquerQuestionEvent = new EventHandler<>() {
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            System.out.println("Valider");
+        }
     };
 }
