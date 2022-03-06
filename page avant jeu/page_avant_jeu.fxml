@@ -17,7 +17,7 @@
                <children>
                   <ImageView fitHeight="292.0" fitWidth="598.0" pickOnBounds="true">
                      <image>
-                        <Image url="@../../../../Téléchargements/images/Logo-QuiEstce.jpg" />
+                        <Image url="Logo-QuiEstce.jpg" />
                      </image>
                   </ImageView>
                </children>
