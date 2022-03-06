@@ -54,27 +54,48 @@ public class MainSceneController {
             partieEnCour.verifierElimination(cheminVersImages, lignes, colonnes);
 
             listeAttributs = partieEnCour.getListeAttributs();
-            
+
             // javafx
             GridPane grilleperso = new GridPane();
             grilleperso.setHgap(colonnes);
             grilleperso.setVgap(lignes);
-            int compteur = 1;
             grilleperso.setMaxSize(100, 50);
-            for (int i = 0; i < colonnes; i++) {
-                for (int j = 0; j < lignes; j++) {
-                    // a changer
-                    String url = "F:/DossierLoris/MonProfil/MesDocumentEcole/Fac/S4/ProjetProgS4-ETPL/programmes/images/personnages/imageonline-co-split-image-"
-                            + compteur + ".png";
-                    String urlImage = url;
+
+            FilenameFilter imageFiltre = new FilenameFilter() {
+                @Override
+                public boolean accept(final File dir, final String name) {
+                    for (final String ext : new String[] {
+                            "png", "jpg" }) {
+                        if (name.endsWith("." + ext)) {
+                            return (true);
+                        }
+                    }
+                    return (false);
+                }
+            };
+
+            int x = 0; // collones
+            int y = 0; // ligne
+            File dossierImage = new File(cheminVersImages);
+            if (dossierImage.isDirectory()) {
+                for (File image : dossierImage.listFiles(imageFiltre)) {
+                    String nomImage = image.getName();
+
+                    String urlImage = image.getAbsolutePath();
                     Image imagePerso = new Image(urlImage);
                     ImageView imageViewPerso = new ImageView(imagePerso);
                     imageViewPerso.setFitHeight(100);
                     imageViewPerso.setFitWidth(70);
-                    imageViewPerso.setId("image_" + i + "_" + j);
+                    imageViewPerso
+                            .setId(nomImage.substring(0, nomImage.length() - 4) + "_" + x + "_" + y);
                     imageViewPerso.setOnMouseClicked(afficheCibleEvent);
-                    grilleperso.add(imageViewPerso, i, j);
-                    compteur++;
+                    grilleperso.add(imageViewPerso, x, y);
+
+                    x++;
+                    if (x == colonnes) {
+                        x = 0;
+                        y++;
+                    }
                 }
             }
             borderPaneId.setCenter(grilleperso);
@@ -497,12 +518,14 @@ public class MainSceneController {
                     // mettre dans la liste le perso éliminé
                     System.out.println(persoActuel);
                     System.out.println(persoActuel.getImage());
-                    listePersoSelectionne.add(persoActuel.getImage().getUrl().substring(0, persoActuel.getImage().getUrl().length() - 3));
+                    listePersoSelectionne.add(
+                            persoActuel.getImage().getUrl().substring(0, persoActuel.getImage().getUrl().length() - 3));
 
                 } else {
                     borderPaneId.getChildren().remove((ImageView) borderPaneId.getScene()
                             .lookup("#cible_" + coordonnee[1] + "_" + coordonnee[2]));
-                            listePersoSelectionne.remove(persoActuel.getImage().getUrl().substring(0, persoActuel.getImage().getUrl().length() - 3));
+                    listePersoSelectionne.remove(
+                            persoActuel.getImage().getUrl().substring(0, persoActuel.getImage().getUrl().length() - 3));
                 }
             }
         }
@@ -511,10 +534,10 @@ public class MainSceneController {
     EventHandler<ActionEvent> varifierEliminationEvent = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
-            //tue tous les personnages selectionné
-            //enleve tous les boutons
-            //remet les permiers boutons si on a pas éliminé le mauvais perso
-
+            // tue tous les personnages selectionné
+            // enleve tous les boutons
+            // remet les permiers boutons si on a pas éliminé le mauvais perso
+            
         }
     };
 }
