@@ -3,11 +3,11 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -23,13 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MainSceneController {
-
-    // @FXML
-    // void btnOkClicked(ActionEvent event) {
-    // Stage mainWindow = (Stage) tfTitle.getScene().getWindow();
-    // String title = tfTitle.getText();
-    // mainWindow.setTitle(title);
-    // }
+    private static Game partieEnCour;
+    private static List<String> listeAttributs;
+    private static ArrayList<String> listeAttributsChoisi = new ArrayList<>();
+    private static boolean attendSelection = false;
 
     @FXML
     private BorderPane borderPaneId;
@@ -40,12 +37,6 @@ public class MainSceneController {
     @FXML
     private MenuButton buttonAttribut1;
 
-    private static Game partieEnCour;
-    private static List<String> listeAttributs;
-    private static ArrayList<String> listeAttributsChoisi = new ArrayList<>();
-
-    // initialize et met la grille dans la partie central
-    // créée le button avec les choix d'attributs
     @FXML
     protected void initialize() {
         // Recuperer les données du JSON ici
@@ -64,45 +55,32 @@ public class MainSceneController {
 
             listeAttributs = partieEnCour.getListeAttributs();
 
-            HashMap<String, String> questions = new HashMap<>();
-
-            // questions.put("cheveux", "blond");
-            // questions.put("lunettes", "oui");
-            // questions.put("chauve", "non");
-            String[] listConnec = { "et", "et", "ou" };
-            boolean reponseQuestion = partieEnCour.verifierReponse(questions,
-                    listConnec);
-            System.out.println(reponseQuestion);
-
-            partieEnCour.NbrePersonnagesACocher(questions);
-
             // javafx
             GridPane grilleperso = new GridPane();
-            grilleperso.setHgap(5);
-            grilleperso.setVgap(5);
+            grilleperso.setHgap(colonnes);
+            grilleperso.setVgap(lignes);
             int compteur = 1;
-            for (int i = 0; i < 6; i++) {
-                for (int j = 0; j < 4; j++) {
-                    // Label label=new Label("YO");
-                    String url = "F:/DossierLoris/MonProfil/MesDocumentEcole/Fac/S4/ProjetProgS4-ETPL/images/personnages/imageonline-co-split-image-"
+            grilleperso.setMaxSize(100, 50);
+            for (int i = 0; i < colonnes; i++) {
+                for (int j = 0; j < lignes; j++) {
+                    // a changer
+                    String url = "F:/DossierLoris/MonProfil/MesDocumentEcole/Fac/S4/ProjetProgS4-ETPL/programmes/images/personnages/imageonline-co-split-image-"
                             + compteur + ".png";
                     String urlImage = url;
                     Image imagePerso = new Image(urlImage);
                     ImageView imageViewPerso = new ImageView(imagePerso);
-                    imageViewPerso.setFitHeight(70);
-                    imageViewPerso.setFitWidth(50);
-                    // imageViewPerso.setId()
+                    imageViewPerso.setFitHeight(100);
+                    imageViewPerso.setFitWidth(70);
+                    imageViewPerso.setId("image_" + i + "_" + j);
+                    imageViewPerso.setOnMouseClicked(afficheCibleEvent);
                     grilleperso.add(imageViewPerso, i, j);
                     compteur++;
                 }
-                grilleperso.setMaxSize(300, 500);
             }
             borderPaneId.setCenter(grilleperso);
 
             creerDernierMenuBouton(buttonAttribut1);
-        }
-
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
@@ -384,14 +362,14 @@ public class MainSceneController {
                     && (lastUsableValueButton == null || !lastUsableValueButton.getText().equals("___"))) {
                 creerBoutonAjoutQuestion();
             }
-            
+
             if (currentFlour == 1) {
                 String premierTexte = ((Label) scene.lookup("#questionText1")).getText();
                 premierTexte = "L" + premierTexte.substring(4, premierTexte.length());
                 ((Label) scene.lookup("#questionText1")).setText(premierTexte);
             }
-            
-            //deplacer le bouton valider
+
+            // deplacer le bouton valider
             creerBoutonValider();
         }
     };
@@ -400,6 +378,64 @@ public class MainSceneController {
         @Override
         public void handle(ActionEvent actionEvent) {
             System.out.println("Valider");
+            Scene scene = borderPaneId.getScene();
+
+            ArrayList<String> listeAttribut = new ArrayList<>();
+            ArrayList<String> listeValeur = new ArrayList<>();
+            ArrayList<String> listeConnecteur = new ArrayList<>();
+
+            // cree les talbeaus attribut valeur et conecteur
+            for (int i = 1; i <= listeAttributsChoisi.size() + 1; i++) {
+                MenuButton buttonAttribut = (MenuButton) scene.lookup("#buttonAttribut" + i);
+                if (buttonAttribut != null) {
+                    listeAttribut.add(buttonAttribut.getText());
+
+                    MenuButton buttonValeur = (MenuButton) scene.lookup("#buttonValeur" + i);
+                    if (buttonAttribut != null) {
+                        listeValeur.add(buttonAttribut.getText());
+                    } else
+                        listeValeur.add("oui");
+
+                    
+                    String connecteur = ((String) ((Label)scene.lookup("#questionText" + i)).getText()).substring(0, 3);
+                    listeConnecteur.add(connecteur);
+                }
+            }
+
+            // verifier reponse
+            // partieEnCour.verifierReponse();
+
+        }
+    };
+
+    // selectionne les personnages a eliminer apres avoir valider la/les question(s)
+    EventHandler<MouseEvent> afficheCibleEvent = new EventHandler<>() {
+        @Override
+        public void handle(MouseEvent actionEvent) {
+            if (attendSelection) {
+                ImageView persoActuel = (ImageView) actionEvent.getSource();
+                String[] coordonnee = persoActuel.getId().split("_");
+                if ((ImageView) borderPaneId.getScene()
+                        .lookup("#cible_" + coordonnee[1] + "_" + coordonnee[2]) == null) {
+                    File f = new File("../programmes/images/ciblepng.png");
+                    Image imageCible = new Image(f.getAbsolutePath());
+                    ImageView imageViewCible = new ImageView(imageCible);
+                    imageViewCible.setId("cible_" + coordonnee[1] + "_" + coordonnee[2]);
+                    imageViewCible.setX(persoActuel.getLayoutX() + (persoActuel.getFitWidth() / 2) - 10);
+                    imageViewCible.setY(persoActuel.getLayoutY() + (persoActuel.getFitHeight() / 2));
+                    imageViewCible.setFitWidth(persoActuel.getFitWidth());
+                    imageViewCible.setFitHeight(persoActuel.getFitHeight());
+                    imageViewCible.setOnMouseClicked(afficheCibleEvent);
+
+                    borderPaneId.getChildren().add(imageViewCible);
+
+                    // change id perso
+
+                } else {
+                    borderPaneId.getChildren().remove((ImageView) borderPaneId.getScene()
+                            .lookup("#cible_" + coordonnee[1] + "_" + coordonnee[2]));
+                }
+            }
         }
     };
 }
