@@ -42,14 +42,15 @@ public class Game {
         System.out.println("\nPersonnage choisi : " + this.personnageChoisi);
     }
 
-    public boolean verifierReponse(String[] listeAttribut, String[] listeValeurs, String[] listConnecteurs) {
-        boolean correspondPersonnage = true;
-        int i = 0;
-        for (String attribut : listeAttribut) {
-            if (listConnecteurs[i] == "et") {
-                correspondPersonnage &= personnageChoisi.get(attribut).equals(listeValeurs[i]);
+    public boolean verifierReponse(ArrayList<String> listeAttribut, ArrayList<String> listeValeurs,
+            ArrayList<String> listConnecteurs) {
+        boolean correspondPersonnage = personnageChoisi.get(listeAttribut.get(0)).equals(listeValeurs.get(0));
+        for (int i = 1; i < listeAttribut.size(); i++) {
+            //if listConnecteurs.get(i - 1) != null
+            if (listConnecteurs.get(i - 1) == "et") {
+                correspondPersonnage &= personnageChoisi.get(listeAttribut.get(i)).equals(listeValeurs.get(i));
             } else {
-                correspondPersonnage |= personnageChoisi.get(attribut).equals(listeValeurs[i]);
+                correspondPersonnage |= personnageChoisi.get(listeAttribut.get(i)).equals(listeValeurs.get(i));
             }
         }
         return correspondPersonnage;
