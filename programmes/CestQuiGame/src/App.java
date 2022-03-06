@@ -17,7 +17,7 @@ public class App extends Application {
     public void start(Stage primaryStage) {
         Parent root;
         try {
-            root = FXMLLoader.load(getClass().getResource("MainScene.fxml"));
+            root = FXMLLoader.load(getClass().getResource("pageAvantJeu.fxml"));
             Scene scene = new Scene(root);
 
             primaryStage.setTitle("Qui est-ce ?");

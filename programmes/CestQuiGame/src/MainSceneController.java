@@ -27,6 +27,17 @@ public class MainSceneController {
     private static ArrayList<String> listeAttributsChoisi = new ArrayList<>();
     private static ArrayList<String> listePersoSelectionne = new ArrayList<>();
     private static boolean attendSelection = false;
+    private static String difficulte;
+    private static String json;
+
+    public static void setDifficulte(String d){
+        difficulte=d;
+    }
+
+    public static void setJson(String js){
+        json=js;
+    }
+
 
     @FXML
     private BorderPane borderPaneId;
@@ -41,7 +52,10 @@ public class MainSceneController {
     protected void initialize() {
         // Recuperer les données du JSON ici
         try {
-            JSONObject js = (JSONObject) new JSONParser().parse(new FileReader("Test.json"));
+            
+            JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(json));
+            System.out.println(difficulte);
+            System.out.println(json);
 
             String cheminVersImages = (String) js.get("images");
             int lignes = Integer.parseInt((String) js.get("ligne"));
