@@ -27,6 +27,17 @@ public class MainSceneController {
     private static List<String> listeAttributs;
     private static ArrayList<String> listeAttributsChoisi = new ArrayList<>();
     private static boolean attendSelection = false;
+    private static String difficulte;
+    private static String json;
+
+    public static void setDifficulte(String d){
+        difficulte=d;
+    }
+
+    public static void setJson(String js){
+        json=js;
+    }
+
 
     @FXML
     private BorderPane borderPaneId;
@@ -41,7 +52,10 @@ public class MainSceneController {
     protected void initialize() {
         // Recuperer les données du JSON ici
         try {
-            JSONObject js = (JSONObject) new JSONParser().parse(new FileReader("Test.json"));
+            
+            JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(json));
+            System.out.println(difficulte);
+            System.out.println(json);
 
             String cheminVersImages = (String) js.get("images");
             int lignes = Integer.parseInt((String) js.get("ligne"));
@@ -64,7 +78,7 @@ public class MainSceneController {
             for (int i = 0; i < colonnes; i++) {
                 for (int j = 0; j < lignes; j++) {
                     // a changer
-                    String url = "F:/DossierLoris/MonProfil/MesDocumentEcole/Fac/S4/ProjetProgS4-ETPL/programmes/images/personnages/imageonline-co-split-image-"
+                    String url = "E:/2021-2022/ProjetProgS4-ETPL/programmes/images/personnages/imageonline-co-split-image-"
                             + compteur + ".png";
                     String urlImage = url;
                     Image imagePerso = new Image(urlImage);
