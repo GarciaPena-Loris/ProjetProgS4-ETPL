@@ -35,14 +35,13 @@ public class MainSceneController {
     private static String difficulte;
     private static String json;
 
-    public static void setDifficulte(String d){
-        difficulte=d;
+    public static void setDifficulte(String d) {
+        difficulte = d;
     }
 
-    public static void setJson(String js){
-        json=js;
+    public static void setJson(String js) {
+        json = js;
     }
-
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
         @Override
@@ -69,7 +68,7 @@ public class MainSceneController {
     protected void initialize() {
         // Recuperer les données du JSON ici
         try {
-            
+
             JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(json));
             System.out.println(difficulte);
             System.out.println(json);
@@ -82,6 +81,7 @@ public class MainSceneController {
             partieEnCour = new Game(Difficulte.normal, personnages, ligne,
                     colonne);
             listeAttributs = partieEnCour.getListeAttributs();
+
             partieEnCour.afficheEtatPartie();
 
             // javafx
@@ -515,29 +515,35 @@ public class MainSceneController {
         @Override
         public void handle(MouseEvent actionEvent) {
             if (attendSelection) {
-                ImageView persoActuel = (ImageView) actionEvent.getSource();
-                String[] coordonnee = persoActuel.getId().split("_");
-                if ((ImageView) borderPaneId.getScene()
-                        .lookup("#cible_" + coordonnee[1] + "_" + coordonnee[2]) == null) {
+                ImageView cibleActuel = (ImageView) actionEvent.getSource();
+                String[] coordonnee = cibleActuel.getId().split("_");
+                if (!cibleActuel.getId().split("_")[0].equals("cible")) {
+                    GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
+
                     File f = new File("../programmes/images/ciblepng.png");
                     Image imageCible = new Image(f.getAbsolutePath());
                     ImageView imageViewCible = new ImageView(imageCible);
-                    imageViewCible.setId("cible_" + coordonnee[1] + "_" + coordonnee[2]);
-                    imageViewCible.setX(persoActuel.getLayoutX() + (persoActuel.getFitWidth() / 2) - 10);
-                    imageViewCible.setY(persoActuel.getLayoutY() + (persoActuel.getFitHeight() / 2));
-                    imageViewCible.setFitWidth(persoActuel.getFitWidth());
-                    imageViewCible.setFitHeight(persoActuel.getFitHeight());
+                    imageViewCible.setFitHeight(100);
+                    imageViewCible.setFitWidth(70);
+                    imageViewCible.setId("cible_" + coordonnee[1] + "_" + coordonnee[2] + "_" + coordonnee[0]);
                     imageViewCible.setOnMouseClicked(afficheCibleEvent);
-
-                    borderPaneId.getChildren().add(imageViewCible);
+                    grilleperso.add(imageViewCible, Integer.parseInt(coordonnee[1]), Integer.parseInt(coordonnee[2]));
 
                     // mettre dans la liste le perso éliminé
-                    listePersoSelectionne.add(persoActuel.getId());
+                    listePersoSelectionne.add(cibleActuel.getId());
 
                 } else {
-                    borderPaneId.getChildren().remove((ImageView) borderPaneId.getScene()
-                            .lookup("#cible_" + coordonnee[1] + "_" + coordonnee[2]));
-                    listePersoSelectionne.remove(persoActuel.getId());
+                    GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
+                    File f = new File("../programmes/images/personnages/" + cibleActuel.getId().split("_")[3] + ".png");
+                    Image imagePerso = new Image(f.getAbsolutePath());
+                    ImageView iamgeViewPerso = new ImageView(imagePerso);
+                    iamgeViewPerso.setFitHeight(100);
+                    iamgeViewPerso.setFitWidth(70);
+                    iamgeViewPerso.setId(cibleActuel.getId().split("_")[3] + "_" + Integer.parseInt(coordonnee[1]) + "_" + Integer.parseInt(coordonnee[2]));
+                    iamgeViewPerso.setOnMouseClicked(afficheCibleEvent);
+                    grilleperso.add(iamgeViewPerso, Integer.parseInt(coordonnee[1]), Integer.parseInt(coordonnee[2]));
+
+                    listePersoSelectionne.remove(cibleActuel.getId().split("_")[3] + "_" + Integer.parseInt(coordonnee[1]) + "_" + Integer.parseInt(coordonnee[2]));
                 }
             }
         }
@@ -592,8 +598,16 @@ public class MainSceneController {
                         borderPaneId.getChildren()
                                 .remove((ImageView) borderPaneId.getScene().lookup("#cible_" + i + "_" + j));
 
-                        File f = new File("../programmes/images/mortpng.png");
-                        Image imageMort = new Image(f.getAbsolutePath());
+                        File f = new File("../programmes/images/personnages/" + perso.split("_")[0] + ".png");
+                        Image imagePerso = new Image(f.getAbsolutePath());
+                        ImageView iamgeViewPerso = new ImageView(imagePerso);
+                        iamgeViewPerso.setFitHeight(100);
+                        iamgeViewPerso.setFitWidth(70);
+                        iamgeViewPerso.setId("mort" + i + "_" + j);
+                        grilleperso.add(iamgeViewPerso, i, j);
+
+                        File f2 = new File("../programmes/images/mortpng.png");
+                        Image imageMort = new Image(f2.getAbsolutePath());
                         ImageView imageViewMort = new ImageView(imageMort);
                         imageViewMort.setFitHeight(100);
                         imageViewMort.setFitWidth(70);
