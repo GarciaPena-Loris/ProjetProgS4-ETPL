@@ -8,11 +8,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
 
 public class Game {
-    private Difficulte difficulte;
+    private String difficulte;
     private JSONObject personnageChoisi;
     private JSONObject[] listePersonnages;
 
-    public Game(Difficulte d, JSONObject JSONPersonnages, int ligne, int colonne) {
+    public Game(String d, JSONObject JSONPersonnages, int ligne, int colonne) {
         this.difficulte = d;
 
         // creationListePersonnages
@@ -24,6 +24,16 @@ public class Game {
         // choix du personnages aleatoirement
         int rand = (int) (Math.random() * ((JSONPersonnages.size())));
         personnageChoisi = (JSONObject) JSONPersonnages.get(String.valueOf(rand));
+    }
+
+    public Game(String d, JSONObject JSONPersonnages, int ligne, int colonne, JSONObject personnageChoisi) {
+        this.difficulte = d;
+        listePersonnages = new JSONObject[ligne * colonne];
+        for (int i = 0; i < ligne * colonne; i++) {
+            listePersonnages[i] = (JSONObject) JSONPersonnages.get(String.valueOf(i));
+        }
+        this.personnageChoisi = personnageChoisi;
+
     }
 
     public void afficheEtatPartie() {
@@ -110,10 +120,9 @@ public class Game {
         partieSave.put("images", String.valueOf(images));
         partieSave.put("ligne", String.valueOf(ligne));
         partieSave.put("colonne", String.valueOf(colonne));
-        partieSave.put("difficulte", String.valueOf(difficulte));
+        partieSave.put("difficulte", difficulte);
         partieSave.put("personnagesChoisi", personnageChoisi);
 
-        JSONArray array = new JSONArray();
         JSONObject listePerso = new JSONObject();
         int i = 0;
         for (JSONObject personnage : listePersonnages) {
@@ -121,14 +130,31 @@ public class Game {
             i++;
 
         }
-        array.add(listePerso);
-        partieSave.put("personnages", array);
+        partieSave.put("personnages", listePerso);
 
         try (FileWriter file = new FileWriter(new File("CestQuiGame/bin/save.json"))) {
             file.write(partieSave.toJSONString());
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void tuerPersonnage(String nomPersonnage) {
+        for (JSONObject personnage : listePersonnages) {
+            if (((String) personnage.get("prenom")).toLowerCase().equals(nomPersonnage)) {
+                JSONObject personnageATuer = (JSONObject) personnage.get("prenom");
+            }
+        }
+    }
+
+    public ArrayList<String> getListePersonnageMort() {
+        ArrayList<String> listePersoMort = new ArrayList<>();
+        for (JSONObject personnage : listePersonnages) {
+            if (personnage.get("etat").equals("mort")) {
+                listePersoMort.add(((String) personnage.get("prenom")).toLowerCase());
+            }
+        }
+        return listePersoMort;
     }
 
     public String getPersonnageChoisi() {

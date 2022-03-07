@@ -76,13 +76,8 @@ public class MainSceneController {
             cheminVersImages = (String) js.get("images");
             ligne = Integer.parseInt((String) js.get("ligne"));
             colonne = Integer.parseInt((String) js.get("colonne"));
+            difficulte = (String) js.get("difficulte");
             JSONObject personnages = (JSONObject) js.get("personnages");
-
-            partieEnCour = new Game(Difficulte.normal, personnages, ligne,
-                    colonne);
-            listeAttributs = partieEnCour.getListeAttributs();
-
-            partieEnCour.afficheEtatPartie();
 
             // javafx
             GridPane grilleperso = new GridPane();
@@ -95,29 +90,71 @@ public class MainSceneController {
             int y = 0; // ligne
             File dossierImage = new File(cheminVersImages);
             if (dossierImage.isDirectory()) {
-                for (File image : dossierImage.listFiles(imageFiltre)) {
-                    String nomImage = image.getName();
+                if ((String) js.get("difficulte") != null) {
+                    // partie chargée
+                    partieEnCour = new Game(difficulte, personnages, ligne, colonne,
+                            (JSONObject) js.get("personnagesChoisi"));
+                    ArrayList<String> listePersonnageMort = partieEnCour.getListePersonnageMort();
+                    for (File image : dossierImage.listFiles(imageFiltre)) {
+                        String nomImage = image.getName();
+                        String urlImage = image.getAbsolutePath();
+                        Image imagePerso = new Image(urlImage);
+                        ImageView imageViewPerso = new ImageView(imagePerso);
+                        imageViewPerso.setFitHeight(100);
+                        imageViewPerso.setFitWidth(70);
+                        imageViewPerso
+                                .setId(nomImage.substring(0, nomImage.length() - 4) + "_" + x + "_" + y);
+                        imageViewPerso.setOnMouseClicked(afficheCibleEvent);
+                        grilleperso.add(imageViewPerso, x, y);
 
-                    String urlImage = image.getAbsolutePath();
-                    Image imagePerso = new Image(urlImage);
-                    ImageView imageViewPerso = new ImageView(imagePerso);
-                    imageViewPerso.setFitHeight(100);
-                    imageViewPerso.setFitWidth(70);
-                    imageViewPerso
-                            .setId(nomImage.substring(0, nomImage.length() - 4) + "_" + x + "_" + y);
-                    imageViewPerso.setOnMouseClicked(afficheCibleEvent);
-                    grilleperso.add(imageViewPerso, x, y);
+                        if (!listePersonnageMort.isEmpty()) {
+                            if (listePersonnageMort
+                                    .contains(image.getName().substring(0, image.getName().length() - 4))) {
+                                File f2 = new File("../programmes/images/mortpng.png");
+                                Image imageMort = new Image(f2.getAbsolutePath());
+                                ImageView imageViewMort = new ImageView(imageMort);
+                                imageViewMort.setFitHeight(100);
+                                imageViewMort.setFitWidth(70);
+                                grilleperso.add(imageViewMort, x, y);
 
-                    x++;
-                    if (x == colonne) {
-                        x = 0;
-                        y++;
+                            }
+                            x++;
+                            if (x == colonne) {
+                                x = 0;
+                                y++;
+                            }
+                        }
+                    }
+                } else {
+                    // nouvelle partie
+                    partieEnCour = new Game(difficulte, personnages, ligne,
+                            colonne);
+                    for (File image : dossierImage.listFiles(imageFiltre)) {
+                        String nomImage = image.getName();
+
+                        String urlImage = image.getAbsolutePath();
+                        Image imagePerso = new Image(urlImage);
+                        ImageView imageViewPerso = new ImageView(imagePerso);
+                        imageViewPerso.setFitHeight(100);
+                        imageViewPerso.setFitWidth(70);
+                        imageViewPerso
+                                .setId(nomImage.substring(0, nomImage.length() - 4) + "_" + x + "_" + y);
+                        imageViewPerso.setOnMouseClicked(afficheCibleEvent);
+                        grilleperso.add(imageViewPerso, x, y);
+
+                        x++;
+                        if (x == colonne) {
+                            x = 0;
+                            y++;
+                        }
                     }
                 }
+                borderPaneId.setCenter(grilleperso);
             }
-            borderPaneId.setCenter(grilleperso);
 
+            listeAttributs = partieEnCour.getListeAttributs();
             creerDernierMenuBouton(buttonAttribut1);
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -539,11 +576,13 @@ public class MainSceneController {
                     ImageView iamgeViewPerso = new ImageView(imagePerso);
                     iamgeViewPerso.setFitHeight(100);
                     iamgeViewPerso.setFitWidth(70);
-                    iamgeViewPerso.setId(cibleActuel.getId().split("_")[3] + "_" + Integer.parseInt(coordonnee[1]) + "_" + Integer.parseInt(coordonnee[2]));
+                    iamgeViewPerso.setId(cibleActuel.getId().split("_")[3] + "_" + Integer.parseInt(coordonnee[1]) + "_"
+                            + Integer.parseInt(coordonnee[2]));
                     iamgeViewPerso.setOnMouseClicked(afficheCibleEvent);
                     grilleperso.add(iamgeViewPerso, Integer.parseInt(coordonnee[1]), Integer.parseInt(coordonnee[2]));
 
-                    listePersoSelectionne.remove(cibleActuel.getId().split("_")[3] + "_" + Integer.parseInt(coordonnee[1]) + "_" + Integer.parseInt(coordonnee[2]));
+                    listePersoSelectionne.remove(cibleActuel.getId().split("_")[3] + "_"
+                            + Integer.parseInt(coordonnee[1]) + "_" + Integer.parseInt(coordonnee[2]));
                 }
             }
         }
@@ -603,7 +642,6 @@ public class MainSceneController {
                         ImageView iamgeViewPerso = new ImageView(imagePerso);
                         iamgeViewPerso.setFitHeight(100);
                         iamgeViewPerso.setFitWidth(70);
-                        iamgeViewPerso.setId("mort" + i + "_" + j);
                         grilleperso.add(iamgeViewPerso, i, j);
 
                         File f2 = new File("../programmes/images/mortpng.png");

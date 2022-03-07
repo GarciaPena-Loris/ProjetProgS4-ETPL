@@ -81,25 +81,26 @@ public class pageAvantJeuController {
     @FXML
     void choixjson(ActionEvent event) {
         FileChooser fc = new FileChooser();
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("json files (*.json)", "*.json");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json");
         fc.getExtensionFilters().add(extFilter);
         File selectedFile = fc.showOpenDialog(null);
-        jsonName = selectedFile.getAbsolutePath();
-        String jsonNom = selectedFile.getName();
-        estNouvellePartiePossible();
-        jsonNameLabel.setText(jsonNom);
+
+        if (selectedFile != null) {
+            jsonName = selectedFile.getAbsolutePath();
+            String jsonNom = selectedFile.getName();
+            estNouvellePartiePossible();
+            jsonNameLabel.setText(jsonNom);
+        }
     }
 
     @FXML
     void nouvellepartie(ActionEvent event) throws IOException {
         MainSceneController.setDifficulte(difficulteName.getText());
-        MainSceneController.setJson(jsonNameLabel.getText());
+        MainSceneController.setJson(jsonName);
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainScene.fxml"));
         Parent root1 = (Parent) fxmlLoader.load();
         Stage stage = new Stage();
         stage.setTitle("QuiEstCe?");
-        File logo = new File("../programmes/images/logoQuiEstCe.png");
-        stage.getIcons().add(new Image(logo.getAbsolutePath()));
         stage.setScene(new Scene(root1));
         stage.show();
         ((Stage) jsonNameLabel.getScene().getWindow()).close();
@@ -108,9 +109,9 @@ public class pageAvantJeuController {
     @FXML
     void chargerpartie(ActionEvent event) {
         try {
-            MainSceneController.setJson("./CestQuiGame/bin/save.json");
-            JSONObject js;
-            js = (JSONObject) new JSONParser().parse(new FileReader("./CestQuiGame/bin/save.json"));
+            File file = new File("../programmes/CestQuiGame/bin/save.json");
+            MainSceneController.setJson(file.getAbsolutePath());
+            JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(file.getAbsolutePath()));
             MainSceneController.setDifficulte((String) js.get("difficulte"));
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainScene.fxml"));
             Parent root1 = (Parent) fxmlLoader.load();
