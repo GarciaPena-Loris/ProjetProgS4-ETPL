@@ -17,6 +17,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -24,16 +27,18 @@ public class pageAvantJeuController {
     private static String difficulte;
     private static String jsonName;
 
-    private boolean isSaveJsonFile(){
+    private boolean isSaveJsonFile() {
         File dir = new File("./CestQuiGame/bin");
         File[] matches = dir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name)
-            {
+            public boolean accept(File dir, String name) {
                 return name.startsWith("save");
             }
         });
-        return matches.length!=0;
+        return matches.length != 0;
     }
+
+    @FXML
+    private AnchorPane conteneurImage;
 
     @FXML
     private Label jsonNameLabel;
@@ -52,9 +57,18 @@ public class pageAvantJeuController {
     @FXML
     private Button buttonnouvellepartie;
 
-    @FXML 
-    protected void initialize(){
-        if(!isSaveJsonFile()){buttonchargerpartie.setDisable(true);}
+    @FXML
+    protected void initialize() {
+        File fimage = new File("../programmes/images/quiestcelogo.png");
+        Image image = new Image(fimage.getAbsolutePath());
+        ImageView vimage = new ImageView(image);
+        vimage.setFitHeight(292.);
+        vimage.setFitWidth(598.);
+        conteneurImage.getChildren().add(vimage);
+
+        if (!isSaveJsonFile()) {
+            buttonchargerpartie.setDisable(true);
+        }
     }
 
     @FXML
@@ -84,6 +98,8 @@ public class pageAvantJeuController {
         Parent root1 = (Parent) fxmlLoader.load();
         Stage stage = new Stage();
         stage.setTitle("QuiEstCe?");
+        File logo = new File("../programmes/images/logoQuiEstCe.png");
+        stage.getIcons().add(new Image(logo.getAbsolutePath()));
         stage.setScene(new Scene(root1));
         stage.show();
         ((Stage) jsonNameLabel.getScene().getWindow()).close();

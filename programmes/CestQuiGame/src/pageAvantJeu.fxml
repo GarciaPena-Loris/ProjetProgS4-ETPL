@@ -12,32 +12,25 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pageAvantJeuController">
    <children>
       <SplitPane dividerPositions="0.7412060301507538" orientation="VERTICAL" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="360.0" prefWidth="598.0">
-               <children>
-                  <ImageView fitHeight="292.0" fitWidth="598.0" pickOnBounds="true">
-                     <image>
-                        <Image url="E:/2021-2022/ProjetProgS4-ETPL/programmes/images/quiestcelogo.png" />
-                     </image>
-                  </ImageView>
-               </children>
+         <items>
+            <AnchorPane fx:id="conteneurImage" minHeight="0.0" minWidth="0.0" prefHeight="360.0" prefWidth="598.0">
             </AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
                   <Button fx:id="buttonchoixjson" layoutX="14.0" layoutY="51.0" mnemonicParsing="false" onAction="#choixjson" prefHeight="30.0" prefWidth="129.0" text="choix json" />
                   <MenuButton fx:id="buttonchoixdifficulte" layoutX="14.0" layoutY="11.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="129.0" text="choix difficulté">
-                    <items>
-                      <MenuItem mnemonicParsing="false" onAction="#choixdifficulte" text="Facile" />
-                      <MenuItem mnemonicParsing="false" onAction="#choixdifficulte" text="Normal" />
-                    </items>
+                     <items>
+                        <MenuItem mnemonicParsing="false" onAction="#choixdifficulte" text="Facile" />
+                        <MenuItem mnemonicParsing="false" onAction="#choixdifficulte" text="Normal" />
+                     </items>
                   </MenuButton>
-                <Button fx:id="buttonnouvellepartie" disable="true" layoutX="448.0" layoutY="10.0" mnemonicParsing="false" onAction="#nouvellepartie" prefHeight="30.0" prefWidth="137.0" text="Nouvelle partie" />
+                  <Button fx:id="buttonnouvellepartie" disable="true" layoutX="448.0" layoutY="10.0" mnemonicParsing="false" onAction="#nouvellepartie" prefHeight="30.0" prefWidth="137.0" text="Nouvelle partie" />
                   <Button fx:id="buttonchargerpartie" layoutX="448.0" layoutY="50.0" mnemonicParsing="false" onAction="#chargerpartie" prefHeight="30.0" prefWidth="137.0" text="Charger partie" />
                   <Label fx:id="jsonNameLabel" layoutX="153.0" layoutY="57.0" prefHeight="18.0" prefWidth="189.0" />
                   <Label fx:id="difficulteName" layoutX="153.0" layoutY="17.0" prefHeight="18.0" prefWidth="189.0" />
                </children>
             </AnchorPane>
-        </items>
+         </items>
       </SplitPane>
    </children>
 </AnchorPane>
