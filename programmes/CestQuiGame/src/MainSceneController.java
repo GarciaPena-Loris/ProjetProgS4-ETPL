@@ -23,9 +23,14 @@ import java.util.List;
 
 public class MainSceneController {
     private static Game partieEnCour;
+    private String cheminVersImages;
+    private int ligne;
+    private int colonne;
     private static List<String> listeAttributs;
+
     private static ArrayList<String> listeAttributsChoisi = new ArrayList<>();
     private static ArrayList<String> listePersoSelectionne = new ArrayList<>();
+    private static ArrayList<String> listeTotalPersoElimine = new ArrayList<>();
     private static boolean attendSelection = false;
     private static String difficulte;
     private static String json;
@@ -38,6 +43,18 @@ public class MainSceneController {
         json=js;
     }
 
+
+    private static FilenameFilter imageFiltre = new FilenameFilter() {
+        @Override
+        public boolean accept(final File dir, final String name) {
+            for (final String ext : new String[] { "png", "jpg" }) {
+                if (name.endsWith("." + ext)) {
+                    return (true);
+                }
+            }
+            return (false);
+        }
+    };
 
     @FXML
     private BorderPane borderPaneId;
@@ -57,38 +74,24 @@ public class MainSceneController {
             System.out.println(difficulte);
             System.out.println(json);
 
-            String cheminVersImages = (String) js.get("images");
-            int lignes = Integer.parseInt((String) js.get("ligne"));
-            int colonnes = Integer.parseInt((String) js.get("colonne"));
+            cheminVersImages = (String) js.get("images");
+            ligne = Integer.parseInt((String) js.get("ligne"));
+            colonne = Integer.parseInt((String) js.get("colonne"));
             JSONObject personnages = (JSONObject) js.get("personnages");
 
-            partieEnCour = new Game(Difficulte.normal, personnages, lignes,
-                    colonnes);
-            partieEnCour.afficheEtatPartie();
-            partieEnCour.verifierElimination(cheminVersImages, lignes, colonnes);
-
+            partieEnCour = new Game(Difficulte.normal, personnages, ligne,
+                    colonne);
             listeAttributs = partieEnCour.getListeAttributs();
+            partieEnCour.afficheEtatPartie();
 
             // javafx
             GridPane grilleperso = new GridPane();
-            grilleperso.setHgap(colonnes);
-            grilleperso.setVgap(lignes);
+            grilleperso.setId("grillePerso");
+            grilleperso.setHgap(colonne);
+            grilleperso.setVgap(ligne);
             grilleperso.setMaxSize(100, 50);
 
-            FilenameFilter imageFiltre = new FilenameFilter() {
-                @Override
-                public boolean accept(final File dir, final String name) {
-                    for (final String ext : new String[] {
-                            "png", "jpg" }) {
-                        if (name.endsWith("." + ext)) {
-                            return (true);
-                        }
-                    }
-                    return (false);
-                }
-            };
-
-            int x = 0; // collones
+            int x = 0; // colonne
             int y = 0; // ligne
             File dossierImage = new File(cheminVersImages);
             if (dossierImage.isDirectory()) {
@@ -106,7 +109,7 @@ public class MainSceneController {
                     grilleperso.add(imageViewPerso, x, y);
 
                     x++;
-                    if (x == colonnes) {
+                    if (x == colonne) {
                         x = 0;
                         y++;
                     }
@@ -203,7 +206,7 @@ public class MainSceneController {
             buttonValiderQuestion.setId("buttonValiderQuestion");
             buttonValiderQuestion.setOnAction(valiquerQuestionEvent);
 
-            AnchorPane.setTopAnchor(buttonValiderQuestion, (listeAttributsChoisi.size() + 1) * 40.); // a changer
+            AnchorPane.setTopAnchor(buttonValiderQuestion, (listeAttributsChoisi.size() + 1) * 40.);
             AnchorPane.setRightAnchor(buttonValiderQuestion, 20.);
             AnchorPaneId.getChildren().add(buttonValiderQuestion);
         }
@@ -441,7 +444,6 @@ public class MainSceneController {
                         aPlusieurQuestion = true;
                         Label connecteur = (Label) scene.lookup("#questionText" + i);
                         if (connecteur != null) {
-                            System.out.println(i);
                             String textConnecteur = connecteur.getText().substring(0, 2);
                             listeConnecteur.add(textConnecteur);
                             String valI = textConnecteur + " " + listeQuestion.get(i - 1);
@@ -530,16 +532,12 @@ public class MainSceneController {
                     borderPaneId.getChildren().add(imageViewCible);
 
                     // mettre dans la liste le perso éliminé
-                    System.out.println(persoActuel);
-                    System.out.println(persoActuel.getImage());
-                    listePersoSelectionne.add(
-                            persoActuel.getImage().getUrl().substring(0, persoActuel.getImage().getUrl().length() - 3));
+                    listePersoSelectionne.add(persoActuel.getId());
 
                 } else {
                     borderPaneId.getChildren().remove((ImageView) borderPaneId.getScene()
                             .lookup("#cible_" + coordonnee[1] + "_" + coordonnee[2]));
-                    listePersoSelectionne.remove(
-                            persoActuel.getImage().getUrl().substring(0, persoActuel.getImage().getUrl().length() - 3));
+                    listePersoSelectionne.remove(persoActuel.getId());
                 }
             }
         }
@@ -549,9 +547,68 @@ public class MainSceneController {
         @Override
         public void handle(ActionEvent actionEvent) {
             // tue tous les personnages selectionné
-            // enleve tous les boutons
-            // remet les permiers boutons si on a pas éliminé le mauvais perso
-            
+            ArrayList<String> nomPerso = new ArrayList<>();
+            for (String perso : listePersoSelectionne) {
+                nomPerso.add(perso.split("_")[0]);
+            }
+            boolean etatPartie = partieEnCour.verifierElimination(nomPerso, cheminVersImages, ligne,
+                    colonne);
+
+            if (etatPartie) {
+                listeTotalPersoElimine.addAll(listePersoSelectionne);
+                if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
+                    borderPaneId.getChildren().clear();
+
+                    Label textePerdu = new Label("Bravo ! Vous avez gagné ! Le personnage était bien "
+                            + partieEnCour.getPersonnageChoisi() + " :)");
+                    borderPaneId.setCenter(textePerdu);
+                } else {
+                    // enleve tous les boutons
+                    AnchorPaneId.getChildren().clear();
+                    listeAttributsChoisi.clear();
+                    attendSelection = false;
+
+                    // remet les permiers boutons si on a pas éliminé le mauvais perso
+                    Label questionText1 = new Label("Le personnage est-il ou a-t-il :");
+                    questionText1.setId("questionText1");
+                    AnchorPane.setTopAnchor(questionText1, 5.);
+                    AnchorPane.setLeftAnchor(questionText1, 5.);
+                    AnchorPaneId.getChildren().add(questionText1);
+
+                    MenuButton buttonAttribut1 = new MenuButton("___");
+                    buttonAttribut1.setId("buttonAttribut1");
+                    buttonAttribut1.setLayoutX(168.0);
+                    buttonAttribut1.setLayoutY(1.0);
+                    AnchorPaneId.getChildren().add(buttonAttribut1);
+
+                    creerDernierMenuBouton(buttonAttribut1);
+
+                    GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
+                    // affiche les tete de mort
+                    for (String perso : listePersoSelectionne) {
+                        int i = Integer.parseInt(perso.split("_")[1]);
+                        int j = Integer.parseInt(perso.split("_")[2]);
+
+                        borderPaneId.getChildren()
+                                .remove((ImageView) borderPaneId.getScene().lookup("#cible_" + i + "_" + j));
+
+                        File f = new File("../programmes/images/mortpng.png");
+                        Image imageMort = new Image(f.getAbsolutePath());
+                        ImageView imageViewMort = new ImageView(imageMort);
+                        imageViewMort.setFitHeight(100);
+                        imageViewMort.setFitWidth(70);
+                        imageViewMort.setId("mort" + i + "_" + j);
+                        grilleperso.add(imageViewMort, i, j);
+                    }
+                    listePersoSelectionne.clear();
+                }
+            } else {
+                borderPaneId.getChildren().clear();
+
+                Label textePerdu = new Label("Vous avez perdu car vous avez éliminé "
+                        + partieEnCour.getPersonnageChoisi() + ", dommage... :(");
+                borderPaneId.setCenter(textePerdu);
+            }
         }
     };
 }

@@ -10,19 +10,15 @@ import org.json.simple.parser.*;
 public class Game {
     private Difficulte difficulte;
     private JSONObject personnageChoisi;
-    private JSONObject[][] listePersonnages;
+    private JSONObject[] listePersonnages;
 
     public Game(Difficulte d, JSONObject JSONPersonnages, int ligne, int colonne) {
         this.difficulte = d;
 
         // creationListePersonnages
-        listePersonnages = new JSONObject[ligne][colonne];
-        int compteur = 0;
-        for (int i = 0; i < ligne; i++) {
-            for (int j = 0; j < colonne; j++) {
-                listePersonnages[i][j] = (JSONObject) JSONPersonnages.get(String.valueOf(compteur));
-                compteur++;
-            }
+        listePersonnages = new JSONObject[ligne * colonne];
+        for (int i = 0; i < ligne * colonne; i++) {
+            listePersonnages[i] = (JSONObject) JSONPersonnages.get(String.valueOf(i));
         }
 
         // choix du personnages aleatoirement
@@ -34,10 +30,8 @@ public class Game {
         System.out.println("Difficulté : " + this.difficulte + "\n");
 
         System.out.println("Liste des personnages :");
-        for (JSONObject[] jsonObjects : listePersonnages) {
-            for (JSONObject jsonObject : jsonObjects) {
-                System.out.println(jsonObject + "\n");
-            }
+        for (JSONObject jsonObject : listePersonnages) {
+            System.out.println(jsonObject + "\n");
         }
         System.out.println("\nPersonnage choisi : " + this.personnageChoisi);
     }
@@ -46,7 +40,7 @@ public class Game {
             ArrayList<String> listConnecteurs) {
         boolean correspondPersonnage = personnageChoisi.get(listeAttribut.get(0)).equals(listeValeurs.get(0));
         for (int i = 1; i < listeAttribut.size(); i++) {
-            //if listConnecteurs.get(i - 1) != null
+            // if listConnecteurs.get(i - 1) != null
             if (listConnecteurs.get(i - 1) == "et") {
                 correspondPersonnage &= personnageChoisi.get(listeAttribut.get(i)).equals(listeValeurs.get(i));
             } else {
@@ -57,7 +51,7 @@ public class Game {
     }
 
     public List<String> getListeAttributs() {
-        List<String> attributs = new ArrayList<>(listePersonnages[0][0].keySet());
+        List<String> attributs = new ArrayList<>(listePersonnages[0].keySet());
         attributs.remove("image");
         attributs.remove("etat");
         return attributs;
@@ -66,29 +60,26 @@ public class Game {
     public List<String> getListeValeurs(String attribut) {
         List<String> valeurs = new ArrayList<>();
 
-        for (JSONObject[] jsonObjects : listePersonnages) {
-            for (JSONObject personnage : jsonObjects) {
-                String value = (String) personnage.get(attribut);
-                if (value != null)
-                    if (!valeurs.contains(value))
-                        valeurs.add(value);
-            }
+        for (JSONObject personnage : listePersonnages) {
+            String value = (String) personnage.get(attribut);
+            if (value != null)
+                if (!valeurs.contains(value))
+                    valeurs.add(value);
+
         }
         return valeurs;
     }
 
     public int NbrePersonnagesACocher(HashMap<String, String> propositions) {
         int i = 0, j = 0;
-        for (JSONObject[] jsonObjects : listePersonnages) {
-            for (JSONObject personnage : jsonObjects) {
-                for (String key : propositions.keySet()) {
-                    if (personnage.containsValue(propositions.get(key)) && personnage.get("etat").equals("vivant")) {
-                        i++;
-                    }
+        for (JSONObject personnage : listePersonnages) {
+            for (String key : propositions.keySet()) {
+                if (personnage.containsValue(propositions.get(key)) && personnage.get("etat").equals("vivant")) {
+                    i++;
                 }
-                if (personnage.get("etat").equals("vivant")) {
-                    j++;
-                }
+            }
+            if (personnage.get("etat").equals("vivant")) {
+                j++;
             }
         }
         System.out.println("Elimination de " + i + " sur " + j);
@@ -96,16 +87,21 @@ public class Game {
     }
 
     public boolean estQuestionBinaire(String attribut) {
-        String value = (String) listePersonnages[0][0].get(attribut);
+        String value = (String) listePersonnages[0].get(attribut);
         if (value == null) {
             return false;
         }
         return value.equals("oui") || value.equals("non");
     }
 
-    public void verifierElimination(String images, int ligne, int colonne) {
-        sauvegarderPartieEnCour(images, ligne, colonne);
-
+    public boolean verifierElimination(ArrayList<String> listePersonnagseElimines, String images, int ligne,
+            int colonne) {
+        if (!listePersonnagseElimines.contains(((String) personnageChoisi.get("prenom")).toLowerCase())) {
+            sauvegarderPartieEnCour(images, ligne, colonne);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void sauvegarderPartieEnCour(String images, int ligne, int colonne) {
@@ -120,11 +116,10 @@ public class Game {
         JSONArray array = new JSONArray();
         JSONObject listePerso = new JSONObject();
         int i = 0;
-        for (JSONObject[] personnages : listePersonnages) {
-            for (JSONObject personnage : personnages) {
-                listePerso.put(String.valueOf(i), personnage);
-                i++;
-            }
+        for (JSONObject personnage : listePersonnages) {
+            listePerso.put(String.valueOf(i), personnage);
+            i++;
+
         }
         array.add(listePerso);
         partieSave.put("personnages", array);
@@ -134,6 +129,14 @@ public class Game {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getPersonnageChoisi() {
+        return (String) personnageChoisi.get("prenom");
+    }
+
+    public int getNombrePersonnages() {
+        return listePersonnages.length;
     }
 
 }
