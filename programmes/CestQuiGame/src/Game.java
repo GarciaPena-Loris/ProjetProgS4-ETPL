@@ -80,20 +80,23 @@ public class Game {
         return valeurs;
     }
 
-    public int NbrePersonnagesACocher(HashMap<String, String> propositions) {
-        int i = 0, j = 0;
+    public ArrayList<String> nombrePersonnagesAEliminer(ArrayList<String> listeAttribut, ArrayList<String> listeValeurs,
+            ArrayList<String> listConnecteurs) {
+        ArrayList<String> listePersoAEliminer = new ArrayList<>();
         for (JSONObject personnage : listePersonnages) {
-            for (String key : propositions.keySet()) {
-                if (personnage.containsValue(propositions.get(key)) && personnage.get("etat").equals("vivant")) {
-                    i++;
+            boolean correspondPersonnage = personnage.get(listeAttribut.get(0)).equals(listeValeurs.get(0));
+            for (int i = 1; i < listeAttribut.size(); i++) {
+                if (listConnecteurs.get(i - 1) == "et") {
+                    correspondPersonnage &= personnage.get(listeAttribut.get(i)).equals(listeValeurs.get(i));
+                } else {
+                    correspondPersonnage |= personnage.get(listeAttribut.get(i)).equals(listeValeurs.get(i));
                 }
             }
-            if (personnage.get("etat").equals("vivant")) {
-                j++;
+            if (correspondPersonnage) {
+                listePersoAEliminer.add((String)personnage.get("prenom"));
             }
         }
-        System.out.println("Elimination de " + i + " sur " + j);
-        return i;
+        return listePersoAEliminer;
     }
 
     public boolean estQuestionBinaire(String attribut) {
