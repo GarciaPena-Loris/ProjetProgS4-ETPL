@@ -68,10 +68,7 @@ public class MainSceneController {
     protected void initialize() {
         // Recuperer les données du JSON ici
         try {
-
             JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(json));
-            System.out.println(difficulte);
-            System.out.println(json);
 
             cheminVersImages = (String) js.get("images");
             ligne = Integer.parseInt((String) js.get("ligne"));
@@ -596,8 +593,7 @@ public class MainSceneController {
             for (String perso : listePersoSelectionne) {
                 nomPerso.add(perso.split("_")[0]);
             }
-            boolean etatPartie = partieEnCour.verifierElimination(nomPerso, cheminVersImages, ligne,
-                    colonne);
+            boolean etatPartie = partieEnCour.verifierElimination(nomPerso);
 
             if (etatPartie) {
                 listeTotalPersoElimine.addAll(listePersoSelectionne);
@@ -631,6 +627,10 @@ public class MainSceneController {
                     GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
                     // affiche les tete de mort
                     for (String perso : listePersoSelectionne) {
+
+                        // change valeur etat perso
+                        partieEnCour.tuerPersonnage(perso.split("_")[0]);
+                        
                         int i = Integer.parseInt(perso.split("_")[1]);
                         int j = Integer.parseInt(perso.split("_")[2]);
 
@@ -652,6 +652,8 @@ public class MainSceneController {
                         imageViewMort.setId("mort" + i + "_" + j);
                         grilleperso.add(imageViewMort, i, j);
                     }
+                    partieEnCour.sauvegarderPartieEnCour(cheminVersImages, ligne,
+                            colonne);
                     listePersoSelectionne.clear();
                 }
             } else {

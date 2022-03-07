@@ -18,7 +18,7 @@
             "chapeau": "non",
             "lunettes": "non",
             "prenom": "Charlie",
-            "etat": "vivant",
+            "etat": "mort",
             "moustache\/barbe": "oui",
             "chauve": "non"
         },
@@ -40,7 +40,7 @@
             "chapeau": "non",
             "lunettes": "non",
             "prenom": "Anna",
-            "etat": "vivant",
+            "etat": "mort",
             "moustache\/barbe": "non",
             "chauve": "non"
         },
@@ -183,7 +183,7 @@
             "chapeau": "oui",
             "lunettes": "oui",
             "prenom": "Clara",
-            "etat": "vivant",
+            "etat": "mort",
             "moustache\/barbe": "non",
             "chauve": "non"
         },
@@ -194,7 +194,7 @@
             "chapeau": "non",
             "lunettes": "non",
             "prenom": "Anita",
-            "etat": "vivant",
+            "etat": "mort",
             "moustache\/barbe": "non",
             "chauve": "non"
         },
@@ -205,7 +205,7 @@
             "chapeau": "non",
             "lunettes": "non",
             "prenom": "Alfred",
-            "etat": "vivant",
+            "etat": "mort",
             "moustache\/barbe": "oui",
             "chauve": "non"
         },

@@ -104,14 +104,8 @@ public class Game {
         return value.equals("oui") || value.equals("non");
     }
 
-    public boolean verifierElimination(ArrayList<String> listePersonnagseElimines, String images, int ligne,
-            int colonne) {
-        if (!listePersonnagseElimines.contains(((String) personnageChoisi.get("prenom")).toLowerCase())) {
-            sauvegarderPartieEnCour(images, ligne, colonne);
-            return true;
-        } else {
-            return false;
-        }
+    public boolean verifierElimination(ArrayList<String> listePersonnagesElimines) {
+        return !listePersonnagesElimines.contains(((String) personnageChoisi.get("prenom")).toLowerCase());
     }
 
     public void sauvegarderPartieEnCour(String images, int ligne, int colonne) {
@@ -142,7 +136,8 @@ public class Game {
     public void tuerPersonnage(String nomPersonnage) {
         for (JSONObject personnage : listePersonnages) {
             if (((String) personnage.get("prenom")).toLowerCase().equals(nomPersonnage)) {
-                JSONObject personnageATuer = (JSONObject) personnage.get("prenom");
+                JSONObject personnageATuer = (JSONObject) personnage;
+                personnageATuer.replace("etat", "mort");
             }
         }
     }
