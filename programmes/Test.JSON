@@ -16,7 +16,7 @@
         },
         "1": {
             "image": "leon.jpg",
-            "prenom": "Léon",
+            "prenom": "Leon",
             "genre": "homme",
             "etat": "vivant",
             "cheveux": "blond",
@@ -104,7 +104,7 @@
         },
         "9": {
             "image": "romeo.jpg",
-            "prenom": "Roméo",
+            "prenom": "Romeo",
             "genre": "homme",
             "etat": "vivant",
             "cheveux": "brun",
@@ -159,7 +159,7 @@
         },
         "14": {
             "image": "jeremie.jpg",
-            "prenom": "Jéremie",
+            "prenom": "Jeremie",
             "genre": "homme",
             "etat": "vivant",
             "cheveux": "brun",
@@ -181,7 +181,7 @@
         },
         "16": {
             "image": "timeo.jpg",
-            "prenom": "Timéo",
+            "prenom": "Timeo",
             "genre": "homme",
             "etat": "vivant",
             "cheveux": "noir",
@@ -236,7 +236,7 @@
         },
         "21": {
             "image": "felix.jpg",
-            "prenom": "Félix",
+            "prenom": "Felix",
             "genre": "homme",
             "etat": "vivant",
             "cheveux": "blond",
