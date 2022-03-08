@@ -93,7 +93,7 @@ public class Game {
                 }
             }
             if (correspondPersonnage) {
-                listePersoAEliminer.add((String)personnage.get("prenom"));
+                listePersoAEliminer.add(((String)personnage.get("prenom")).toLowerCase());
             }
         }
         return listePersoAEliminer;

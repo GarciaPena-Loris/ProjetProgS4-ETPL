@@ -1,6 +1,5 @@
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -111,7 +110,7 @@ public class MainSceneController {
                                 File f2 = new File("../programmes/images/mortpng.png");
                                 Image imageMort = new Image(f2.getAbsolutePath());
                                 ImageView imageViewMort = new ImageView(imageMort);
-                                imageViewMort.setId("mort_"+x+"_"+y);
+                                imageViewMort.setId("mort_" + x + "_" + y);
                                 imageViewMort.setFitHeight(100);
                                 imageViewMort.setFitWidth(70);
                                 grilleperso.add(imageViewMort, x, y);
@@ -191,27 +190,6 @@ public class MainSceneController {
         }
     }
 
-    private void creerBoutonestimer() {
-        if (difficulte.equals("Facile")) {
-            Button ancienButtonEstimer = (Button) borderPaneId.getScene().lookup("#boutonEstimer");
-            if (ancienButtonEstimer != null) {
-                AnchorPaneId.getChildren().remove(ancienButtonEstimer);
-                if (borderPaneId.getScene().lookup("#estimationTexte") != null)
-                {
-                    System.out.println("je suis la ");
-                    AnchorPaneId.getChildren().remove((Label) AnchorPaneId.getScene().lookup("#estimationTexte"));
-                }
-            }
-            Button estimerButton = new Button("Estimer");
-            estimerButton.setId("boutonEstimer");
-            estimerButton.setOnAction(estimerEliminationEvent);
-            AnchorPane.setBottomAnchor(estimerButton, 15.);
-            AnchorPane.setRightAnchor(estimerButton, 80.);
-            AnchorPaneId.getChildren().add(estimerButton);
-            
-        }
-    }
-
     private void deplacerValueButton(MenuButton boutonSuivant, int ligne) {
         MenuButton menuButtonValeur = new MenuButton(boutonSuivant.getText());
         menuButtonValeur.setId("buttonValeur" + ligne);
@@ -266,6 +244,25 @@ public class MainSceneController {
             AnchorPane.setBottomAnchor(buttonValiderQuestion, 15.);
             AnchorPane.setRightAnchor(buttonValiderQuestion, 20.);
             AnchorPaneId.getChildren().add(buttonValiderQuestion);
+        }
+    }
+
+    private void creerBoutonestimer() {
+        if (difficulte.equals("Facile")) {
+            Button ancienButtonEstimer = (Button) borderPaneId.getScene().lookup("#boutonEstimer");
+            if (ancienButtonEstimer != null) {
+                AnchorPaneId.getChildren().remove(ancienButtonEstimer);
+                if (borderPaneId.getScene().lookup("#estimationTexte") != null) {
+                    System.out.println("je suis la ");
+                    AnchorPaneId.getChildren().remove((Label) AnchorPaneId.getScene().lookup("#estimationTexte"));
+                }
+            }
+            Button estimerButton = new Button("Estimer");
+            estimerButton.setId("boutonEstimer");
+            estimerButton.setOnAction(estimerEliminationEvent);
+            AnchorPane.setBottomAnchor(estimerButton, 15.);
+            AnchorPane.setRightAnchor(estimerButton, 80.);
+            AnchorPaneId.getChildren().add(estimerButton);
         }
     }
 
@@ -519,7 +516,6 @@ public class MainSceneController {
 
             // verifier reponse
             boolean reponseQuestion = partieEnCour.verifierReponse(listeAttribut, listeValeur, listeConnecteur);
-            attendSelection = true;
 
             // afiche la reponse
             Label reponseText = new Label();
@@ -529,13 +525,13 @@ public class MainSceneController {
                     for (String question : listeQuestion) {
                         reponse += question + "\n";
                     }
-                    reponseText.setText(reponse + ".");
+                    reponseText.setText(reponse);
                 } else {
                     String reponse = "La réponse est : VRAI.\nVotre critère était : ";
                     for (String question : listeQuestion) {
                         reponse += question + "\n";
                     }
-                    reponseText.setText(reponse + ".");
+                    reponseText.setText(reponse);
                 }
             } else {
                 if (aPlusieurQuestion) {
@@ -543,13 +539,13 @@ public class MainSceneController {
                     for (String question : listeQuestion) {
                         reponse += question + "\n";
                     }
-                    reponseText.setText(reponse + ".");
+                    reponseText.setText(reponse);
                 } else {
                     String reponse = "La réponse est : FAUX.\nVotre critère était : ";
                     for (String question : listeQuestion) {
                         reponse += question + "\n";
                     }
-                    reponseText.setText(reponse + ".");
+                    reponseText.setText(reponse);
                 }
             }
             AnchorPane.setTopAnchor(reponseText, 5.);
@@ -557,7 +553,47 @@ public class MainSceneController {
             AnchorPaneId.getChildren().add(reponseText);
 
             // affiche texte pour selection personnage + ajout bouton validation selection
-            Label validationText = new Label("Veuillez cliquer sur les personnages à éliminer.");
+            Label validationText;
+            if (!difficulte.equals("Facile")) {
+                attendSelection = true;
+                validationText = new Label("Veuillez cliquer sur les personnages à éliminer.");
+            } else {
+                if (aPlusieurQuestion) {
+                    validationText = new Label(
+                            "Validez pour élimner le(s) personne(s) qui ne correspondent pas à ces critères.");
+                } else {
+                    validationText = new Label(
+                            "Validez pour élimner le(s) personne(s) qui ne correspondent pas à ce critère.");
+                }
+
+                // inverse les cileble si la réponse est fausse
+                if (!reponseQuestion) {
+                    GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
+                    Object[] listeImage = (Object[]) grilleperso.getChildren().toArray();
+
+                    for (Object image : listeImage) {
+                        System.out.println(image);
+                        String[] idSplit = ((String) ((ImageView) image).getId()).split("_");
+                        System.out.println(idSplit[0]);
+                        if (idSplit[0].equals("cible")) {
+                            File dossierImage = new File(cheminVersImages);
+
+                            //recupere image
+                            File f = new File(dossierImage.getAbsolutePath() + "/" + idSplit[3]);
+                            Image imagePerso = new Image(f.getAbsolutePath());
+                            ImageView imageViewPerso = new ImageView(imagePerso);
+                            imageViewPerso.setFitHeight(100);
+                            imageViewPerso.setFitWidth(70);
+                            imageViewPerso.setId("cible_" + idSplit[1] + "_" + idSplit[2] + "_" + idSplit[0]);
+                            grilleperso.add(imageViewPerso, Integer.parseInt(idSplit[1]), Integer.parseInt(idSplit[2]));
+
+                            // mettre dans la liste le perso éliminé
+                            listePersoSelectionne.add(idSplit[0]);
+                            //ici
+                        }
+                    }
+                }
+            }
             AnchorPane.setTopAnchor(validationText, (listeQuestion.size() * 40.) + 20.);
             AnchorPane.setLeftAnchor(validationText, 5.);
             AnchorPaneId.getChildren().add(validationText);
@@ -703,8 +739,6 @@ public class MainSceneController {
             ArrayList<String> listeAttribut = new ArrayList<>();
             ArrayList<String> listeValeur = new ArrayList<>();
             ArrayList<String> listeConnecteur = new ArrayList<>();
-
-            boolean aPlusieurQuestion = false;
             // cree les talbeaus attribut valeur et conecteur
             for (int i = 1; i <= listeAttributsChoisi.size() + 1; i++) {
                 // recuperer attributs
@@ -725,7 +759,6 @@ public class MainSceneController {
 
                     // recuperer connecteur
                     if (i > 1) {
-                        aPlusieurQuestion = true;
                         Label connecteur = (Label) scene.lookup("#questionText" + i);
                         if (connecteur != null) {
                             String textConnecteur = connecteur.getText().substring(0, 2);
@@ -737,7 +770,8 @@ public class MainSceneController {
 
             if (listeAttribut.size() > 0) {
                 if (AnchorPaneId.getScene().lookup("#estimationTexte") == null) {
-                    ArrayList<String> listePersoAEliminer= partieEnCour.nombrePersonnagesAEliminer(listeAttribut, listeValeur, listeConnecteur);
+                    ArrayList<String> listePersoAEliminer = partieEnCour.nombrePersonnagesAEliminer(listeAttribut,
+                            listeValeur, listeConnecteur);
                     Label estimationLabel = new Label("Elimination de "
                             + listePersoAEliminer.size()
                             + " sur " + partieEnCour.getNombrePersonnages());
@@ -747,28 +781,27 @@ public class MainSceneController {
                     AnchorPaneId.getChildren().add(estimationLabel);
                     GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
 
-                    for (Node image : grilleperso.getChildren()) { 
-                        System.out.println(image);
-                        String[] idSplit=((String) image.getId()).split("_");
-                        if(listePersoAEliminer.contains(idSplit[0])){
-                           
-                                File f = new File("../programmes/images/ciblepng.png");
-                                Image imageCible = new Image(f.getAbsolutePath());
-                                ImageView imageViewCible = new ImageView(imageCible);
-                                imageViewCible.setFitHeight(100);
-                                imageViewCible.setFitWidth(70);
-                                imageViewCible.setId("cible_" + idSplit[1] + "_" + idSplit[2] + "_" + idSplit[0]);
-                                grilleperso.add(imageViewCible, Integer.parseInt(idSplit[1]), Integer.parseInt(idSplit[2]));
-            
-                                // mettre dans la liste le perso éliminé
-                                listePersoSelectionne.add(idSplit[0]);
+                    Object[] listeImage = (Object[]) grilleperso.getChildren().toArray();
 
-                        
+                    for (Object image : listeImage) {
+                        String[] idSplit = ((String) ((ImageView) image).getId()).split("_");
+                        if (listePersoAEliminer.contains(idSplit[0])) {
+
+                            File f = new File("../programmes/images/ciblepng.png");
+                            Image imageCible = new Image(f.getAbsolutePath());
+                            ImageView imageViewCible = new ImageView(imageCible);
+                            imageViewCible.setFitHeight(100);
+                            imageViewCible.setFitWidth(70);
+                            imageViewCible.setId("cible_" + idSplit[1] + "_" + idSplit[2] + "_" + idSplit[0]);
+                            grilleperso.add(imageViewCible, Integer.parseInt(idSplit[1]), Integer.parseInt(idSplit[2]));
+
+                            // mettre dans la liste le perso éliminé
+                            listePersoSelectionne.add(idSplit[0]);
                         }
                     }
                 }
             }
-            
+
         }
     };
 }
