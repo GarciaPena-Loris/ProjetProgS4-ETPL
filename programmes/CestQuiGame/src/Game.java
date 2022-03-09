@@ -80,20 +80,23 @@ public class Game {
         return valeurs;
     }
 
-    public ArrayList<String> nombrePersonnagesAEliminer(ArrayList<String> listeAttribut, ArrayList<String> listeValeurs,
+    public ArrayList<String> nombrePersonnagesAEliminer(ArrayList<String> listePersonnagesElimines,
+            ArrayList<String> listeAttribut, ArrayList<String> listeValeurs,
             ArrayList<String> listConnecteurs) {
         ArrayList<String> listePersoAEliminer = new ArrayList<>();
         for (JSONObject personnage : listePersonnages) {
-            boolean correspondPersonnage = personnage.get(listeAttribut.get(0)).equals(listeValeurs.get(0));
-            for (int i = 1; i < listeAttribut.size(); i++) {
-                if (listConnecteurs.get(i - 1) == "et") {
-                    correspondPersonnage &= personnage.get(listeAttribut.get(i)).equals(listeValeurs.get(i));
-                } else {
-                    correspondPersonnage |= personnage.get(listeAttribut.get(i)).equals(listeValeurs.get(i));
+            if (!listePersonnagesElimines.contains(((String) personnage.get("prenom")).toLowerCase())) {
+                boolean correspondPersonnage = personnage.get(listeAttribut.get(0)).equals(listeValeurs.get(0));
+                for (int i = 1; i < listeAttribut.size(); i++) {
+                    if (listConnecteurs.get(i - 1) == "et") {
+                        correspondPersonnage &= personnage.get(listeAttribut.get(i)).equals(listeValeurs.get(i));
+                    } else {
+                        correspondPersonnage |= personnage.get(listeAttribut.get(i)).equals(listeValeurs.get(i));
+                    }
                 }
-            }
-            if (correspondPersonnage) {
-                listePersoAEliminer.add(((String)personnage.get("prenom")).toLowerCase());
+                if (correspondPersonnage) {
+                    listePersoAEliminer.add(((String) personnage.get("prenom")).toLowerCase());
+                }
             }
         }
         return listePersoAEliminer;
