@@ -75,25 +75,19 @@ public class MainSceneController {
             colonne = Integer.parseInt((String) js.get("colonne"));
             JSONObject personnages = (JSONObject) js.get("personnages");
 
-            File dossierImage = new File(cheminVersImages);
-            if (dossierImage.isDirectory()) {
-                if ((String) js.get("difficulte") != null) {
-                    // partie chargée
-                    difficulte = ((String) js.get("difficulte"));
-                    partieEnCour = new Game(difficulte, personnages, ligne, colonne,
-                            (JSONObject) js.get("personnagesChoisi"));
+            if ((String) js.get("difficulte") != null) {
+                // partie chargée
+                difficulte = ((String) js.get("difficulte"));
+                partieEnCour = new Game(difficulte, personnages, ligne, colonne,
+                        (JSONObject) js.get("personnagesChoisi"));
+            } else {
+                // nouvelle partie
+                partieEnCour = new Game(difficulte, personnages, ligne,
+                        colonne);
 
-                    GridPane grillePerso = new GridPane();
-                    creerGrille(grillePerso);
-                } else {
-                    // nouvelle partie
-                    partieEnCour = new Game(difficulte, personnages, ligne,
-                            colonne);
-
-                    GridPane grillePerso = new GridPane();
-                    creerGrille(grillePerso);
-                }
             }
+            GridPane grillePerso = new GridPane();
+            creerGrille(grillePerso);
 
             listeAttributs = partieEnCour.getListeAttributs();
             creerDernierMenuBouton(buttonAttribut1);
@@ -112,37 +106,40 @@ public class MainSceneController {
         int y = 0; // ligne
 
         File dossierImage = new File(cheminVersImages);
-        ArrayList<String> listePersonnageMort = partieEnCour.getListePersonnageMort();
-        listeTotalPersoElimine = listePersonnageMort;
+        if (dossierImage.isDirectory()) {
 
-        grillePerso.setId("grillePerso");
-        grillePerso.setHgap(colonne);
-        grillePerso.setVgap(ligne);
-        grillePerso.setMaxSize(100, 50);
+            ArrayList<String> listePersonnageMort = partieEnCour.getListePersonnageMort();
+            listeTotalPersoElimine = listePersonnageMort;
 
-        for (File image : dossierImage.listFiles(imageFiltre)) {
-            String nomImage = image.getName();
-            String urlImage = image.getAbsolutePath();
-            Image imagePerso = new Image(urlImage);
-            ImageView imageViewPerso = new ImageView(imagePerso);
-            imageViewPerso.setFitHeight(100);
-            imageViewPerso.setFitWidth(70);
-            imageViewPerso
-                    .setId(nomImage.substring(0, nomImage.length() - 4) + "_" + x + "_" + y);
-            imageViewPerso.setOnMouseClicked(afficheCibleEvent);
-            grillePerso.add(imageViewPerso, x, y);
+            grillePerso.setId("grillePerso");
+            grillePerso.setMaxSize(100, 50);
+            grillePerso.setHgap(colonne);
+            grillePerso.setVgap(ligne);
 
-            if (!listePersonnageMort.isEmpty()) {
-                if (listePersonnageMort
-                        .contains(image.getName().substring(0, image.getName().length() - 4))) {
-                    File f2 = new File("../programmes/images/mortpng.png");
-                    Image imageMort = new Image(f2.getAbsolutePath());
-                    ImageView imageViewMort = new ImageView(imageMort);
-                    imageViewMort.setId("mort_" + x + "_" + y);
-                    imageViewMort.setFitHeight(100);
-                    imageViewMort.setFitWidth(70);
-                    grillePerso.add(imageViewMort, x, y);
+            for (File image : dossierImage.listFiles(imageFiltre)) {
+                String nomImage = image.getName();
+                String urlImage = image.getAbsolutePath();
+                Image imagePerso = new Image(urlImage);
+                ImageView imageViewPerso = new ImageView(imagePerso);
+                imageViewPerso.setFitHeight(100);
+                imageViewPerso.setFitWidth(70);
+                imageViewPerso
+                        .setId(nomImage.substring(0, nomImage.length() - 4) + "_" + x + "_" + y);
+                imageViewPerso.setOnMouseClicked(afficheCibleEvent);
+                grillePerso.add(imageViewPerso, x, y);
 
+                if (!listePersonnageMort.isEmpty()) {
+                    if (listePersonnageMort
+                            .contains(image.getName().substring(0, image.getName().length() - 4))) {
+                        File f2 = new File("../programmes/images/mortpng.png");
+                        Image imageMort = new Image(f2.getAbsolutePath());
+                        ImageView imageViewMort = new ImageView(imageMort);
+                        imageViewMort.setId("mort_" + x + "_" + y);
+                        imageViewMort.setFitHeight(100);
+                        imageViewMort.setFitWidth(70);
+                        grillePerso.add(imageViewMort, x, y);
+
+                    }
                 }
                 x++;
                 if (x == colonne) {
@@ -150,8 +147,12 @@ public class MainSceneController {
                     y++;
                 }
             }
+            borderPaneId.setCenter(grillePerso);
+        } else {
+            borderPaneId.getChildren().clear();
+            Label textePerdu = new Label("Chemin vers les images incorrect.");
+            borderPaneId.setCenter(textePerdu);
         }
-        borderPaneId.setCenter(grillePerso);
     }
 
     private void creerBoutonAjoutQuestion() {
@@ -680,13 +681,25 @@ public class MainSceneController {
             if (etatPartie) {
                 listeTotalPersoElimine.addAll(nomsPerso);
                 if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
+                    // vide l'écran, affiche le personnage gagant et supprime la save.
                     borderPaneId.getChildren().clear();
-
-                    Label texteGagner = new Label("Bravo ! Vous avez gagné ! Le personnage était bien "
-                            + partieEnCour.getPersonnageChoisi() + " :)");
-                    borderPaneId.setCenter(texteGagner);
                     File fileSave = new File("../programmes/CestQuiGame/bin/save.json");
                     fileSave.delete();
+
+                    String personnageChoisi = partieEnCour.getPersonnageChoisi();
+                    Label texteGagner = new Label("Bravo ! Vous avez gagné ! Le personnage était bien "
+                            + personnageChoisi + " :)");
+                    borderPaneId.setCenter(texteGagner);
+
+                    File dossierImage = new File(cheminVersImages);
+                    String urlImage = dossierImage.getAbsolutePath() + "/" + personnageChoisi + ".png";
+                    Image imagePerso = new Image(urlImage);
+                    ImageView imageViewPerso = new ImageView(imagePerso);
+                    imageViewPerso.setFitHeight(100);
+                    imageViewPerso.setFitWidth(70);
+
+                    borderPaneId.setBottom(imageViewPerso);
+
                 } else {
                     // enleve tous les boutons
                     AnchorPaneId.getChildren().clear();
@@ -790,11 +803,12 @@ public class MainSceneController {
 
             if (listeAttribut.size() > 0) {
                 if (AnchorPaneId.getScene().lookup("#estimationTexte") == null) {
-                    ArrayList<String> listePersoAEliminer = partieEnCour.nombrePersonnagesAEliminer(listeTotalPersoElimine, listeAttribut,
+                    ArrayList<String> listePersoAEliminer = partieEnCour.nombrePersonnagesAEliminer(
+                            listeTotalPersoElimine, listeAttribut,
                             listeValeur, listeConnecteur);
                     Label estimationLabel = new Label("Elimination de "
                             + listePersoAEliminer.size()
-                        + " sur " + ((partieEnCour.getNombrePersonnages() - listeTotalPersoElimine.size())));
+                            + " sur " + ((partieEnCour.getNombrePersonnages() - listeTotalPersoElimine.size())));
                     estimationLabel.setId("estimationTexte");
                     AnchorPane.setRightAnchor(estimationLabel, 150.);
                     AnchorPane.setBottomAnchor(estimationLabel, 20.);
