@@ -101,9 +101,13 @@ public class pageAvantJeuController {
         Parent root1 = (Parent) fxmlLoader.load();
         Stage stage = new Stage();
         stage.setTitle("QuiEstCe?");
+        if(difficulte.equals("Facile")){stage.setTitle("QuiEstCe? - Mode Facile");}
+        File logo = new File("../programmes/images/logoQuiEstCe.png");
+        stage.getIcons().add(new Image(logo.getAbsolutePath()));
         stage.setScene(new Scene(root1));
         stage.show();
         ((Stage) jsonNameLabel.getScene().getWindow()).close();
+        
     }
 
     @FXML
@@ -117,6 +121,9 @@ public class pageAvantJeuController {
             Parent root1 = (Parent) fxmlLoader.load();
             Stage stage = new Stage();
             stage.setTitle("QuiEstCe?");
+            if(((String)js.get("difficulte")).equals("Facile")){stage.setTitle("QuiEstCe? - Mode Facile");}
+            File logo = new File("../programmes/images/logoQuiEstCe.png");
+            stage.getIcons().add(new Image(logo.getAbsolutePath()));
             stage.setScene(new Scene(root1));
             stage.show();
             ((Stage) jsonNameLabel.getScene().getWindow()).close();
