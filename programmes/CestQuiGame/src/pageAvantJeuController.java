@@ -28,7 +28,7 @@ public class pageAvantJeuController {
     private static String jsonName;
 
     private boolean isSaveJsonFile() {
-        File dir = new File("./CestQuiGame/bin");
+        File dir = new File("CestQuiGame/bin");
         File[] matches = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.startsWith("save");
@@ -59,7 +59,7 @@ public class pageAvantJeuController {
 
     @FXML
     protected void initialize() {
-        File fimage = new File("../programmes/images/quiestcelogo.png");
+        File fimage = new File("images/quiestcelogo.png");
         Image image = new Image(fimage.getAbsolutePath());
         ImageView vimage = new ImageView(image);
         vimage.setFitHeight(292.);
@@ -102,7 +102,7 @@ public class pageAvantJeuController {
         Stage stage = new Stage();
         stage.setTitle("QuiEstCe?");
         if(difficulte.equals("Facile")){stage.setTitle("QuiEstCe? - Mode Facile");}
-        File logo = new File("../programmes/images/logoQuiEstCe.png");
+        File logo = new File("images/logoQuiEstCe.png");
         stage.getIcons().add(new Image(logo.getAbsolutePath()));
         stage.setScene(new Scene(root1));
         stage.show();
@@ -113,7 +113,7 @@ public class pageAvantJeuController {
     @FXML
     void chargerpartie(ActionEvent event) {
         try {
-            File file = new File("../programmes/CestQuiGame/bin/save.json");
+            File file = new File("CestQuiGame/bin/save.json");
             MainSceneController.setJson(file.getAbsolutePath());
             JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(file.getAbsolutePath()));
             MainSceneController.setDifficulte((String) js.get("difficulte"));
@@ -122,7 +122,7 @@ public class pageAvantJeuController {
             Stage stage = new Stage();
             stage.setTitle("QuiEstCe?");
             if(((String)js.get("difficulte")).equals("Facile")){stage.setTitle("QuiEstCe? - Mode Facile");}
-            File logo = new File("../programmes/images/logoQuiEstCe.png");
+            File logo = new File("images/logoQuiEstCe.png");
             stage.getIcons().add(new Image(logo.getAbsolutePath()));
             stage.setScene(new Scene(root1));
             stage.show();

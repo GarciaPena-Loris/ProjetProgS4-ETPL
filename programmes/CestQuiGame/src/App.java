@@ -19,7 +19,7 @@ public class App extends Application {
             Scene scene = new Scene(root);
 
             primaryStage.setTitle("Qui est-ce ?");
-            File logo = new File("../programmes/images/logoQuiEstCe.png");
+            File logo = new File("images/logoQuiEstCe.png");
             primaryStage.getIcons().add(new Image(logo.getAbsolutePath()));
             primaryStage.setScene(scene);
             primaryStage.show();

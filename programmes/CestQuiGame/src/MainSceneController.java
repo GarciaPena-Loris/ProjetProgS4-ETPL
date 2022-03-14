@@ -131,7 +131,7 @@ public class MainSceneController {
                 if (!listePersonnageMort.isEmpty()) {
                     if (listePersonnageMort
                             .contains(image.getName().substring(0, image.getName().length() - 4))) {
-                        File f2 = new File("../programmes/images/mortpng.png");
+                        File f2 = new File("images/mortpng.png");
                         Image imageMort = new Image(f2.getAbsolutePath());
                         ImageView imageViewMort = new ImageView(imageMort);
                         imageViewMort.setId("mort_" + x + "_" + y);
@@ -241,15 +241,15 @@ public class MainSceneController {
     }
 
     private void creerBoutonestimer() {
+        Button ancienButtonEstimer = (Button) borderPaneId.getScene().lookup("#boutonEstimer");
+        if (ancienButtonEstimer != null) {
+            AnchorPaneId.getChildren().remove(ancienButtonEstimer);
+            if (borderPaneId.getScene().lookup("#estimationTexte") != null) {
+                AnchorPaneId.getChildren().remove((Label) AnchorPaneId.getScene().lookup("#estimationTexte"));
+            }
+        }
         if (difficulte.equals("Facile")
                 && !((MenuButton) borderPaneId.getScene().lookup("#buttonAttribut1")).getText().equals("___")) {
-            Button ancienButtonEstimer = (Button) borderPaneId.getScene().lookup("#boutonEstimer");
-            if (ancienButtonEstimer != null) {
-                AnchorPaneId.getChildren().remove(ancienButtonEstimer);
-                if (borderPaneId.getScene().lookup("#estimationTexte") != null) {
-                    AnchorPaneId.getChildren().remove((Label) AnchorPaneId.getScene().lookup("#estimationTexte"));
-                }
-            }
             Button estimerButton = new Button("Estimer");
             estimerButton.setId("boutonEstimer");
             estimerButton.setOnAction(estimerEliminationEvent);
@@ -376,7 +376,7 @@ public class MainSceneController {
             buttonAjout.setVisible(false);
             buttonAjout.setId("disabled");
 
-            Label texteAjoutQuestion = new Label(currentItem.getText() + " le personnage est-il/a-t-il :");
+            Label texteAjoutQuestion = new Label(currentItem.getText() + " le personnage est-il ou a-t-il :");
             texteAjoutQuestion.setId("questionText" + (listeAttributsChoisi.size() + 1));
             AnchorPane.setTopAnchor(texteAjoutQuestion, (listeAttributsChoisi.size()) * 40.);
             AnchorPane.setLeftAnchor(texteAjoutQuestion, 5.0);
@@ -385,7 +385,7 @@ public class MainSceneController {
             MenuButton menuButtonAttribut = new MenuButton("___");
             menuButtonAttribut.setId("buttonAttribut" + (listeAttributsChoisi.size() + 1));
             AnchorPane.setTopAnchor(menuButtonAttribut, (listeAttributsChoisi.size()) * 40. - 5);
-            AnchorPane.setLeftAnchor(menuButtonAttribut, 168.0);
+            AnchorPane.setLeftAnchor(menuButtonAttribut, 181.0);
             AnchorPaneId.getChildren().add(menuButtonAttribut);
 
             creerDernierMenuBouton(menuButtonAttribut);
@@ -460,6 +460,10 @@ public class MainSceneController {
                 ((Label) scene.lookup("#questionText1")).setText(premierTexte);
             }
 
+            if (listeIdPersoSelectionne.size() > 0) {
+                GridPane grillePerso = new GridPane();
+                creerGrille(grillePerso);
+            }
             // deplacer le bouton valider
             creerBoutonValider();
             creerBoutonestimer();
@@ -595,7 +599,7 @@ public class MainSceneController {
 
                         if (!listeIdPersoSelectionne.contains(id) && !idSplit[0].equals("cible")
                                 && !idSplit[0].equals("mort") && !listeTotalPersoElimine.contains(idSplit[0])) {
-                            File f = new File("../programmes/images/ciblepng.png");
+                            File f = new File("images/ciblepng.png");
                             Image imageCible = new Image(f.getAbsolutePath());
                             ImageView imageViewCible = new ImageView(imageCible);
                             imageViewCible.setFitHeight(100);
@@ -637,7 +641,7 @@ public class MainSceneController {
                 if (!cibleActuel.getId().split("_")[0].equals("cible")) {
                     GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
 
-                    File f = new File("../programmes/images/ciblepng.png");
+                    File f = new File("images/ciblepng.png");
                     Image imageCible = new Image(f.getAbsolutePath());
                     ImageView imageViewCible = new ImageView(imageCible);
                     imageViewCible.setFitHeight(100);
@@ -651,7 +655,7 @@ public class MainSceneController {
 
                 } else {
                     GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
-                    File f = new File("../programmes/images/personnages/" + cibleActuel.getId().split("_")[3] + ".png");
+                    File f = new File("images/personnages/" + cibleActuel.getId().split("_")[3] + ".png");
                     Image imagePerso = new Image(f.getAbsolutePath());
                     ImageView imageViewPerso = new ImageView(imagePerso);
                     imageViewPerso.setFitHeight(100);
@@ -683,7 +687,7 @@ public class MainSceneController {
                 if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
                     // vide l'écran, affiche le personnage gagant et supprime la save.
                     borderPaneId.getChildren().clear();
-                    File fileSave = new File("../programmes/CestQuiGame/bin/save.json");
+                    File fileSave = new File("CestQuiGame/bin/save.json");
                     fileSave.delete();
 
                     String personnageChoisi = partieEnCour.getPersonnageChoisi();
@@ -735,7 +739,7 @@ public class MainSceneController {
                         borderPaneId.getChildren()
                                 .remove((ImageView) borderPaneId.getScene().lookup("#cible_" + i + "_" + j));
 
-                        File f = new File("../programmes/images/personnages/" + perso.split("_")[0] + ".png");
+                        File f = new File("images/personnages/" + perso.split("_")[0] + ".png");
                         Image imagePerso = new Image(f.getAbsolutePath());
                         ImageView imageViewPerso = new ImageView(imagePerso);
                         imageViewPerso.setFitHeight(100);
@@ -743,7 +747,7 @@ public class MainSceneController {
                         imageViewPerso.setId("mort");
                         grilleperso.add(imageViewPerso, i, j);
 
-                        File f2 = new File("../programmes/images/mortpng.png");
+                        File f2 = new File("images/mortpng.png");
                         Image imageMort = new Image(f2.getAbsolutePath());
                         ImageView imageViewMort = new ImageView(imageMort);
                         imageViewMort.setFitHeight(100);
@@ -772,6 +776,10 @@ public class MainSceneController {
             ArrayList<String> listeAttribut = new ArrayList<>();
             ArrayList<String> listeValeur = new ArrayList<>();
             ArrayList<String> listeConnecteur = new ArrayList<>();
+
+            // vide la liste des attributs selecionné
+            listeIdPersoSelectionne.clear();
+
             // cree les talbeaus attribut valeur et conecteur
             for (int i = 1; i <= listeAttributsChoisi.size() + 1; i++) {
                 // recuperer attributs
@@ -803,7 +811,7 @@ public class MainSceneController {
 
             if (listeAttribut.size() > 0) {
                 if (AnchorPaneId.getScene().lookup("#estimationTexte") == null) {
-                    ArrayList<String> listePersoAEliminer = partieEnCour.nombrePersonnagesAEliminer(
+                    ArrayList<String> listePersoAEliminer = partieEnCour.personnagesAEliminer(
                             listeTotalPersoElimine, listeAttribut,
                             listeValeur, listeConnecteur);
                     Label estimationLabel = new Label("Elimination de "
@@ -824,7 +832,7 @@ public class MainSceneController {
                         String[] idSplit = ((String) ((ImageView) image).getId()).split("_");
                         if (listePersoAEliminer.contains(idSplit[0]) && !listeTotalPersoElimine.contains(idSplit[0])) {
 
-                            File f = new File("../programmes/images/ciblepng.png");
+                            File f = new File("images/ciblepng.png");
                             Image imageCible = new Image(f.getAbsolutePath());
                             ImageView imageViewCible = new ImageView(imageCible);
                             imageViewCible.setFitHeight(100);
