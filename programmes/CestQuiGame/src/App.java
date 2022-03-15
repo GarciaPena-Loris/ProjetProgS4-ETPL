@@ -20,7 +20,7 @@ public class App extends Application {
 
             primaryStage.setTitle("Qui est-ce ?");
             File logo = new File("images/logoQuiEstCe.png");
-            primaryStage.getIcons().add(new Image(logo.getAbsolutePath()));
+            primaryStage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
             primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException e) {

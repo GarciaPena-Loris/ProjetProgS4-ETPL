@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -42,6 +43,7 @@ public class pageAvantJeuController {
 
     @FXML
     private Label jsonNameLabel;
+    
     @FXML
     private Label difficulteName;
 
@@ -58,9 +60,9 @@ public class pageAvantJeuController {
     private Button buttonnouvellepartie;
 
     @FXML
-    protected void initialize() {
+    protected void initialize() throws URISyntaxException {
         File fimage = new File("images/quiestcelogo.png");
-        Image image = new Image(fimage.getAbsolutePath());
+        Image image = new Image("file:///" + fimage.getAbsolutePath());
         ImageView vimage = new ImageView(image);
         vimage.setFitHeight(292.);
         vimage.setFitWidth(598.);
@@ -101,13 +103,15 @@ public class pageAvantJeuController {
         Parent root1 = (Parent) fxmlLoader.load();
         Stage stage = new Stage();
         stage.setTitle("QuiEstCe?");
-        if(difficulte.equals("Facile")){stage.setTitle("QuiEstCe? - Mode Facile");}
+        if (difficulte.equals("Facile")) {
+            stage.setTitle("QuiEstCe? - Mode Facile");
+        }
         File logo = new File("images/logoQuiEstCe.png");
-        stage.getIcons().add(new Image(logo.getAbsolutePath()));
+        stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
         stage.setScene(new Scene(root1));
         stage.show();
         ((Stage) jsonNameLabel.getScene().getWindow()).close();
-        
+
     }
 
     @FXML
@@ -121,25 +125,26 @@ public class pageAvantJeuController {
             Parent root1 = (Parent) fxmlLoader.load();
             Stage stage = new Stage();
             stage.setTitle("QuiEstCe?");
-            if(((String)js.get("difficulte")).equals("Facile")){stage.setTitle("QuiEstCe? - Mode Facile");}
+            if (((String) js.get("difficulte")).equals("Facile")) {
+                stage.setTitle("QuiEstCe? - Mode Facile");
+            }
             File logo = new File("images/logoQuiEstCe.png");
-            stage.getIcons().add(new Image(logo.getAbsolutePath()));
+            stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
             stage.setScene(new Scene(root1));
             stage.show();
             ((Stage) jsonNameLabel.getScene().getWindow()).close();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            e.getStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.getStackTrace();
         } catch (ParseException e) {
-            e.printStackTrace();
+            e.getStackTrace();
         }
     }
 
     private void estNouvellePartiePossible() {
         if (difficulte != null && jsonName != null)
             buttonnouvellepartie.setDisable(false);
-
     }
 
 }
