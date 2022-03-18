@@ -5,7 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollBar;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Spinner;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -40,10 +40,10 @@ public class pageGenerateurController {
     private ScrollBar scrollBar;
 
     @FXML
-    private TextField textField1;
+    private Spinner<?> spinnerColonne;
 
     @FXML
-    private TextField textField2;
+    private Spinner<?> spinnerLigne;
 
     @FXML
     private AnchorPane topAnchorPane;
@@ -71,7 +71,7 @@ public class pageGenerateurController {
     }
 
     @FXML
-    void textFieldEvent(ActionEvent event) {
+    void spinnerEvent(ActionEvent event) {
 
     }
 
