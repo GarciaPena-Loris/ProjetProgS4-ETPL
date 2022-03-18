@@ -72,12 +72,19 @@ public class pageGenerateurController {
 
     @FXML
     void spinnerEvent(ActionEvent event) {
-
+        
     }
 
     @FXML
     void validerButtonEvent(ActionEvent event) {
+        Bottom.getChildren().removeall(spinnerColonne,spinnerLigne,ligneText,colonnesText);
+        Button buttonAjoutAttribut = new Button("Ajout Attribut");
+            buttonAjoutAttribut.setId("AjoutAttribut");
+            buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
 
+            Bottom.setBottomAnchor(buttonAjoutAttribut, 20.);
+            Bottom.setRightAnchor(buttonAjoutAttribut, 85.);
+            Bottom.getChildren().add(buttonAjoutAttribut);
     }
 
 }
