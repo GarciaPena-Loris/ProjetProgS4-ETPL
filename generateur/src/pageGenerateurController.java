@@ -175,8 +175,8 @@ public class pageGenerateurController {
         buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
         validerButton.setText("Valider les attributs");
 
-        AnchorPane.setBottomAnchor(buttonAjoutAttribut, 20.);
-        AnchorPane.setRightAnchor(buttonAjoutAttribut, 85.);
+        AnchorPane.setBottomAnchor(buttonAjoutAttribut, 60.);
+        AnchorPane.setLeftAnchor(buttonAjoutAttribut, 85.);
         bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
         }
         else {
