@@ -68,7 +68,7 @@
                      </font>
                   </Text>
                   <Spinner fx:id="spinnerColonne" disable="true" editable="true" layoutX="276.0" layoutY="75.0" max="100" min="0" onInputMethodTextChanged="#spinnerColonneEvent" opacity="0.5" prefHeight="43.0" prefWidth="83.0" />
-                  <Spinner fx:id="spinnerLigne" disable="true" editable="true" layoutX="249.0" layoutY="134.0" max="100" min="0" onInputMethodTextChanged="#spinnerColonneEvent" opacity="0.5" prefHeight="43.0" prefWidth="83.0" />
+                  <Spinner fx:id="spinnerLigne" disable="true" editable="true" layoutX="249.0" layoutY="134.0" max="100" min="0" onInputMethodTextChanged="#spinnerLigneEvent" opacity="0.5" prefHeight="43.0" prefWidth="83.0" />
                </children>
             </AnchorPane>
          </items>

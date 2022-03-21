@@ -1,6 +1,9 @@
 import java.io.File;
 import java.io.FilenameFilter;
+import java.net.http.WebSocket.Listener;
 import java.util.ArrayList;
+
+import org.json.simple.JSONObject;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -23,7 +26,7 @@ public class pageGenerateurController {
     private String cheminVersImage;
     private String ligne;
     private String colonne;
-    private ArrayList<String> listePersonnages = new ArrayList<>();;
+    private ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private ArrayList<Image> listeImages = new ArrayList<>();
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
@@ -93,17 +96,22 @@ public class pageGenerateurController {
         topAnchorPane.getChildren().add(logoVimage);
         borderPaneId.setPrefHeight(zoneImageId.getPrefHeight()-5);
 
-
-        //temporaire
-        Button buttonAjoutAttribut = new Button("Ajout Attribut");
-        buttonAjoutAttribut.setId("AjoutAttribut");
-        // buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
-
-        AnchorPane.setBottomAnchor(buttonAjoutAttribut, 20.);
-        AnchorPane.setRightAnchor(buttonAjoutAttribut, 85.);
-        bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
-        //
-
+        spinnerColonne.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
+            if (Integer.parseInt(newValue) > 0 && Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) > 0) {
+                validerButton.setDisable(false);
+            } 
+            else {
+                validerButton.setDisable(true);
+            }
+        });
+        spinnerLigne.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
+            if (Integer.parseInt(newValue) > 0 && Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) > 0) {
+                validerButton.setDisable(false);
+            }
+            else {
+                validerButton.setDisable(true);
+            }
+        });
     }
 
     @FXML
@@ -131,8 +139,8 @@ public class pageGenerateurController {
                     Image imagePerso = new Image("file:///" + urlImage);
                     listeImages.add(imagePerso);
                     ImageView imageViewPerso = new ImageView(imagePerso);
-                    imageViewPerso.setFitHeight(175);
-                    imageViewPerso.setFitWidth(145);
+                    imageViewPerso.setFitHeight(174);
+                    imageViewPerso.setFitWidth(144);
                     imageViewPerso
                             .setId(nomImage + "_" + x + "_" + y);
                     grillePerso.add(imageViewPerso, x, y);
