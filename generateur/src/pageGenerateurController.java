@@ -16,6 +16,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Screen;
 
 public class pageGenerateurController {
 
@@ -81,12 +82,17 @@ public class pageGenerateurController {
 
     @FXML
     protected void initialize() {
+        MainAnchorPane.setMaxHeight(Screen.getPrimary().getBounds().getHeight()-80);
+        MainAnchorPane.setMinHeight(Screen.getPrimary().getBounds().getHeight()-80);
+        MainAnchorPane.setPrefHeight(Screen.getPrimary().getBounds().getHeight()-80);
         File logoFile = new File("images/logoGenerateur.png");
         Image logoImage = new Image("file:///" + logoFile.getAbsolutePath());
         ImageView logoVimage = new ImageView(logoImage);
         logoVimage.setFitHeight(137.);
         logoVimage.setFitWidth(904.);
         topAnchorPane.getChildren().add(logoVimage);
+        System.out.println("Hauteur :"+Screen.getPrimary().getBounds().getHeight()+"/ Largeur :"+Screen.getPrimary().getBounds().getWidth());
+        
     }
 
     @FXML
