@@ -21,7 +21,7 @@
                         <AnchorPane fx:id="topAnchorPane" maxHeight="137.0" minHeight="137.0" minWidth="0.0" prefWidth="900.0" />
                         <AnchorPane fx:id="middleAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="510.0" prefWidth="900.0">
                            <children>
-                              <ScrollPane fx:id="zoneImageId" prefHeight="543.0" prefWidth="900.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                              <ScrollPane fx:id="zoneImageId" hbarPolicy="NEVER" prefHeight="436.8" prefWidth="896.8" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <content>
                                     <BorderPane fx:id="borderPaneId" prefHeight="541.0" prefWidth="898.0">
                                        <center>

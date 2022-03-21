@@ -87,6 +87,7 @@ public class pageGenerateurController {
         logoVimage.setFitHeight(137.);
         logoVimage.setFitWidth(904.);
         topAnchorPane.getChildren().add(logoVimage);
+        borderPaneId.setPrefHeight(zoneImageId.getPrefHeight()-5);
     }
 
     @FXML
@@ -101,7 +102,6 @@ public class pageGenerateurController {
             if (selectedDirectory.isDirectory()) {
                 int x = 0; //colonne
                 int y = 0; //lignes 
-                zoneImageId.setHbarPolicy(ScrollBarPolicy.NEVER);
                 GridPane grillePerso = new GridPane();
                 grillePerso.setId("grillePerso");
                 grillePerso.setGridLinesVisible(true);
@@ -132,7 +132,7 @@ public class pageGenerateurController {
                 if (compteurImage >= 6) {
                     cheminVersImage = selectedDirectory.getAbsolutePath();
                     borderPaneId.getChildren().clear();
-                    errorText.setOpacity(1);
+                    errorText.setOpacity(0);
                     borderPaneId.setCenter(grillePerso);
                     
                     //reactive la partie en dessous
