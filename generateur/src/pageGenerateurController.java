@@ -93,6 +93,17 @@ public class pageGenerateurController {
         topAnchorPane.getChildren().add(logoVimage);
         borderPaneId.setPrefHeight(zoneImageId.getPrefHeight()-5);
 
+
+        //temporaire
+        Button buttonAjoutAttribut = new Button("Ajout Attribut");
+        buttonAjoutAttribut.setId("AjoutAttribut");
+        // buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
+
+        AnchorPane.setBottomAnchor(buttonAjoutAttribut, 20.);
+        AnchorPane.setRightAnchor(buttonAjoutAttribut, 85.);
+        bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
+        //
+
     }
 
     @FXML
@@ -158,12 +169,12 @@ public class pageGenerateurController {
 
     @FXML
     void spinnerColonneEvent(ActionEvent event) {
-
+        System.out.println(event);
     }
 
     @FXML
     void spinnerLigneEvent(ActionEvent event) {
-
+        System.out.println(event);
     }
 
     @FXML
