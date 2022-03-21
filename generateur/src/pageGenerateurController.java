@@ -168,14 +168,20 @@ public class pageGenerateurController {
 
     @FXML
     void validerButtonEvent(ActionEvent event) {
+        if (spinnerColonne!=null&&spinnerLigne!=null){
         bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
         Button buttonAjoutAttribut = new Button("Ajout Attribut");
-        buttonAjoutAttribut.setId("AjoutAttribut");
-        // buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
+        buttonAjoutAttribut.setId("ajouterAttributButton");
+        buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
+        validerButton.setText("Valider les attributs");
 
         AnchorPane.setBottomAnchor(buttonAjoutAttribut, 20.);
         AnchorPane.setRightAnchor(buttonAjoutAttribut, 85.);
         bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
+        }
+        else {
+            explicationText.setText("Attention ! saisissez le nombre des lignes et de colonnes avant de valider !");
+        }
     }
 
 }
