@@ -2,12 +2,15 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 
+import org.json.simple.JSONObject;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -23,7 +26,7 @@ public class pageGenerateurController {
     private String cheminVersImage;
     private String ligne;
     private String colonne;
-    private ArrayList<String> listePersonnages = new ArrayList<>();;
+    private ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private ArrayList<Image> listeImages = new ArrayList<>();
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
@@ -173,17 +176,51 @@ public class pageGenerateurController {
         Button buttonAjoutAttribut = new Button("Ajout Attribut");
         buttonAjoutAttribut.setId("ajouterAttributButton");
         buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
-        validerButton.setText("Valider les attributs");
-
+        validerButton.setText("exporter en JSON");
+        explicationText.setText("Saississez les attributs et cliquer sur Valider les attributs pour exporter votre grille en JSON.");
         buttonAjoutAttribut.setPrefWidth(66);
         buttonAjoutAttribut.setPrefHeight(173);
         buttonAjoutAttribut.setLayoutX(40);
         buttonAjoutAttribut.setLayoutY(89);
-        bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
+
+        TextField nomJsonTextField= new TextField();
+        nomJsonTextField.setId("nomJSON");
+        nomJsonTextField.setPrefWidth(66);
+        nomJsonTextField.setPrefHeight(121);
+        nomJsonTextField.setLayoutX(160);
+        nomJsonTextField.setLayoutY(89);
+        bottomAnchorPane.getChildren().add(nomJsonTextField);
         }
         else {
             explicationText.setText("Attention ! saisissez le nombre des lignes et de colonnes avant de valider !");
         }
     }
+
+    //export en JSON
+    EventHandler<ActionEvent> export = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(MouseEvent mouseEvent){
+            JSONObject listeJson = new JSONObject();
+            listeJson.put("cheminVersImages", String.valueOf(cheminVersImage));
+            listeJson.put("ligne", String.valueOf(ligne));
+            listeJson.put("colonne", String.valueOf(colonne));
+        
+    
+            JSONObject listePerso = new JSONObject();
+            int i = 0;
+            for (JSONObject personnage : listePersonnages) {
+                listePerso.put(String.valueOf(i), personnage);
+                i++;
+    
+            }
+            listeJson.put("personnages", listePerso);
+    
+            try (FileWriter file = new FileWriter(new File("Generateur/bin/"+nomJsonTextField.getText()+".json"))) {
+                file.write(listeJson.toJSONString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
 }
