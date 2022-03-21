@@ -57,7 +57,7 @@
                         <Font name="Ebrima" size="23.0" />
                      </font>
                   </Text>
-                  <Button fx:id="validerButton" disable="true" layoutX="669.0" layoutY="89.0" mnemonicParsing="false" onAction="#validerButtonEvent" prefHeight="66.0" prefWidth="173.0" text="Valider">
+                  <Button fx:id="validerButton" disable="true" layoutX="669.0" layoutY="89.0" mnemonicParsing="false" onAction="#validerButtonEvent" prefHeight="66.0" prefWidth="173.0" text="Passer aux attributs">
                      <font>
                         <Font name="Calibri Light" size="25.0" />
                      </font>
