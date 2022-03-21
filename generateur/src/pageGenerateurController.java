@@ -1,10 +1,13 @@
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.json.simple.JSONObject;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -14,6 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -82,6 +86,9 @@ public class pageGenerateurController {
 
     @FXML
     private Button validerButton;
+
+    @FXML
+    private TextField nomJsonTextField;
 
     @FXML
     protected void initialize() {
@@ -175,7 +182,7 @@ public class pageGenerateurController {
         bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
         Button buttonAjoutAttribut = new Button("Ajout Attribut");
         buttonAjoutAttribut.setId("ajouterAttributButton");
-        buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
+        //buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
         validerButton.setText("exporter en JSON");
         explicationText.setText("Saississez les attributs et cliquer sur Valider les attributs pour exporter votre grille en JSON.");
         buttonAjoutAttribut.setPrefWidth(66);
@@ -199,7 +206,7 @@ public class pageGenerateurController {
     //export en JSON
     EventHandler<ActionEvent> export = new EventHandler<ActionEvent>() {
         @Override
-        public void handle(MouseEvent mouseEvent){
+        public void handle(ActionEvent actionEvent){
             JSONObject listeJson = new JSONObject();
             listeJson.put("cheminVersImages", String.valueOf(cheminVersImage));
             listeJson.put("ligne", String.valueOf(ligne));
