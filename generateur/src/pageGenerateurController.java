@@ -86,8 +86,19 @@ public class pageGenerateurController {
 
     @FXML
     private Button validerButton;
+
     @FXML
-    private TextField nomJsonTextField;
+    private Text nomJsonText;
+
+    @FXML 
+    private Button exporterButton;
+
+    @FXML
+    private TextField nomTextField;
+
+    @FXML
+    private Button ajoutAttributButton;
+
     @FXML
     protected void initialize() {
         MainAnchorPane.setMaxHeight(Screen.getPrimary().getBounds().getHeight()-80);
@@ -176,29 +187,41 @@ public class pageGenerateurController {
 
     @FXML
     void validerButtonEvent(ActionEvent event) {
-        if (spinnerColonne!=null&&spinnerLigne!=null){
-        bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
-        Button buttonAjoutAttribut = new Button("Ajout Attribut");
-        buttonAjoutAttribut.setId("ajouterAttributButton");
-       // buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
-        validerButton.setText("exporter en JSON");
-        explicationText.setText("Saississez les attributs et cliquer sur Valider les attributs pour exporter votre grille en JSON.");
-        buttonAjoutAttribut.setPrefWidth(66);
-        buttonAjoutAttribut.setPrefHeight(173);
-        buttonAjoutAttribut.setLayoutX(40);
-        buttonAjoutAttribut.setLayoutY(89);
+        bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText, validerButton);
+        explicationText.setText("Saississez les attributs, nommez votre fichier json et cliquez sur <<exporter>> pour exporter votre grille.");
+ 
+        Button ajoutAttributButton = new Button("Ajout Attribut");
+        ajoutAttributButton.setId("ajouterAttributButton");
+       // ajoutAttributButton.setOnAction(ajoutAttributEvent);
+        ajoutAttributButton.setPrefWidth(66);
+        ajoutAttributButton.setPrefHeight(173);
+        ajoutAttributButton.setLayoutX(60);
+        ajoutAttributButton.setLayoutY(89);
+       // pageAttributController.setBtnAttribut(ajoutAttributButton);
 
-        TextField nomJsonTextField= new TextField();
-        nomJsonTextField.setId("nomJSON");
-        nomJsonTextField.setPrefWidth(66);
-        nomJsonTextField.setPrefHeight(121);
-        nomJsonTextField.setLayoutX(160);
-        nomJsonTextField.setLayoutY(89);
-        bottomAnchorPane.getChildren().add(nomJsonTextField);
-        }
-        else {
-            explicationText.setText("Attention ! saisissez le nombre des lignes et de colonnes avant de valider !");
-        }
+        Button exporterButton= new Button();
+        exporterButton.setId("exporter");
+        exporterButton.setPrefWidth(66);
+        exporterButton.setPrefHeight(173);
+        exporterButton.setLayoutX(669.0);
+        exporterButton.setLayoutY(89.0);
+        exporterButton.setOnAction(export);
+        
+
+        Text nomJsonText= new Text();
+        nomJsonText.setId("nomJSON :");
+        nomJsonText.prefWidth(66);
+        nomJsonText.prefHeight(121);
+        nomJsonText.setLayoutX(250);
+        nomJsonText.setLayoutY(140);
+        bottomAnchorPane.getChildren().add(nomJsonText);
+
+        TextField nomJsonTextField=new TextField();
+        nomJsonTextField.setId("nom");
+        nomJsonTextField.prefWidth(277);
+        nomJsonTextField.prefHeight(43);
+        nomJsonTextField.setLayoutX(384);
+        nomJsonTextField.setLayoutY(101);
     }
 
     //export en JSON
@@ -220,7 +243,7 @@ public class pageGenerateurController {
             }
             listeJson.put("personnages", listePerso);
     
-            try (FileWriter file = new FileWriter(new File("Generateur/bin/"+nomJsonTextField.getText()+".json"))) {
+            try (FileWriter file = new FileWriter(new File("Generateur/bin/"+nomJsonText.getText()+".json"))) {
                 file.write(listeJson.toJSONString());
             } catch (IOException e) {
                 e.printStackTrace();
