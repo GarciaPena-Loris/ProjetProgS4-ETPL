@@ -86,10 +86,8 @@ public class pageGenerateurController {
 
     @FXML
     private Button validerButton;
-
     @FXML
     private TextField nomJsonTextField;
-
     @FXML
     protected void initialize() {
         MainAnchorPane.setMaxHeight(Screen.getPrimary().getBounds().getHeight()-80);
@@ -182,7 +180,7 @@ public class pageGenerateurController {
         bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
         Button buttonAjoutAttribut = new Button("Ajout Attribut");
         buttonAjoutAttribut.setId("ajouterAttributButton");
-        //buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
+       // buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
         validerButton.setText("exporter en JSON");
         explicationText.setText("Saississez les attributs et cliquer sur Valider les attributs pour exporter votre grille en JSON.");
         buttonAjoutAttribut.setPrefWidth(66);
@@ -204,7 +202,7 @@ public class pageGenerateurController {
     }
 
     //export en JSON
-    EventHandler<ActionEvent> export = new EventHandler<ActionEvent>() {
+   EventHandler<ActionEvent> export = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent){
             JSONObject listeJson = new JSONObject();

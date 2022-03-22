@@ -9,15 +9,8 @@
             "name": "Launch App",
             "request": "launch",
             "mainClass": "App",
-            "projectName": "generateur_808b163a",
+            "projectName": "generateur_caf05a30",
             "vmArgs": "--module-path \"../librairies/javafx-sdk-17.0.2/lib\" --add-modules javafx.controls,javafx.fxml"
-
-        },
-        {
-            "type": "java",
-            "name": "Launch Current File",
-            "request": "launch",
-            "mainClass": "${file}"
         },
         {
             "type": "java",
