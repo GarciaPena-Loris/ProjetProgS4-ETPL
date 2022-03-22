@@ -1,6 +1,9 @@
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.json.simple.JSONObject;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -23,7 +26,7 @@ public class pageGenerateurController {
     private String cheminVersImage;
     private String ligne;
     private String colonne;
-    private ArrayList<String> listePersonnages = new ArrayList<>();;
+    private ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private ArrayList<Image> listeImages = new ArrayList<>();
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
@@ -177,5 +180,27 @@ public class pageGenerateurController {
         AnchorPane.setRightAnchor(buttonAjoutAttribut, 85.);
         bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
     }
+    boolean verification(){
+        List<String> attributs = new ArrayList<>(listePersonnages.get(0).keySet());
+        for (JSONObject personnage:listePersonnages){
+            for(String attribut:attributs){
+            if (personnage.get(attribut) == null){ return false ;}}
+            String p = (String) personnage.get("prenom");
+            for (JSONObject personnage2 : listePersonnages) {
+                if (!personnage.equals(personnage2)){
+                    if (p.equals(personnage2.get("prenom"))){
+                        for(String attribut:attributs){
+                            if (personnage.get(attribut).equals(personnage2.get(attribut))){
+                                return false;
+                            }
+                        }
 
+                    }
+
+                }
+            }
+
+        }
+        return true;
+    }
 }
