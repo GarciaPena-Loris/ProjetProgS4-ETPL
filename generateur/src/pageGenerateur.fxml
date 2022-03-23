@@ -57,9 +57,9 @@
                         <Font name="Ebrima" size="23.0" />
                      </font>
                   </Text>
-                  <Button fx:id="validerButton" disable="true" layoutX="669.0" layoutY="89.0" mnemonicParsing="false" onAction="#validerButtonEvent" prefHeight="66.0" prefWidth="173.0" text="Valider">
+                  <Button fx:id="validerButton" disable="true" layoutX="649.0" layoutY="89.0" mnemonicParsing="false" onAction="#validerButtonEvent" prefHeight="66.0" prefWidth="193.0" text="Passer aux attributs">
                      <font>
-                        <Font name="Calibri Light" size="25.0" />
+                        <Font name="Calibri Light" size="19.0" />
                      </font>
                   </Button>
                   <Text fx:id="explicationText" layoutX="61.0" layoutY="36.0" opacity="0.3" strokeType="OUTSIDE" strokeWidth="0.0" text="Inserez le nombre de lignes et de colonnes que vous désirez pour votre grille de &quot;Qui est ce ?&quot; :">

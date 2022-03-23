@@ -25,6 +25,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Screen;
@@ -38,7 +39,7 @@ public class pageGenerateurController {
     private String colonne;
     private ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private ArrayList<Image> listeImages = new ArrayList<>();
-    private ArrayList<String> listeAttributsString = new ArrayList<>();
+    private boolean estValeursAjoutable = false;
     private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
     private static ArrayList<Label> listeAttributsLabel = new ArrayList<>();
     private static Boolean estOuvertAttribut = false;
@@ -55,8 +56,6 @@ public class pageGenerateurController {
             return (false);
         }
     };
-
-
 
     @FXML
     private AnchorPane MainAnchorPane;
@@ -113,28 +112,21 @@ public class pageGenerateurController {
         topAnchorPane.getChildren().add(logoVimage);
         borderPaneId.setPrefHeight(Screen.getPrimary().getBounds().getHeight() - 500);
         spinnerColonne.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
-            if (Integer.parseInt(newValue) * Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) >= listeImages.size()) {
+            if (Integer.parseInt(newValue)
+                    * Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) >= listeImages.size()) {
                 validerButton.setDisable(false);
             } else {
                 validerButton.setDisable(true);
             }
         });
         spinnerLigne.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
-            if (Integer.parseInt(newValue) * Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) >= listeImages.size()) {
+            if (Integer.parseInt(newValue)
+                    * Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) >= listeImages.size()) {
                 validerButton.setDisable(false);
             } else {
                 validerButton.setDisable(true);
             }
         });
-      
-        Button buttonAjoutAttribut = new Button("Ajout Attribut");
-        buttonAjoutAttribut.setId("AjoutAttribut");
-        buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
-        pageAttributController.setBtnAttribut(buttonAjoutAttribut);
-
-        AnchorPane.setBottomAnchor(buttonAjoutAttribut, 20.);
-        AnchorPane.setRightAnchor(buttonAjoutAttribut, 85.);
-        bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
     }
 
     @FXML
@@ -199,26 +191,146 @@ public class pageGenerateurController {
 
     @FXML
     void validerButtonEvent(ActionEvent event) {
-        bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
-        Button buttonAjoutAttribut = new Button("Ajout Attribut");
-        buttonAjoutAttribut.setId("AjoutAttribut");
-        // buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
+        colonne = (String) spinnerColonne.getValue().toString();
+        ligne = (String) spinnerLigne.getValue().toString();
+        explicationText.setText(
+                "Cliquer sur le bouton 'Ajouter des attributs' pour définir les attributs commun de vos personnages :");
 
-        AnchorPane.setBottomAnchor(buttonAjoutAttribut, 20.);
-        AnchorPane.setRightAnchor(buttonAjoutAttribut, 85.);
+        bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
+        Button buttonAjoutAttribut = new Button("Ajouter des attributs");
+        buttonAjoutAttribut.setId("ajoutAttributButton");
+        buttonAjoutAttribut.setOnAction(ajoutAttributEvent);
+        buttonAjoutAttribut.setPrefHeight(66);
+        buttonAjoutAttribut.setFont(new Font("Calibri", 19));
+        pageAttributController.setBtnAttribut(buttonAjoutAttribut);
+        pageAttributController.setBtnValider(validerButton);
+
+        AnchorPane.setTopAnchor(buttonAjoutAttribut, 85.);
+        AnchorPane.setLeftAnchor(buttonAjoutAttribut, 60.);
         bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
+
+        validerButton.setText("Passer aux valeurs");
+        validerButton.setOnAction(ajoutValeurEvent);
+        validerButton.setDisable(true);
     }
-    boolean verification(){
-        List<String> attributs = new ArrayList<>(listePersonnages.get(0).keySet());
-        for (JSONObject personnage:listePersonnages){
-            for(String attribut:attributs){
-            if (personnage.get(attribut) == null){ return false ;}}
+
+    EventHandler<ActionEvent> ajoutAttributEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageAjoutAttribut.fxml"));
+            Parent root1;
+            try {
+                root1 = (Parent) fxmlLoader.load();
+                Stage stage = new Stage();
+                stage.setTitle("Ajouter des attributs");
+                File logo = new File("images/iconeGenerateur.png");
+                stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
+                stage.setScene(new Scene(root1));
+                // Quand on ferme la fenetre elle devient réouvrable
+                stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                    @Override
+                    public void handle(WindowEvent event) {
+                        estOuvertAttribut = false;
+                        bottomAnchorPane.getScene().lookup("#ajoutAttributButton").setDisable(false);
+                    }
+                });
+                stage.show();
+                estOuvertAttribut = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            // si la fenêtre est ouverte on ne peut la dupliquer
+            if (estOuvertAttribut) {
+                bottomAnchorPane.getScene().lookup("#ajoutAttributButton").setDisable(true);
+            }
+
+        }
+    };
+
+    public static void setListAttributString(ArrayList<String> lA) {
+        listeAttributsStrings = lA;
+        estOuvertAttribut = false;
+    }
+
+    public static ArrayList<String> getListAttributString() {
+        return listeAttributsStrings;
+    }
+
+    public static void setListAttributLabel(ArrayList<Label> lA) {
+        listeAttributsLabel = lA;
+    }
+
+    public static ArrayList<Label> getListAttributLabel() {
+        return listeAttributsLabel;
+    }
+
+    public static void setListSupprLabel(ArrayList<Label> lA) {
+        listeSupprLabel = lA;
+    }
+
+    public static ArrayList<Label> getListSupprLabel() {
+        return listeSupprLabel;
+    }
+
+    EventHandler<MouseEvent> ajouterValeurAttributPersonnage = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+            if (estValeursAjoutable) {
+                try {
+                    ImageView cibleActuel = (ImageView) mouseEvent.getSource();
+                    String[] cibleSplit = cibleActuel.getId().split("\\*");
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("pageAjoutValeurs.fxml"));
+
+                    pageAjoutValeursController controller = new pageAjoutValeursController(cibleSplit[0], cibleSplit[3],
+                            listeAttributsStrings);
+                    loader.setController(controller);
+
+                    Parent parent = (Parent) loader.load();
+                    Stage stage = new Stage();
+                    stage.setTitle("Ajouter les valeurs pour l'image " + cibleSplit[0]);
+                    File logo = new File("images/iconeGenerateur.png");
+                    stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
+
+                    stage.setScene(new Scene(parent));
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
+    EventHandler<ActionEvent> ajoutValeurEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            estValeursAjoutable = true;
+
+            explicationText.setText(
+                    "Cliquez sur les images des personnages pour définir les valeurs de leurs attributs.");
+
+            bottomAnchorPane.getChildren().remove((Button) bottomAnchorPane.getScene().lookup("#ajoutAttributButton"));
+
+            validerButton.setText("Générer le Json");
+            validerButton.setOnAction(genererJsonEvent);
+            validerButton.setDisable(true);
+
+        }
+    };
+
+    boolean verification() {
+        List<String> attributs = new ArrayList<String>(listePersonnages.get(0).keySet());
+        for (JSONObject personnage : listePersonnages) {
+            for (String attribut : attributs) {
+                if (personnage.get(attribut) == null) {
+                    return false;
+                }
+            }
             String p = (String) personnage.get("prenom");
             for (JSONObject personnage2 : listePersonnages) {
-                if (!personnage.equals(personnage2)){
-                    if (p.equals(personnage2.get("prenom"))){
-                        for(String attribut:attributs){
-                            if (personnage.get(attribut).equals(personnage2.get(attribut))){
+                if (!personnage.equals(personnage2)) {
+                    if (p.equals(personnage2.get("prenom"))) {
+                        for (String attribut : attributs) {
+                            if (personnage.get(attribut).equals(personnage2.get(attribut))) {
                                 return false;
                             }
                         }
@@ -231,94 +343,11 @@ public class pageGenerateurController {
         return true;
     }
 
-    EventHandler<ActionEvent> AjoutAttributEvent = new EventHandler<ActionEvent>() {
+    EventHandler<ActionEvent> genererJsonEvent = new EventHandler<ActionEvent>() {
         @Override
-        public void handle(ActionEvent event)  {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageAjoutAttribut.fxml"));
-            Parent root1;
-            try {
-                root1 = (Parent) fxmlLoader.load();
-                Stage stage = new Stage();
-                stage.setTitle("Ajouter des attributs");
-                File logo = new File("images/iconeGenerateur.png");
-                stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
-                stage.setScene(new Scene(root1));
-                 //Quand on ferme la fenetre elle devient réouvrable
-                stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-                    @Override
-                    public void handle(WindowEvent event){
-                        estOuvertAttribut = false;
-                        bottomAnchorPane.getScene().lookup("#AjoutAttribut").setDisable(false);
-                    }
-                });
-                stage.show();
-                estOuvertAttribut = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //si la fenêtre est ouverte on ne peut la dupliquer 
-            if (estOuvertAttribut){
-                bottomAnchorPane.getScene().lookup("#AjoutAttribut").setDisable(true);
-            }
-            
+        public void handle(ActionEvent event) {
+            System.out.println("On genere");
         }
-    };
-
-    public static void setListAttributString(ArrayList<String> lA){
-        listeAttributsStrings=lA;
-        estOuvertAttribut=false;
-    }
-    public static ArrayList<String> getListAttributString(){
-        return listeAttributsStrings;
-    }
-    public static void setListAttributLabel(ArrayList<Label> lA){
-        listeAttributsLabel=lA;
-    }
-    public static ArrayList<Label> getListAttributLabel(){
-        return listeAttributsLabel;
-    }
-    public static void setListSupprLabel(ArrayList<Label> lA){
-        listeSupprLabel=lA;
-    }
-
-    public static ArrayList<Label> getListSupprLabel(){
-        return listeSupprLabel;
-    }
-
-    EventHandler<MouseEvent> ajouterValeurAttributPersonnage = new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent mouseEvent) {
-            ImageView cibleActuel = (ImageView) mouseEvent.getSource();
-            String[] cibleSplit = cibleActuel.getId().split("\\*");
-
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("pageAjoutValeurs.fxml"));
-
-                //temporaire
-                listeAttributsString.add("Couleur cheveux");
-                listeAttributsString.add("lunette");
-                listeAttributsString.add("cheveux");
-                listeAttributsString.add("sexe");
-                listeAttributsString.add("age");
-                listeAttributsString.add("Nombre de dents");
-                listeAttributsString.add("Chapeau");
-                listeAttributsString.add("Moustache ? / Barbes ? / poils du nez qui depasse ?");
-                pageAjoutValeursController controller = new pageAjoutValeursController(cibleSplit[0], cibleSplit[3], listeAttributsString);
-                loader.setController(controller);
-
-                Parent parent = (Parent) loader.load();
-                Stage stage = new Stage();
-                stage.setTitle("Ajouter les valeurs pour l'image " + cibleSplit[0]);
-                File logo = new File("images/iconeGenerateur.png");
-                stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
-
-                stage.setScene(new Scene(parent));
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
     };
 
 }
