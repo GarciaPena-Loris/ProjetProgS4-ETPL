@@ -173,7 +173,7 @@ public class pageAjoutValeursController implements Initializable {
                 if (persoMap.get("prenom").equals(personnageMap.get("prenom"))) {
                     estDejaPresent = true;
                     if (!labelAlreadyDisplayed) {
-                        Label erreur = new Label("Identifiant deja présent, impossible de valider");
+                        Label erreur = new Label("Identifiant deja présent, impossible de valider.");
                         erreur.setFont(new Font("Reem Kufi Regular", 18));
                         erreur.setId("errorLabel");
                         anchorPaneId.getChildren().add(erreur);

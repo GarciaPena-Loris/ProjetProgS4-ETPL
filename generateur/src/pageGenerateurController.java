@@ -171,7 +171,7 @@ public class pageGenerateurController {
                     }
                 }
 
-                if (compteurImage >= 6) {
+                if (compteurImage >= 3) {
                     nombrePersonnageTotal = compteurImage;
                     cheminVersImage = selectedDirectory.getAbsolutePath();
                     borderPaneId.getChildren().clear();
@@ -199,7 +199,7 @@ public class pageGenerateurController {
         ligne = (String) spinnerLigne.getValue().toString();
         ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
         explicationText.setText(
-                "Cliquer sur le bouton 'Ajouter des attributs' pour définir les attributs commun de vos personnages :");
+                "Cliquez sur le bouton 'Ajouter des attributs' pour définir les attributs commun de vos personnages :");
 
         bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
         Button buttonAjoutAttribut = new Button("Ajouter des attributs");
@@ -295,7 +295,12 @@ public class pageGenerateurController {
                     stage.setTitle("Ajouter les valeurs pour l'image " + cibleSplit[0]);
                     File logo = new File("images/iconeGenerateur.png");
                     stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
-
+                    stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                        @Override
+                        public void handle(WindowEvent event) {
+                            estValeursAjoutable = true;
+                        }
+                    });
                     stage.setScene(new Scene(parent));
                     stage.show();
 
@@ -339,8 +344,10 @@ public class pageGenerateurController {
 
         nombrePersonnageTermines++;
         estValeursAjoutable = true;
-        if (nombrePersonnageTermines == nombrePersonnageTotal) 
+        if (nombrePersonnageTermines == nombrePersonnageTotal) {
+            estValeursAjoutable = false;
             validerButton.setDisable(false);
+        }
     }
 
     boolean verification() {
