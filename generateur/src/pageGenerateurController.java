@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.json.simple.JSONObject;
 
+import org.json.simple.JSONObject;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -17,9 +19,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -36,11 +38,11 @@ public class pageGenerateurController {
     private String colonne;
     private ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private ArrayList<Image> listeImages = new ArrayList<>();
+    private ArrayList<String> listeAttributsString = new ArrayList<>();
     private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
     private static ArrayList<Label> listeAttributsLabel = new ArrayList<>();
     private static Boolean estOuvertAttribut = false;
     private static ArrayList<Label> listeSupprLabel = new ArrayList<>();
-       
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
         @Override
@@ -100,17 +102,31 @@ public class pageGenerateurController {
 
     @FXML
     protected void initialize() {
-        MainAnchorPane.setMaxHeight(Screen.getPrimary().getBounds().getHeight()-80);
-        MainAnchorPane.setMinHeight(Screen.getPrimary().getBounds().getHeight()-80);
-        MainAnchorPane.setPrefHeight(Screen.getPrimary().getBounds().getHeight()-80);
+        MainAnchorPane.setMaxHeight(Screen.getPrimary().getBounds().getHeight() - 80);
+        MainAnchorPane.setMinHeight(Screen.getPrimary().getBounds().getHeight() - 80);
+        MainAnchorPane.setPrefHeight(Screen.getPrimary().getBounds().getHeight() - 80);
         File logoFile = new File("images/logoGenerateur.png");
         Image logoImage = new Image("file:///" + logoFile.getAbsolutePath());
         ImageView logoVimage = new ImageView(logoImage);
         logoVimage.setFitHeight(137.);
         logoVimage.setFitWidth(904.);
         topAnchorPane.getChildren().add(logoVimage);
-        borderPaneId.setPrefHeight(zoneImageId.getPrefHeight()-5);
-
+        borderPaneId.setPrefHeight(Screen.getPrimary().getBounds().getHeight() - 500);
+        spinnerColonne.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
+            if (Integer.parseInt(newValue) * Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) >= listeImages.size()) {
+                validerButton.setDisable(false);
+            } else {
+                validerButton.setDisable(true);
+            }
+        });
+        spinnerLigne.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
+            if (Integer.parseInt(newValue) * Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) >= listeImages.size()) {
+                validerButton.setDisable(false);
+            } else {
+                validerButton.setDisable(true);
+            }
+        });
+      
         Button buttonAjoutAttribut = new Button("Ajout Attribut");
         buttonAjoutAttribut.setId("AjoutAttribut");
         buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
@@ -128,11 +144,10 @@ public class pageGenerateurController {
 
         if (selectedDirectory != null) {
             int compteurImage = 0;
-            System.out.println(selectedDirectory.getAbsolutePath());
 
             if (selectedDirectory.isDirectory()) {
-                int x = 0; //colonne
-                int y = 0; //lignes 
+                int x = 0; // colonne
+                int y = 0; // lignes
                 GridPane grillePerso = new GridPane();
                 grillePerso.setId("grillePerso");
                 grillePerso.setGridLinesVisible(true);
@@ -149,7 +164,8 @@ public class pageGenerateurController {
                     imageViewPerso.setFitHeight(175);
                     imageViewPerso.setFitWidth(145);
                     imageViewPerso
-                            .setId(nomImage + "_" + x + "_" + y);
+                            .setId(nomImage + "*" + x + "*" + y + "*" + urlImage);
+                    imageViewPerso.setOnMouseClicked(ajouterValeurAttributPersonnage);
                     grillePerso.add(imageViewPerso, x, y);
                     compteurImage++;
 
@@ -165,8 +181,8 @@ public class pageGenerateurController {
                     borderPaneId.getChildren().clear();
                     errorText.setOpacity(0);
                     borderPaneId.setCenter(grillePerso);
-                    
-                    //reactive la partie en dessous
+
+                    // reactive la partie en dessous
                     explicationText.setOpacity(1);
                     colonnesText.setOpacity(1);
                     ligneText.setOpacity(1);
@@ -174,22 +190,11 @@ public class pageGenerateurController {
                     spinnerLigne.setOpacity(1);
                     spinnerColonne.setDisable(false);
                     spinnerLigne.setDisable(false);
-                }
-                else {
+                } else {
                     errorText.setOpacity(1);
                 }
             }
         }
-    }
-
-    @FXML
-    void spinnerColonneEvent(ActionEvent event) {
-
-    }
-
-    @FXML
-    void spinnerLigneEvent(ActionEvent event) {
-
     }
 
     @FXML
@@ -279,5 +284,41 @@ public class pageGenerateurController {
     public static ArrayList<Label> getListSupprLabel(){
         return listeSupprLabel;
     }
+
+    EventHandler<MouseEvent> ajouterValeurAttributPersonnage = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+            ImageView cibleActuel = (ImageView) mouseEvent.getSource();
+            String[] cibleSplit = cibleActuel.getId().split("\\*");
+
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("pageAjoutValeurs.fxml"));
+
+                //temporaire
+                listeAttributsString.add("Couleur cheveux");
+                listeAttributsString.add("lunette");
+                listeAttributsString.add("cheveux");
+                listeAttributsString.add("sexe");
+                listeAttributsString.add("age");
+                listeAttributsString.add("Nombre de dents");
+                listeAttributsString.add("Chapeau");
+                listeAttributsString.add("Moustache ? / Barbes ? / poils du nez qui depasse ?");
+                pageAjoutValeursController controller = new pageAjoutValeursController(cibleSplit[0], cibleSplit[3], listeAttributsString);
+                loader.setController(controller);
+
+                Parent parent = (Parent) loader.load();
+                Stage stage = new Stage();
+                stage.setTitle("Ajouter les valeurs pour l'image " + cibleSplit[0]);
+                File logo = new File("images/iconeGenerateur.png");
+                stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
+
+                stage.setScene(new Scene(parent));
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    };
 
 }
