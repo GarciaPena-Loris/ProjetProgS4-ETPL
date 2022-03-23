@@ -12,6 +12,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -29,7 +30,8 @@ public class pageAjoutValeursController implements Initializable {
     private static String nomImage;
     private static String urlImage;
     private static ArrayList<String> listeAttributs;
-    private static ArrayList<JSONObject> listePersonnage;
+    private static ArrayList<HashMap<String,String>> listePersonnage = new ArrayList<>();
+    private boolean labelAlreadyDisplayed = false;
 
     public pageAjoutValeursController(String nomImageController, String urlImageController,
             ArrayList<String> listeAttributsString) {
@@ -138,8 +140,31 @@ public class pageAjoutValeursController implements Initializable {
         }
         //passe personnage a la page principale et ferme la feunetre:
         JSONObject personnage = new JSONObject(personnageMap);
-        pageGenerateurController.getValeursPersonnage(personnage); 
-        ((Stage) anchorPaneId.getScene().getWindow()).close();       
+        //vérification de la présence ou nom de cet identifiant
+        boolean estDejaPresent = false;
+        
+        if (!(listePersonnage.isEmpty())){
+            for (HashMap<String,String> persoMap : listePersonnage) {
+                if(persoMap.get("prenom").equals(personnageMap.get("prenom"))){
+                    estDejaPresent=true;
+                    if (!labelAlreadyDisplayed){
+                        Label erreur = new Label("Identifiant deja présent, impossible de valider");
+                        erreur.setFont(new Font("Reem Kufi Regular", 18));
+                        erreur.setId("errorLabel");
+                        anchorPaneId.getChildren().add(erreur);
+                        labelAlreadyDisplayed = true;
+                        erreur.setLayoutX(250);
+                        erreur.setLayoutY(410);
+                        erreur.setTextFill(Color.RED);
+                    }
+                }    
+            }
+        }
+        if (!estDejaPresent) {
+            listePersonnage.add(personnageMap);
+            pageGenerateurController.getValeursPersonnage(personnage); 
+            ((Stage) anchorPaneId.getScene().getWindow()).close();       
+        }
     }
 
 }

@@ -321,8 +321,7 @@ public class pageGenerateurController {
 
     //getter Pour les valeurs de chaques perso
     public static void getValeursPersonnage(JSONObject e){
-        listePersonnages.add(e);
-        System.out.println(listePersonnages); 
+        listePersonnages.add(e);     
     }
 
     boolean verification() {
