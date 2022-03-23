@@ -3,6 +3,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.json.simple.JSONObject;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -31,7 +34,7 @@ public class pageGenerateurController {
     private String cheminVersImage;
     private String ligne;
     private String colonne;
-    private ArrayList<String> listePersonnages = new ArrayList<>();
+    private ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private ArrayList<Image> listeImages = new ArrayList<>();
     private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
     private static ArrayList<Label> listeAttributsLabel = new ArrayList<>();
@@ -199,6 +202,28 @@ public class pageGenerateurController {
         AnchorPane.setBottomAnchor(buttonAjoutAttribut, 20.);
         AnchorPane.setRightAnchor(buttonAjoutAttribut, 85.);
         bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
+    }
+    boolean verification(){
+        List<String> attributs = new ArrayList<>(listePersonnages.get(0).keySet());
+        for (JSONObject personnage:listePersonnages){
+            for(String attribut:attributs){
+            if (personnage.get(attribut) == null){ return false ;}}
+            String p = (String) personnage.get("prenom");
+            for (JSONObject personnage2 : listePersonnages) {
+                if (!personnage.equals(personnage2)){
+                    if (p.equals(personnage2.get("prenom"))){
+                        for(String attribut:attributs){
+                            if (personnage.get(attribut).equals(personnage2.get(attribut))){
+                                return false;
+                            }
+                        }
+
+                    }
+
+                }
+            }
+        }
+        return true;
     }
 
     EventHandler<ActionEvent> AjoutAttributEvent = new EventHandler<ActionEvent>() {
