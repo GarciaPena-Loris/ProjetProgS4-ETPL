@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.http.WebSocket.Listener;
 import java.util.ArrayList;
 
 import org.json.simple.JSONObject;
@@ -16,13 +15,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
@@ -103,7 +100,7 @@ public class pageGenerateurController {
         logoVimage.setFitHeight(137.);
         logoVimage.setFitWidth(904.);
         topAnchorPane.getChildren().add(logoVimage);
-        borderPaneId.setPrefHeight(zoneImageId.getPrefHeight() - 5);
+        borderPaneId.setPrefHeight(Screen.getPrimary().getBounds().getHeight() - 500);
 
         spinnerColonne.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
             if (Integer.parseInt(newValue) * Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) >= listeImages.size()) {
@@ -128,7 +125,6 @@ public class pageGenerateurController {
 
         if (selectedDirectory != null) {
             int compteurImage = 0;
-            System.out.println(selectedDirectory.getAbsolutePath());
 
             if (selectedDirectory.isDirectory()) {
                 int x = 0; // colonne
@@ -146,8 +142,8 @@ public class pageGenerateurController {
                     Image imagePerso = new Image("file:///" + urlImage);
                     listeImages.add(imagePerso);
                     ImageView imageViewPerso = new ImageView(imagePerso);
-                    imageViewPerso.setFitHeight(174);
-                    imageViewPerso.setFitWidth(144);
+                    imageViewPerso.setFitHeight(175);
+                    imageViewPerso.setFitWidth(145);
                     imageViewPerso
                             .setId(nomImage + "*" + x + "*" + y + "*" + urlImage);
                     imageViewPerso.setOnMouseClicked(ajouterValeurAttributPersonnage);
@@ -180,16 +176,6 @@ public class pageGenerateurController {
                 }
             }
         }
-    }
-
-    @FXML
-    void spinnerColonneEvent(ActionEvent event) {
-        System.out.println(event);
-    }
-
-    @FXML
-    void spinnerLigneEvent(ActionEvent event) {
-        System.out.println(event);
     }
 
     @FXML
