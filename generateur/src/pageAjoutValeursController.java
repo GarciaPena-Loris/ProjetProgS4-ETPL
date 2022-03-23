@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -29,15 +30,23 @@ public class pageAjoutValeursController implements Initializable {
 
     private static String nomImage;
     private static String urlImage;
+    private static String xGrille;
+    private static String yGrille;
+    private static GridPane grillePersoCheck;
+    private static Button boutonValider;
     private static ArrayList<String> listeAttributs;
-    private static ArrayList<HashMap<String,String>> listePersonnage = new ArrayList<>();
+    private static ArrayList<HashMap<String, String>> listePersonnage = new ArrayList<>();
     private boolean labelAlreadyDisplayed = false;
 
     public pageAjoutValeursController(String nomImageController, String urlImageController,
-            ArrayList<String> listeAttributsString) {
+            ArrayList<String> listeAttributsString, String x, String y, GridPane grillePerso, Button validerButton) {
         nomImage = nomImageController;
         urlImage = urlImageController;
         listeAttributs = listeAttributsString;
+        xGrille = x;
+        yGrille = y;
+        grillePersoCheck = grillePerso;
+        boutonValider = validerButton;
     }
 
     @FXML
@@ -90,7 +99,17 @@ public class pageAjoutValeursController implements Initializable {
             textField.setLayoutX(textLabel.getBoundsInLocal().getWidth() + 22);
             textField.setLayoutY(67 + (60 * i));
 
-            textField.focusedProperty().addListener(verifierTextListener);
+            if (!(i == listeAttributs.size()))
+                textField.focusedProperty().addListener(verifierTextListener);
+            else {
+                textField.textProperty().addListener(new ChangeListener<String>() {
+                    @Override
+                    public void changed(ObservableValue<? extends String> arg0, String oldPropertyValue,
+                            String newPropertyValue) {
+                        verifierAttributsTousRemplis();
+                    }
+                });
+            }
 
             informationsPaneId.getChildren().addAll(label, textField);
 
@@ -102,31 +121,36 @@ public class pageAjoutValeursController implements Initializable {
         }
     }
 
+    private void verifierAttributsTousRemplis() {
+        boolean estComplet = true;
+        for (int i = 0; i <= listeAttributs.size(); i++) {
+            TextField texteField = (TextField) informationsPaneId.getScene().lookup("#field" + i);
+            if (texteField.getText().equals("")) {
+                estComplet = false;
+                break;
+            }
+        }
+        if (estComplet)
+            validerButton.setDisable(false);
+        else
+            validerButton.setDisable(true);
+    }
+
     // verifie qu'il y est bien des valeurs dans toutes les cases
     ChangeListener<Boolean> verifierTextListener = new ChangeListener<Boolean>() {
         @Override
         public void changed(ObservableValue<? extends Boolean> arg0, Boolean oldPropertyValue,
                 Boolean newPropertyValue) {
             if (!newPropertyValue) {
-                boolean estComplet = true;
-                for (int i = 0; i <= listeAttributs.size(); i++) {
-                    TextField texteField = (TextField) informationsPaneId.getScene().lookup("#field" + i);
-                    if (texteField.getText().equals("")) {
-                        estComplet = false;
-                        break;
-                    }
-                }
-                if (estComplet)
-                    validerButton.setDisable(false);
-                else
-                    validerButton.setDisable(true);
+                verifierAttributsTousRemplis();
             }
         }
     };
 
     @FXML
     void validerButtonEvent(ActionEvent event) {
-        //creer le JSONobject avec toutes les valeurs pour chaque attribut + etat + nom image
+        // creer le JSONobject avec toutes les valeurs pour chaque attribut + etat + nom
+        // image
         Scene scene = informationsPaneId.getScene();
         HashMap<String, String> personnageMap = new HashMap<>();
         personnageMap.put("image", String.valueOf(nomImage));
@@ -135,19 +159,20 @@ public class pageAjoutValeursController implements Initializable {
 
         int i = 1;
         for (String attribut : listeAttributs) {
-            personnageMap.put(String.valueOf(attribut.toLowerCase()), String.valueOf(((TextField) scene.lookup("#field" + i)).getText()).toLowerCase());
+            personnageMap.put(String.valueOf(attribut.toLowerCase()),
+                    String.valueOf(((TextField) scene.lookup("#field" + i)).getText()).toLowerCase());
             i++;
         }
-        //passe personnage a la page principale et ferme la feunetre:
+        // passe personnage a la page principale et ferme la feunetre:
         JSONObject personnage = new JSONObject(personnageMap);
-        //vérification de la présence ou nom de cet identifiant
+        // vérification de la présence ou nom de cet identifiant
         boolean estDejaPresent = false;
-        
-        if (!(listePersonnage.isEmpty())){
-            for (HashMap<String,String> persoMap : listePersonnage) {
-                if(persoMap.get("prenom").equals(personnageMap.get("prenom"))){
-                    estDejaPresent=true;
-                    if (!labelAlreadyDisplayed){
+
+        if (!(listePersonnage.isEmpty())) {
+            for (HashMap<String, String> persoMap : listePersonnage) {
+                if (persoMap.get("prenom").equals(personnageMap.get("prenom"))) {
+                    estDejaPresent = true;
+                    if (!labelAlreadyDisplayed) {
                         Label erreur = new Label("Identifiant deja présent, impossible de valider");
                         erreur.setFont(new Font("Reem Kufi Regular", 18));
                         erreur.setId("errorLabel");
@@ -157,13 +182,14 @@ public class pageAjoutValeursController implements Initializable {
                         erreur.setLayoutY(410);
                         erreur.setTextFill(Color.RED);
                     }
-                }    
+                }
             }
         }
         if (!estDejaPresent) {
             listePersonnage.add(personnageMap);
-            pageGenerateurController.getValeursPersonnage(personnage); 
-            ((Stage) anchorPaneId.getScene().getWindow()).close();       
+            pageGenerateurController.addValeursPersonnage(personnage, xGrille, yGrille, grillePersoCheck,
+                    boutonValider);
+            ((Stage) anchorPaneId.getScene().getWindow()).close();
         }
     }
 

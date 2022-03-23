@@ -37,13 +37,16 @@ public class pageGenerateurController {
     private String cheminVersImage;
     private String ligne;
     private String colonne;
-    private static ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
+    private static boolean estValeursAjoutable = false;
+    private static Boolean estOuvertAttribut = false;
+    private static int nombrePersonnageTotal = 0;
+    private static int nombrePersonnageTermines = 0;
     private ArrayList<Image> listeImages = new ArrayList<>();
-    private boolean estValeursAjoutable = false;
+    private static ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
     private static ArrayList<Label> listeAttributsLabel = new ArrayList<>();
-    private static Boolean estOuvertAttribut = false;
     private static ArrayList<Label> listeSupprLabel = new ArrayList<>();
+
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
         @Override
@@ -169,6 +172,7 @@ public class pageGenerateurController {
                 }
 
                 if (compteurImage >= 6) {
+                    nombrePersonnageTotal = compteurImage;
                     cheminVersImage = selectedDirectory.getAbsolutePath();
                     borderPaneId.getChildren().clear();
                     errorText.setOpacity(0);
@@ -283,7 +287,7 @@ public class pageGenerateurController {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("pageAjoutValeurs.fxml"));
 
                     pageAjoutValeursController controller = new pageAjoutValeursController(cibleSplit[0], cibleSplit[3],
-                            listeAttributsStrings);
+                            listeAttributsStrings, cibleSplit[1], cibleSplit[2], (GridPane) middleAnchorPane.getScene().lookup("#grillePerso"), validerButton);
                     loader.setController(controller);
 
                     Parent parent = (Parent) loader.load();
@@ -294,6 +298,8 @@ public class pageGenerateurController {
 
                     stage.setScene(new Scene(parent));
                     stage.show();
+
+                    estValeursAjoutable = false;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -319,9 +325,22 @@ public class pageGenerateurController {
         }
     };
 
-    //getter Pour les valeurs de chaques perso
-    public static void getValeursPersonnage(JSONObject e){
-        listePersonnages.add(e);     
+    // getter Pour les valeurs de chaques perso
+    public static void addValeursPersonnage(JSONObject e, String x, String y, GridPane grillePerso, Button validerButton) {
+        listePersonnages.add(e);
+
+        File checkFile = new File("images/check.png");
+        Image checkImage = new Image("file:///" + checkFile.getAbsolutePath());
+        ImageView checkVimage = new ImageView(checkImage);
+        checkVimage.setFitHeight(175.);
+        checkVimage.setFitWidth(145.);
+
+        grillePerso.add(checkVimage, Integer.parseInt(x), Integer.parseInt(y));
+
+        nombrePersonnageTermines++;
+        estValeursAjoutable = true;
+        if (nombrePersonnageTermines == nombrePersonnageTotal) 
+            validerButton.setDisable(false);
     }
 
     boolean verification() {
@@ -353,6 +372,7 @@ public class pageGenerateurController {
     EventHandler<ActionEvent> genererJsonEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
+            System.out.println("On appelle la verification");
             System.out.println("On genere");
         }
     };
