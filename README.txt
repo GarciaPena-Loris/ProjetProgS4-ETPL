@@ -1,6 +1,7 @@
 INSTRUCTIONS :
 ------------------------------------
 
+/!\ version de java : java 17
 Ourvir le cmd dans le répertoire où se trouve 'programmes.jar'. (./programmes/...)
 Copier la commande : java -jar --enable-preview --module-path "../librairies/javafx-sdk-17.0.2/lib" --add-modules javafx.controls,javafx.fxml .\programmes.jar
 Exécuter la commande dans le susdit cmd.

@@ -1,7 +1,11 @@
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.json.simple.JSONObject;
 
 import org.json.simple.JSONObject;
 
@@ -25,6 +29,7 @@ import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class pageGenerateurController {
 
@@ -34,6 +39,10 @@ public class pageGenerateurController {
     private ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private ArrayList<Image> listeImages = new ArrayList<>();
     private ArrayList<String> listeAttributsString = new ArrayList<>();
+    private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
+    private static ArrayList<Label> listeAttributsLabel = new ArrayList<>();
+    private static Boolean estOuvertAttribut = false;
+    private static ArrayList<Label> listeSupprLabel = new ArrayList<>();
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
         @Override
@@ -46,6 +55,8 @@ public class pageGenerateurController {
             return (false);
         }
     };
+
+
 
     @FXML
     private AnchorPane MainAnchorPane;
@@ -101,7 +112,6 @@ public class pageGenerateurController {
         logoVimage.setFitWidth(904.);
         topAnchorPane.getChildren().add(logoVimage);
         borderPaneId.setPrefHeight(Screen.getPrimary().getBounds().getHeight() - 500);
-
         spinnerColonne.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
             if (Integer.parseInt(newValue) * Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) >= listeImages.size()) {
                 validerButton.setDisable(false);
@@ -116,6 +126,15 @@ public class pageGenerateurController {
                 validerButton.setDisable(true);
             }
         });
+      
+        Button buttonAjoutAttribut = new Button("Ajout Attribut");
+        buttonAjoutAttribut.setId("AjoutAttribut");
+        buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
+        pageAttributController.setBtnAttribut(buttonAjoutAttribut);
+
+        AnchorPane.setBottomAnchor(buttonAjoutAttribut, 20.);
+        AnchorPane.setRightAnchor(buttonAjoutAttribut, 85.);
+        bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
     }
 
     @FXML
@@ -188,6 +207,82 @@ public class pageGenerateurController {
         AnchorPane.setBottomAnchor(buttonAjoutAttribut, 20.);
         AnchorPane.setRightAnchor(buttonAjoutAttribut, 85.);
         bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
+    }
+    boolean verification(){
+        List<String> attributs = new ArrayList<>(listePersonnages.get(0).keySet());
+        for (JSONObject personnage:listePersonnages){
+            for(String attribut:attributs){
+            if (personnage.get(attribut) == null){ return false ;}}
+            String p = (String) personnage.get("prenom");
+            for (JSONObject personnage2 : listePersonnages) {
+                if (!personnage.equals(personnage2)){
+                    if (p.equals(personnage2.get("prenom"))){
+                        for(String attribut:attributs){
+                            if (personnage.get(attribut).equals(personnage2.get(attribut))){
+                                return false;
+                            }
+                        }
+
+                    }
+
+                }
+            }
+        }
+        return true;
+    }
+
+    EventHandler<ActionEvent> AjoutAttributEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event)  {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageAjoutAttribut.fxml"));
+            Parent root1;
+            try {
+                root1 = (Parent) fxmlLoader.load();
+                Stage stage = new Stage();
+                stage.setTitle("Ajouter des attributs");
+                File logo = new File("images/iconeGenerateur.png");
+                stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
+                stage.setScene(new Scene(root1));
+                 //Quand on ferme la fenetre elle devient réouvrable
+                stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                    @Override
+                    public void handle(WindowEvent event){
+                        estOuvertAttribut = false;
+                        bottomAnchorPane.getScene().lookup("#AjoutAttribut").setDisable(false);
+                    }
+                });
+                stage.show();
+                estOuvertAttribut = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //si la fenêtre est ouverte on ne peut la dupliquer 
+            if (estOuvertAttribut){
+                bottomAnchorPane.getScene().lookup("#AjoutAttribut").setDisable(true);
+            }
+            
+        }
+    };
+
+    public static void setListAttributString(ArrayList<String> lA){
+        listeAttributsStrings=lA;
+        estOuvertAttribut=false;
+    }
+    public static ArrayList<String> getListAttributString(){
+        return listeAttributsStrings;
+    }
+    public static void setListAttributLabel(ArrayList<Label> lA){
+        listeAttributsLabel=lA;
+    }
+    public static ArrayList<Label> getListAttributLabel(){
+        return listeAttributsLabel;
+    }
+    public static void setListSupprLabel(ArrayList<Label> lA){
+        listeSupprLabel=lA;
+    }
+
+    public static ArrayList<Label> getListSupprLabel(){
+        return listeSupprLabel;
     }
 
     EventHandler<MouseEvent> ajouterValeurAttributPersonnage = new EventHandler<MouseEvent>() {
