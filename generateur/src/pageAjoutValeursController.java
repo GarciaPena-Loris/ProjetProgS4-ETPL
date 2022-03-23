@@ -14,6 +14,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.net.URL;
@@ -28,6 +29,7 @@ public class pageAjoutValeursController implements Initializable {
     private static String nomImage;
     private static String urlImage;
     private static ArrayList<String> listeAttributs;
+    private static ArrayList<JSONObject> listePersonnage;
 
     public pageAjoutValeursController(String nomImageController, String urlImageController,
             ArrayList<String> listeAttributsString) {
@@ -134,9 +136,10 @@ public class pageAjoutValeursController implements Initializable {
             personnageMap.put(String.valueOf(attribut.toLowerCase()), String.valueOf(((TextField) scene.lookup("#field" + i)).getText()).toLowerCase());
             i++;
         }
-        JSONObject personnage = new JSONObject(personnageMap);
-
         //passe personnage a la page principale et ferme la feunetre:
+        JSONObject personnage = new JSONObject(personnageMap);
+        pageGenerateurController.getValeursPersonnage(personnage); 
+        ((Stage) anchorPaneId.getScene().getWindow()).close();       
     }
 
 }

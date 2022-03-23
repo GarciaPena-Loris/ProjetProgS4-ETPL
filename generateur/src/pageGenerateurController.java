@@ -37,7 +37,7 @@ public class pageGenerateurController {
     private String cheminVersImage;
     private String ligne;
     private String colonne;
-    private ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
+    private static ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private ArrayList<Image> listeImages = new ArrayList<>();
     private boolean estValeursAjoutable = false;
     private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
@@ -193,6 +193,7 @@ public class pageGenerateurController {
     void validerButtonEvent(ActionEvent event) {
         colonne = (String) spinnerColonne.getValue().toString();
         ligne = (String) spinnerLigne.getValue().toString();
+        ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
         explicationText.setText(
                 "Cliquer sur le bouton 'Ajouter des attributs' pour définir les attributs commun de vos personnages :");
 
@@ -304,6 +305,7 @@ public class pageGenerateurController {
         @Override
         public void handle(ActionEvent event) {
             estValeursAjoutable = true;
+            ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(1);
 
             explicationText.setText(
                     "Cliquez sur les images des personnages pour définir les valeurs de leurs attributs.");
@@ -316,6 +318,12 @@ public class pageGenerateurController {
 
         }
     };
+
+    //getter Pour les valeurs de chaques perso
+    public static void getValeursPersonnage(JSONObject e){
+        listePersonnages.add(e);
+        System.out.println(listePersonnages); 
+    }
 
     boolean verification() {
         List<String> attributs = new ArrayList<String>(listePersonnages.get(0).keySet());
