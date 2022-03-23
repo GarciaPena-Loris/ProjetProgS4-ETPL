@@ -1,12 +1,18 @@
+
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.simple.JSONObject;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -20,6 +26,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class pageGenerateurController {
 
@@ -28,6 +36,11 @@ public class pageGenerateurController {
     private String colonne;
     private ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private ArrayList<Image> listeImages = new ArrayList<>();
+    private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
+    private static ArrayList<Label> listeAttributsLabel = new ArrayList<>();
+    private static Boolean estOuvertAttribut = false;
+    private static ArrayList<Label> listeSupprLabel = new ArrayList<>();
+       
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
         @Override
@@ -40,6 +53,8 @@ public class pageGenerateurController {
             return (false);
         }
     };
+
+
 
     @FXML
     private AnchorPane MainAnchorPane;
@@ -96,6 +111,14 @@ public class pageGenerateurController {
         topAnchorPane.getChildren().add(logoVimage);
         borderPaneId.setPrefHeight(zoneImageId.getPrefHeight()-5);
 
+        Button buttonAjoutAttribut = new Button("Ajout Attribut");
+        buttonAjoutAttribut.setId("AjoutAttribut");
+        buttonAjoutAttribut.setOnAction(AjoutAttributEvent);
+        pageAttributController.setBtnAttribut(buttonAjoutAttribut);
+
+        AnchorPane.setBottomAnchor(buttonAjoutAttribut, 20.);
+        AnchorPane.setRightAnchor(buttonAjoutAttribut, 85.);
+        bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
     }
 
     @FXML
@@ -199,8 +222,62 @@ public class pageGenerateurController {
 
                 }
             }
-
         }
         return true;
     }
+
+    EventHandler<ActionEvent> AjoutAttributEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event)  {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageAjoutAttribut.fxml"));
+            Parent root1;
+            try {
+                root1 = (Parent) fxmlLoader.load();
+                Stage stage = new Stage();
+                stage.setTitle("Ajouter des attributs");
+                File logo = new File("images/iconeGenerateur.png");
+                stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
+                stage.setScene(new Scene(root1));
+                 //Quand on ferme la fenetre elle devient réouvrable
+                stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                    @Override
+                    public void handle(WindowEvent event){
+                        estOuvertAttribut = false;
+                        bottomAnchorPane.getScene().lookup("#AjoutAttribut").setDisable(false);
+                    }
+                });
+                stage.show();
+                estOuvertAttribut = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //si la fenêtre est ouverte on ne peut la dupliquer 
+            if (estOuvertAttribut){
+                bottomAnchorPane.getScene().lookup("#AjoutAttribut").setDisable(true);
+            }
+            
+        }
+    };
+
+    public static void setListAttributString(ArrayList<String> lA){
+        listeAttributsStrings=lA;
+        estOuvertAttribut=false;
+    }
+    public static ArrayList<String> getListAttributString(){
+        return listeAttributsStrings;
+    }
+    public static void setListAttributLabel(ArrayList<Label> lA){
+        listeAttributsLabel=lA;
+    }
+    public static ArrayList<Label> getListAttributLabel(){
+        return listeAttributsLabel;
+    }
+    public static void setListSupprLabel(ArrayList<Label> lA){
+        listeSupprLabel=lA;
+    }
+
+    public static ArrayList<Label> getListSupprLabel(){
+        return listeSupprLabel;
+    }
+
 }
