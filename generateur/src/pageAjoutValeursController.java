@@ -135,7 +135,6 @@ public class pageAjoutValeursController implements Initializable {
             i++;
         }
         JSONObject personnage = new JSONObject(personnageMap);
-        System.out.println(personnage.toJSONString());
 
         //passe personnage a la page principale et ferme la feunetre:
     }
