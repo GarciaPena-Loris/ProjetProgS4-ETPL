@@ -465,6 +465,8 @@ public class pageGenerateurController {
                     .lookup("#choixDestinationButton");
 
             Label buttonLabel = (Label) bottomAnchorPane.getScene().lookup("#destinationJsonLabel");
+            String nomJson = textField.getText();
+
             bottomAnchorPane.getChildren().removeAll(textLabel, textField, buttonChoixDestionation, buttonLabel,
                     validerButton);
 
@@ -481,7 +483,7 @@ public class pageGenerateurController {
 
             bottomAnchorPane.getChildren().add(fermerFenetre);
 
-            if (verification()) {
+            if (verification() && !nomJson.equals("")) {
                 // sauvegarde de la partie
                 JSONObject jsonFinal = new JSONObject();
                 jsonFinal.put("images", String.valueOf(cheminVersImage));
@@ -497,7 +499,7 @@ public class pageGenerateurController {
                 }
                 jsonFinal.put("personnages", listePerso);
 
-                try (FileWriter file = new FileWriter(new File(cheminJson))) {
+                try (FileWriter file = new FileWriter(new File(cheminJson + "/" + nomJson + ".json"))) {
                     file.write(jsonFinal.toJSONString());
 
                     explicationText.setText(
