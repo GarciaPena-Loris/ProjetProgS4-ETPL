@@ -394,6 +394,8 @@ public class pageGenerateurController {
         @Override
         public void handle(ActionEvent event) {
             estValeursAjoutable = false;
+            AnchorPane.setTopAnchor(validerButton, 65.);
+
         bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
 
             ((GridPane) MainAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
@@ -431,13 +433,13 @@ public class pageGenerateurController {
             AnchorPane.setTopAnchor(buttonChoixDestionation, 135.);
             AnchorPane.setLeftAnchor(buttonChoixDestionation, 58.);
 
-            Label buttonLabel = new Label("Nom du Json : ");
-            buttonLabel.setId("nomJsonLabel");
-            buttonLabel.setFont(new Font("Ebrima", 23.0));
-            AnchorPane.setTopAnchor(buttonLabel, 70.);
-            AnchorPane.setLeftAnchor(buttonLabel, 60.);
+            Label buttonLabel = new Label();
+            buttonLabel.setId("destinationJsonLabel");
+            buttonLabel.setFont(new Font("Ebrima", 18.0));
+            AnchorPane.setTopAnchor(buttonLabel, 143.);
+            AnchorPane.setLeftAnchor(buttonLabel, 375.);
 
-            bottomAnchorPane.getChildren().addAll(buttonChoixDestionation, textLabel, textField);
+            bottomAnchorPane.getChildren().addAll(buttonChoixDestionation, textLabel, textField, buttonLabel);
 
             validerButton.setText("Generer le Json");
             validerButton.setOnAction(genererJsonEvent);
