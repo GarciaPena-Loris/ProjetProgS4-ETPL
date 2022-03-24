@@ -450,6 +450,10 @@ public class pageGenerateurController {
     EventHandler<ActionEvent> choixDestinationJsonEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            File selectedDirectory = directoryChooser.showDialog(MainAnchorPane.getScene().getWindow());
+            ((Label) bottomAnchorPane.getScene().lookup("#destinationJsonLabel")).setText(selectedDirectory.getName());
+            cheminJson = selectedDirectory.getAbsolutePath(); 
         }
     };
 
