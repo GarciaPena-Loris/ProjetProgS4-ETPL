@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.json.simple.JSONObject;
 
-import org.json.simple.JSONObject;
-
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -19,6 +19,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -37,6 +38,10 @@ public class pageGenerateurController {
     private String cheminVersImage;
     private String ligne;
     private String colonne;
+
+    private String cheminJson;
+    private String nomJson;
+
     private static boolean estValeursAjoutable = false;
     private static Boolean estOuvertAttribut = false;
     private static int nombrePersonnageTotal = 0;
@@ -46,7 +51,6 @@ public class pageGenerateurController {
     private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
     private static ArrayList<Label> listeAttributsLabel = new ArrayList<>();
     private static ArrayList<Label> listeSupprLabel = new ArrayList<>();
-
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
         @Override
@@ -130,6 +134,14 @@ public class pageGenerateurController {
                 validerButton.setDisable(true);
             }
         });
+
+
+        //temporaire
+        Button buttonChoixDestionation = new Button("Choisir destination Json");
+        buttonChoixDestionation.setOnAction(passerAuJsonEvent);
+        AnchorPane.setTopAnchor(buttonChoixDestionation, 65.);
+        AnchorPane.setLeftAnchor(buttonChoixDestionation, 60.);
+        MainAnchorPane.getChildren().add(buttonChoixDestionation);
     }
 
     @FXML
@@ -287,7 +299,8 @@ public class pageGenerateurController {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("pageAjoutValeurs.fxml"));
 
                     pageAjoutValeursController controller = new pageAjoutValeursController(cibleSplit[0], cibleSplit[3],
-                            listeAttributsStrings, cibleSplit[1], cibleSplit[2], (GridPane) middleAnchorPane.getScene().lookup("#grillePerso"), validerButton);
+                            listeAttributsStrings, cibleSplit[1], cibleSplit[2],
+                            (GridPane) middleAnchorPane.getScene().lookup("#grillePerso"), validerButton);
                     loader.setController(controller);
 
                     Parent parent = (Parent) loader.load();
@@ -323,15 +336,16 @@ public class pageGenerateurController {
 
             bottomAnchorPane.getChildren().remove((Button) bottomAnchorPane.getScene().lookup("#ajoutAttributButton"));
 
-            validerButton.setText("Générer le Json");
-            validerButton.setOnAction(genererJsonEvent);
+            validerButton.setText("Passer au Json");
+            validerButton.setOnAction(passerAuJsonEvent);
             validerButton.setDisable(true);
 
         }
     };
 
     // getter Pour les valeurs de chaques perso
-    public static void addValeursPersonnage(JSONObject e, String x, String y, GridPane grillePerso, Button validerButton) {
+    public static void addValeursPersonnage(JSONObject e, String x, String y, GridPane grillePerso,
+            Button validerButton) {
         listePersonnages.add(e);
 
         File checkFile = new File("images/check.png");
@@ -376,12 +390,70 @@ public class pageGenerateurController {
         return true;
     }
 
-    EventHandler<ActionEvent> genererJsonEvent = new EventHandler<ActionEvent>() {
+    EventHandler<ActionEvent> passerAuJsonEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
-            System.out.println("On appelle la verification");
-            System.out.println("On genere");
+            estValeursAjoutable = false;
+        bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
+
+            ((GridPane) MainAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
+            explicationText.setText(
+                    "Donnez un nom pour votre fichier Json et selectionnez son dossier de destination :");
+
+            // on ajoute le bouton et le textField
+            Label textLabel = new Label("Nom du Json : ");
+            textLabel.setId("nomJsonLabel");
+            textLabel.setFont(new Font("Ebrima", 23.0));
+            AnchorPane.setTopAnchor(textLabel, 70.);
+            AnchorPane.setLeftAnchor(textLabel, 60.);
+            
+            TextField textField = new TextField();
+            textField.setId("nomJsonField");
+            textField.setFont(new Font("Calibri", 21));
+            textField.setPrefWidth(200);
+            textField.setPrefHeight(40);
+            textField.setFont(new Font("Ebrima", 23.0));
+            textField.textProperty().addListener(new ChangeListener<String>() {
+                @Override
+                public void changed(ObservableValue<? extends String> arg0, String oldPropertyValue,
+                        String newPropertyValue) {
+                }
+            });
+            AnchorPane.setTopAnchor(textField, 65.);
+            AnchorPane.setLeftAnchor(textField, 220.);
+            
+            Button buttonChoixDestionation = new Button("Choisir destination Json");
+            buttonChoixDestionation.setId("choixDestinationButton");
+            buttonChoixDestionation.setOnAction(choixDestinationJsonEvent);
+            buttonChoixDestionation.setPrefHeight(40);
+            buttonChoixDestionation.setPrefWidth(300);
+            buttonChoixDestionation.setFont(new Font("Ebrima", 23.0));
+            AnchorPane.setTopAnchor(buttonChoixDestionation, 135.);
+            AnchorPane.setLeftAnchor(buttonChoixDestionation, 58.);
+
+            Label buttonLabel = new Label("Nom du Json : ");
+            buttonLabel.setId("nomJsonLabel");
+            buttonLabel.setFont(new Font("Ebrima", 23.0));
+            AnchorPane.setTopAnchor(buttonLabel, 70.);
+            AnchorPane.setLeftAnchor(buttonLabel, 60.);
+
+            bottomAnchorPane.getChildren().addAll(buttonChoixDestionation, textLabel, textField);
+
+            validerButton.setText("Generer le Json");
+            validerButton.setOnAction(genererJsonEvent);
+            validerButton.setDisable(true);
         }
     };
 
+    EventHandler<ActionEvent> choixDestinationJsonEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+        }
+    };
+
+    EventHandler<ActionEvent> genererJsonEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+        }
+    };
 }
