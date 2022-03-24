@@ -23,7 +23,7 @@ Pour le générateur :
 Ourvir le cmd dans le répertoire où se trouve 'generateur.jar'. (./generateur/...)
 Copier la commande : java -jar --enable-preview --module-path "../librairies/javafx-sdk-17.0.2/lib" --add-modules javafx.controls,javafx.fxml .\generateur.jar
 Exécuter la commande dans le susdit cmd.
-Choisir un dossier contenant les images qui constiturons la future grille pour jouer au "Qui est-ce ?".
+Choisir un dossier contenant les images qui constiturons la future grille pour jouer au "Qui est-ce ?". (un dossier d'image est disponible : "personnage" dans "./generateur/images/personnages")
 Suivre les étapes. A la fin vous pouvez récuperer votre grille fonctionnelle (____.json) dans le dossier que vous avez choisi.
 
 
