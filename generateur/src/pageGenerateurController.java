@@ -1,5 +1,6 @@
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
@@ -40,7 +42,6 @@ public class pageGenerateurController {
     private String colonne;
 
     private String cheminJson;
-    private String nomJson;
 
     private static boolean estValeursAjoutable = false;
     private static Boolean estOuvertAttribut = false;
@@ -134,14 +135,6 @@ public class pageGenerateurController {
                 validerButton.setDisable(true);
             }
         });
-
-
-        //temporaire
-        Button buttonChoixDestionation = new Button("Choisir destination Json");
-        buttonChoixDestionation.setOnAction(passerAuJsonEvent);
-        AnchorPane.setTopAnchor(buttonChoixDestionation, 65.);
-        AnchorPane.setLeftAnchor(buttonChoixDestionation, 60.);
-        MainAnchorPane.getChildren().add(buttonChoixDestionation);
     }
 
     @FXML
@@ -364,7 +357,7 @@ public class pageGenerateurController {
         }
     }
 
-    boolean verification() {
+    private boolean verification() {
         List<String> attributs = new ArrayList<String>(listePersonnages.get(0).keySet());
         for (JSONObject personnage : listePersonnages) {
             for (String attribut : attributs) {
@@ -394,9 +387,8 @@ public class pageGenerateurController {
         @Override
         public void handle(ActionEvent event) {
             estValeursAjoutable = false;
-            AnchorPane.setTopAnchor(validerButton, 65.);
 
-        bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
+            bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
 
             ((GridPane) MainAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
             explicationText.setText(
@@ -406,36 +398,40 @@ public class pageGenerateurController {
             Label textLabel = new Label("Nom du Json : ");
             textLabel.setId("nomJsonLabel");
             textLabel.setFont(new Font("Ebrima", 23.0));
-            AnchorPane.setTopAnchor(textLabel, 70.);
+            AnchorPane.setTopAnchor(textLabel, 73.);
             AnchorPane.setLeftAnchor(textLabel, 60.);
-            
+
             TextField textField = new TextField();
             textField.setId("nomJsonField");
             textField.setFont(new Font("Calibri", 21));
             textField.setPrefWidth(200);
             textField.setPrefHeight(40);
-            textField.setFont(new Font("Ebrima", 23.0));
+            textField.setFont(new Font("Ebrima", 21.0));
             textField.textProperty().addListener(new ChangeListener<String>() {
                 @Override
                 public void changed(ObservableValue<? extends String> arg0, String oldPropertyValue,
                         String newPropertyValue) {
+                    if (!((Label) bottomAnchorPane.getScene().lookup("#destinationJsonLabel")).getText().equals(""))
+                        validerButton.setDisable(false);
                 }
             });
-            AnchorPane.setTopAnchor(textField, 65.);
+            AnchorPane.setTopAnchor(textField, 68.);
             AnchorPane.setLeftAnchor(textField, 220.);
-            
+
             Button buttonChoixDestionation = new Button("Choisir destination Json");
             buttonChoixDestionation.setId("choixDestinationButton");
             buttonChoixDestionation.setOnAction(choixDestinationJsonEvent);
             buttonChoixDestionation.setPrefHeight(40);
             buttonChoixDestionation.setPrefWidth(300);
             buttonChoixDestionation.setFont(new Font("Ebrima", 23.0));
-            AnchorPane.setTopAnchor(buttonChoixDestionation, 135.);
+            AnchorPane.setTopAnchor(buttonChoixDestionation, 138.);
             AnchorPane.setLeftAnchor(buttonChoixDestionation, 58.);
 
             Label buttonLabel = new Label();
             buttonLabel.setId("destinationJsonLabel");
-            buttonLabel.setFont(new Font("Ebrima", 18.0));
+            buttonLabel.setFont(new Font("Ebrima", 13.0));
+            buttonLabel.setMaxWidth(260);
+            buttonLabel.setWrapText(true);
             AnchorPane.setTopAnchor(buttonLabel, 143.);
             AnchorPane.setLeftAnchor(buttonLabel, 375.);
 
@@ -452,14 +448,83 @@ public class pageGenerateurController {
         public void handle(ActionEvent event) {
             DirectoryChooser directoryChooser = new DirectoryChooser();
             File selectedDirectory = directoryChooser.showDialog(MainAnchorPane.getScene().getWindow());
-            ((Label) bottomAnchorPane.getScene().lookup("#destinationJsonLabel")).setText(selectedDirectory.getName());
-            cheminJson = selectedDirectory.getAbsolutePath(); 
+            ((Label) bottomAnchorPane.getScene().lookup("#destinationJsonLabel"))
+                    .setText(selectedDirectory.getAbsolutePath());
+            cheminJson = selectedDirectory.getAbsolutePath();
+
+            if (!((TextField) bottomAnchorPane.getScene().lookup("#nomJsonField")).getText().equals(""))
+                validerButton.setDisable(false);
         }
     };
 
     EventHandler<ActionEvent> genererJsonEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
+            // supprime tous les éléments
+            Label textLabel = (Label) bottomAnchorPane.getScene().lookup("#nomJsonLabel");
+            TextField textField = (TextField) bottomAnchorPane.getScene().lookup("#nomJsonField");
+            Button buttonChoixDestionation = (Button) bottomAnchorPane.getScene()
+                    .lookup("#choixDestinationButton");
+
+            Label buttonLabel = (Label) bottomAnchorPane.getScene().lookup("#destinationJsonLabel");
+            bottomAnchorPane.getChildren().removeAll(textLabel, textField, buttonChoixDestionation, buttonLabel,
+                    validerButton);
+
+            AnchorPane.setTopAnchor(explicationText, 50.);
+
+            Button fermerFenetre = new Button("Fermer le générateur");
+            fermerFenetre.setPrefHeight(40);
+            fermerFenetre.setPrefWidth(300);
+            fermerFenetre.setFont(new Font("Ebrima", 20.0));
+            fermerFenetre.setOnAction(fermerGenerateurEvent);
+
+            AnchorPane.setTopAnchor(fermerFenetre, 100.);
+            AnchorPane.setLeftAnchor(fermerFenetre, 300.);
+
+            bottomAnchorPane.getChildren().add(fermerFenetre);
+
+            if (verification()) {
+                // sauvegarde de la partie
+                JSONObject jsonFinal = new JSONObject();
+                jsonFinal.put("images", String.valueOf(cheminVersImage));
+                jsonFinal.put("ligne", String.valueOf(ligne));
+                jsonFinal.put("colonne", String.valueOf(colonne));
+
+                JSONObject listePerso = new JSONObject();
+                int i = 0;
+                for (JSONObject personnage : listePersonnages) {
+                    listePerso.put(String.valueOf(i), personnage);
+                    i++;
+
+                }
+                jsonFinal.put("personnages", listePerso);
+
+                try (FileWriter file = new FileWriter(new File(cheminJson))) {
+                    file.write(jsonFinal.toJSONString());
+
+                    explicationText.setText(
+                            "Votre Json a été correctement généré !");
+                    explicationText.setFill(Color.GREEN);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    explicationText.setText(
+                            "Un problème est survenue durant la génération du Json...");
+                    explicationText.setFill(Color.RED);
+                }
+            } else {
+                explicationText.setText(
+                        "Un problème est survenue durant la génération du Json...");
+                explicationText.setFill(Color.RED);
+
+            }
+        }
+    };
+
+    EventHandler<ActionEvent> fermerGenerateurEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            ((Stage) bottomAnchorPane.getScene().getWindow()).close();
         }
     };
 }
