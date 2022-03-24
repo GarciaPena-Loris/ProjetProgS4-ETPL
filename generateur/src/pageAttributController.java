@@ -9,6 +9,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class pageAttributController {
@@ -49,14 +50,14 @@ public class pageAttributController {
             listSupprLabel = pageGenerateurController.getListSupprLabel();
             for (Label label : listAttributsLabel) {
                 anchorPaneAttributs.getChildren().add(label);
-                label.setLayoutY(25 + (foo1 * 15));
+                label.setLayoutY(25 + (foo1 * 17));
                 foo1++;
             }
             for (Label suppr : listSupprLabel) {
                 anchorPaneAttributs.getChildren().add(suppr);
                 suppr.setOnMouseClicked(supprimerAttribut);
                 suppr.setLayoutX(200);
-                suppr.setLayoutY(25 + (foo2 * 15));
+                suppr.setLayoutY(25 + (foo2 * 17));
                 foo2++;
             }
         }
@@ -73,7 +74,8 @@ public class pageAttributController {
             numeroID++;
             attribut.setId("" + numeroID);
             attribut.setLayoutX(14);
-            attribut.setLayoutY(25 + (listAttributsLabel.size() * 15));
+            attribut.setLayoutY(25 + (listAttributsLabel.size() * 17));
+            attribut.setFont((new Font("Ebrima", 14.0)));
             champDeTexte.setText("");
             // ajout des suppr
             Label suppr = new Label("supprimer");
@@ -83,7 +85,8 @@ public class pageAttributController {
             suppr.setId("suppr" + numeroID);
             anchorPaneAttributs.getChildren().add(suppr);
             suppr.setLayoutX(200);
-            suppr.setLayoutY(25 + (listAttributsLabel.size() * 15));
+            suppr.setLayoutY(25 + (listAttributsLabel.size() * 17));
+            suppr.setFont((new Font("Ebrima", 14.0)));
 
         }
     }
@@ -105,9 +108,9 @@ public class pageAttributController {
             sourceSuppr.setDisable(true);
             listSupprLabel.remove(sourceSuppr);
             for (Label label : listAttributsLabel) {
-                label.setLayoutY(25 + (foo * 15));
+                label.setLayoutY(25 + (foo * 17));
                 Label supprOfAttribute = (Label) anchorPaneAttributs.getScene().lookup("#suppr" + label.getId());
-                supprOfAttribute.setLayoutY(25 + (foo * 15));
+                supprOfAttribute.setLayoutY(25 + (foo * 17));
                 foo++;
             }
         }
