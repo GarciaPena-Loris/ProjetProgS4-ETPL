@@ -388,8 +388,6 @@ public class pageGenerateurController {
         public void handle(ActionEvent event) {
             estValeursAjoutable = false;
 
-            bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
-
             ((GridPane) MainAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
             explicationText.setText(
                     "Donnez un nom pour votre fichier Json et selectionnez son dossier de destination :");
@@ -525,6 +523,7 @@ public class pageGenerateurController {
         @Override
         public void handle(ActionEvent event) {
             ((Stage) bottomAnchorPane.getScene().getWindow()).close();
+            System.exit(0);
         }
     };
 }
