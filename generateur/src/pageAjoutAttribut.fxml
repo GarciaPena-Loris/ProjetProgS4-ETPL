@@ -7,22 +7,28 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="432.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pageAttributController">
+<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="439.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pageAttributController">
    <children>
       <SplitPane fx:id="splitPane" dividerPositions="0.3804347826086956" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <Button fx:id="addButton" layoutX="35.0" layoutY="50.0" mnemonicParsing="false" onAction="#ajouterAttribut" text="Ajouter" AnchorPane.bottomAnchor="322.0" AnchorPane.leftAnchor="35.0" AnchorPane.rightAnchor="35.0" AnchorPane.topAnchor="50.0" />
+                  <Button fx:id="addButton" layoutX="25.0" layoutY="57.0" mnemonicParsing="false" onAction="#ajouterAttribut" prefHeight="33.0" prefWidth="115.0" text="Ajouter" AnchorPane.bottomAnchor="308.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="21.0" AnchorPane.topAnchor="57.0">
+                     <font>
+                        <Font size="14.0" />
+                     </font></Button>
                   <TextField fx:id="champDeTexte" layoutX="5.0" layoutY="14.0" onAction="#ajouterAttribut" AnchorPane.bottomAnchor="358.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.666666666666657" AnchorPane.topAnchor="14.0" />
-                  <Button fx:id="submitButton" layoutX="51.0" layoutY="357.0" mnemonicParsing="false" onAction="#submit" prefHeight="25.0" prefWidth="58.0" text="Valider" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="51.0" AnchorPane.rightAnchor="51.0" AnchorPane.topAnchor="357.0" />
+                  <Button fx:id="submitButton" layoutX="31.0" layoutY="351.0" mnemonicParsing="false" onAction="#submit" prefHeight="33.0" prefWidth="104.0" text="Valider" textFill="#179a00" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="31.0" AnchorPane.rightAnchor="26.0" AnchorPane.topAnchor="351.0">
+                     <font>
+                        <Font size="14.0" />
+                     </font></Button>
                </children>
             </AnchorPane>
           <AnchorPane fx:id="anchorPaneAttributs" minHeight="0.0" minWidth="0.0" prefHeight="361.0" prefWidth="163.0">
                <children>
-                  <Label layoutX="14.0" layoutY="14.0" prefHeight="17.0" prefWidth="115.0" text="Liste des attributs :" AnchorPane.bottomAnchor="366.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="134.0" AnchorPane.topAnchor="14.0">
+                  <Label layoutX="14.0" layoutY="14.0" prefHeight="18.0" prefWidth="136.0" text="Liste des attributs :" underline="true" AnchorPane.bottomAnchor="366.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="113.0" AnchorPane.topAnchor="14.0">
                      <font>
-                        <Font size="13.0" />
+                        <Font name="System Bold" size="14.0" />
                      </font></Label>
                </children>
             </AnchorPane>
