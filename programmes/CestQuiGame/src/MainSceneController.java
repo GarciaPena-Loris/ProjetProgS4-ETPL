@@ -122,8 +122,8 @@ public class MainSceneController {
                 String urlImage = image.getAbsolutePath();
                 Image imagePerso = new Image("file:///" + urlImage);
                 ImageView imageViewPerso = new ImageView(imagePerso);
-                imageViewPerso.setFitHeight(100);
-                imageViewPerso.setFitWidth(70);
+                imageViewPerso.setFitHeight(125);
+                imageViewPerso.setFitWidth(90);
                 imageViewPerso
                         .setId(nomImage.substring(0, nomImage.length() - 4) + "_" + x + "_" + y);
                 imageViewPerso.setOnMouseClicked(afficheCibleEvent);
@@ -136,8 +136,8 @@ public class MainSceneController {
                         Image imageMort = new Image("file:///" + f2.getAbsolutePath());
                         ImageView imageViewMort = new ImageView(imageMort);
                         imageViewMort.setId("mort_" + x + "_" + y);
-                        imageViewMort.setFitHeight(100);
-                        imageViewMort.setFitWidth(70);
+                        imageViewMort.setFitHeight(125);
+                        imageViewMort.setFitWidth(90);
                         grillePerso.add(imageViewMort, x, y);
 
                     }
@@ -603,8 +603,8 @@ public class MainSceneController {
                             File f = new File("images/ciblepng.png");
                             Image imageCible = new Image("file:///" + f.getAbsolutePath());
                             ImageView imageViewCible = new ImageView(imageCible);
-                            imageViewCible.setFitHeight(100);
-                            imageViewCible.setFitWidth(70);
+                            imageViewCible.setFitHeight(125);
+                            imageViewCible.setFitWidth(90);
                             imageViewCible.setId("cible_" + idSplit[1] + "_" + idSplit[2] + "_" + idSplit[0]);
                             newGrilleperso.add(imageViewCible, Integer.parseInt(idSplit[1]),
                                     Integer.parseInt(idSplit[2]));
@@ -645,8 +645,8 @@ public class MainSceneController {
                     File f = new File("images/ciblepng.png");
                     Image imageCible = new Image("file:///" + f.getAbsolutePath());
                     ImageView imageViewCible = new ImageView(imageCible);
-                    imageViewCible.setFitHeight(100);
-                    imageViewCible.setFitWidth(70);
+                    imageViewCible.setFitHeight(125);
+                    imageViewCible.setFitWidth(90);
                     imageViewCible.setId("cible_" + coordonnee[1] + "_" + coordonnee[2] + "_" + coordonnee[0]);
                     imageViewCible.setOnMouseClicked(afficheCibleEvent);
                     grilleperso.add(imageViewCible, Integer.parseInt(coordonnee[1]), Integer.parseInt(coordonnee[2]));
@@ -659,8 +659,8 @@ public class MainSceneController {
                     File f = new File("images/personnages/" + cibleActuel.getId().split("_")[3] + ".png");
                     Image imagePerso = new Image("file:///" + f.getAbsolutePath());
                     ImageView imageViewPerso = new ImageView(imagePerso);
-                    imageViewPerso.setFitHeight(100);
-                    imageViewPerso.setFitWidth(70);
+                    imageViewPerso.setFitHeight(125);
+                    imageViewPerso.setFitWidth(90);
                     imageViewPerso.setId(cibleActuel.getId().split("_")[3] + "_" + Integer.parseInt(coordonnee[1]) + "_"
                             + Integer.parseInt(coordonnee[2]));
                     imageViewPerso.setOnMouseClicked(afficheCibleEvent);
@@ -683,8 +683,9 @@ public class MainSceneController {
             }
             boolean personnageAtrouverElimine = partieEnCour.verifierElimination(nomsPerso);
 
-            if (personnageAtrouverElimine) {
+            if (!personnageAtrouverElimine) {
                 listeTotalPersoElimine.addAll(nomsPerso);
+                //si tous les perso sont éliminé sauf le bon
                 if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
                     // vide l'écran, affiche le personnage gagant et supprime la save.
                     borderPaneId.getChildren().clear();
@@ -705,8 +706,8 @@ public class MainSceneController {
                     String urlImage = dossierImage.getAbsolutePath() + "/" + personnageChoisi + ".png";
                     Image imagePerso = new Image("file:///" + urlImage);
                     ImageView imageViewPerso = new ImageView(imagePerso);
-                    imageViewPerso.setFitHeight(100);
-                    imageViewPerso.setFitWidth(70);
+                    imageViewPerso.setFitHeight(125);
+                    imageViewPerso.setFitWidth(90);
                     AnchorPane.setTopAnchor(imageViewPerso, 240.);
                     AnchorPane.setLeftAnchor(imageViewPerso, 500.);
                     AnchorPane.setRightAnchor(imageViewPerso, 500.);
@@ -744,7 +745,14 @@ public class MainSceneController {
                     creerDernierMenuBouton(buttonAttribut1);
                     creerBoutonestimer();
 
+                    //reset ancienne grille
                     GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
+                    borderPaneId.getChildren().remove(grilleperso);
+
+                    //recreer une nouvelle
+                    GridPane newGrillePerso = new GridPane();
+                    creerGrille(newGrillePerso);
+
                     // affiche les tete de mort
                     for (String perso : listeIdPersoSelectionne) {
 
@@ -754,24 +762,13 @@ public class MainSceneController {
                         int i = Integer.parseInt(perso.split("_")[1]);
                         int j = Integer.parseInt(perso.split("_")[2]);
 
-                        borderPaneId.getChildren()
-                                .remove((ImageView) borderPaneId.getScene().lookup("#cible_" + i + "_" + j));
-
-                        File f = new File("images/personnages/" + perso.split("_")[0] + ".png");
-                        Image imagePerso = new Image("file:///" + f.getAbsolutePath());
-                        ImageView imageViewPerso = new ImageView(imagePerso);
-                        imageViewPerso.setFitHeight(100);
-                        imageViewPerso.setFitWidth(70);
-                        imageViewPerso.setId("mort");
-                        grilleperso.add(imageViewPerso, i, j);
-
                         File f2 = new File("images/mortpng.png");
                         Image imageMort = new Image("file:///" + f2.getAbsolutePath());
                         ImageView imageViewMort = new ImageView(imageMort);
-                        imageViewMort.setFitHeight(100);
-                        imageViewMort.setFitWidth(70);
+                        imageViewMort.setFitHeight(125);
+                        imageViewMort.setFitWidth(90);
                         imageViewMort.setId("mort_" + i + "_" + j);
-                        grilleperso.add(imageViewMort, i, j);
+                        newGrillePerso.add(imageViewMort, i, j);
                     }
                     partieEnCour.sauvegarderPartieEnCour(cheminVersImages, ligne, colonne);
                     listeIdPersoSelectionne.clear();
@@ -790,46 +787,46 @@ public class MainSceneController {
     EventHandler<ActionEvent> estimerEliminationEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent) {
-            // recuperer les valeurs et enleve
-            Scene scene = borderPaneId.getScene();
-            ArrayList<String> listeAttribut = new ArrayList<>();
-            ArrayList<String> listeValeur = new ArrayList<>();
-            ArrayList<String> listeConnecteur = new ArrayList<>();
+            if (AnchorPaneId.getScene().lookup("#estimationTexte") == null) {
+                // recuperer les valeurs et enleve
+                Scene scene = borderPaneId.getScene();
+                ArrayList<String> listeAttribut = new ArrayList<>();
+                ArrayList<String> listeValeur = new ArrayList<>();
+                ArrayList<String> listeConnecteur = new ArrayList<>();
 
-            // vide la liste des attributs selecionné
-            listeIdPersoSelectionne.clear();
+                // vide la liste des attributs selecionné
+                listeIdPersoSelectionne.clear();
 
-            // cree les talbeaus attribut valeur et conecteur
-            for (int i = 1; i <= listeAttributsChoisi.size() + 1; i++) {
-                // recuperer attributs
-                MenuButton buttonAttribut = (MenuButton) scene.lookup("#buttonAttribut" + i);
-                if (buttonAttribut != null && !buttonAttribut.getText().equals("___")) {
-                    MenuButton buttonValeur = (MenuButton) scene.lookup("#buttonValeur" + i);
-                    listeAttribut.add(buttonAttribut.getText());
+                // cree les talbeaus attribut valeur et conecteur
+                for (int i = 1; i <= listeAttributsChoisi.size() + 1; i++) {
+                    // recuperer attributs
+                    MenuButton buttonAttribut = (MenuButton) scene.lookup("#buttonAttribut" + i);
+                    if (buttonAttribut != null && !buttonAttribut.getText().equals("___")) {
+                        MenuButton buttonValeur = (MenuButton) scene.lookup("#buttonValeur" + i);
+                        listeAttribut.add(buttonAttribut.getText());
 
-                    // recuperer valeurs
-                    if (buttonValeur == null) {
-                        listeValeur.add("oui");
-                    } else if (!buttonValeur.getText().equals("___")) {
-                        listeValeur.add(buttonValeur.getText());
+                        // recuperer valeurs
+                        if (buttonValeur == null) {
+                            listeValeur.add("oui");
+                        } else if (!buttonValeur.getText().equals("___")) {
+                            listeValeur.add(buttonValeur.getText());
 
-                    } else {
-                        listeAttribut.remove(buttonAttribut.getText());
-                    }
+                        } else {
+                            listeAttribut.remove(buttonAttribut.getText());
+                        }
 
-                    // recuperer connecteur
-                    if (i > 1) {
-                        Label connecteur = (Label) scene.lookup("#questionText" + i);
-                        if (connecteur != null) {
-                            String textConnecteur = connecteur.getText().substring(0, 2);
-                            listeConnecteur.add(textConnecteur);
+                        // recuperer connecteur
+                        if (i > 1) {
+                            Label connecteur = (Label) scene.lookup("#questionText" + i);
+                            if (connecteur != null) {
+                                String textConnecteur = connecteur.getText().substring(0, 2);
+                                listeConnecteur.add(textConnecteur);
+                            }
                         }
                     }
                 }
-            }
 
-            if (listeAttribut.size() > 0) {
-                if (AnchorPaneId.getScene().lookup("#estimationTexte") == null) {
+                if (listeAttribut.size() > 0) {
                     ArrayList<String> listePersoAEliminer = partieEnCour.personnagesAEliminer(
                             listeTotalPersoElimine, listeAttribut,
                             listeValeur, listeConnecteur);
@@ -854,8 +851,8 @@ public class MainSceneController {
                             File f = new File("images/ciblepng.png");
                             Image imageCible = new Image("file:///" + f.getAbsolutePath());
                             ImageView imageViewCible = new ImageView(imageCible);
-                            imageViewCible.setFitHeight(100);
-                            imageViewCible.setFitWidth(70);
+                            imageViewCible.setFitHeight(125);
+                            imageViewCible.setFitWidth(90);
                             imageViewCible.setId("cible_" + idSplit[1] + "_" + idSplit[2] + "_" + idSplit[0]);
                             grillePerso.add(imageViewCible, Integer.parseInt(idSplit[1]),
                                     Integer.parseInt(idSplit[2]));
@@ -870,8 +867,7 @@ public class MainSceneController {
         }
     };
 
-
-    //ferme le programme
+    // ferme le programme
     EventHandler<ActionEvent> quitterEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent) {

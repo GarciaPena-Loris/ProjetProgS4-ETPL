@@ -7,15 +7,16 @@ import org.json.simple.JSONObject;
 public class Game {
     private String difficulte;
     private JSONObject personnageChoisi;
-    private JSONObject[] listePersonnages;
+    private ArrayList<JSONObject> listePersonnages;
 
     public Game(String d, JSONObject JSONPersonnages, int ligne, int colonne) {
         this.difficulte = d;
-
         // creationListePersonnages
-        listePersonnages = new JSONObject[ligne * colonne];
+        listePersonnages = new ArrayList<>();
         for (int i = 0; i < ligne * colonne; i++) {
-            listePersonnages[i] = (JSONObject) JSONPersonnages.get(String.valueOf(i));
+            JSONObject personnage = (JSONObject) JSONPersonnages.get(String.valueOf(i));
+            if (personnage != null)
+                listePersonnages.add(personnage);
         }
 
         // choix du personnages aleatoirement
@@ -25,9 +26,12 @@ public class Game {
 
     public Game(String d, JSONObject JSONPersonnages, int ligne, int colonne, JSONObject personnageChoisi) {
         this.difficulte = d;
-        listePersonnages = new JSONObject[ligne * colonne];
+        listePersonnages = new ArrayList<>();
+
         for (int i = 0; i < ligne * colonne; i++) {
-            listePersonnages[i] = (JSONObject) JSONPersonnages.get(String.valueOf(i));
+            JSONObject personnage = (JSONObject) JSONPersonnages.get(String.valueOf(i));
+            if (personnage != null)
+                listePersonnages.add(personnage);
         }
         this.personnageChoisi = personnageChoisi;
 
@@ -47,8 +51,7 @@ public class Game {
             ArrayList<String> listConnecteurs) {
         boolean correspondPersonnage = personnageChoisi.get(listeAttribut.get(0)).equals(listeValeurs.get(0));
         for (int i = 1; i < listeAttribut.size(); i++) {
-            // if listConnecteurs.get(i - 1) != null
-            if (listConnecteurs.get(i - 1) == "et") {
+            if (listConnecteurs.get(i - 1).equals("et")) {
                 correspondPersonnage &= personnageChoisi.get(listeAttribut.get(i)).equals(listeValeurs.get(i));
             } else {
                 correspondPersonnage |= personnageChoisi.get(listeAttribut.get(i)).equals(listeValeurs.get(i));
@@ -58,7 +61,7 @@ public class Game {
     }
 
     public List<String> getListeAttributs() {
-        List<String> attributs = new ArrayList<>(listePersonnages[0].keySet());
+        List<String> attributs = new ArrayList<String>(listePersonnages.get(0).keySet());
         attributs.remove("image");
         attributs.remove("etat");
         return attributs;
@@ -100,7 +103,7 @@ public class Game {
     }
 
     public boolean estQuestionBinaire(String attribut) {
-        String value = (String) listePersonnages[0].get(attribut);
+        String value = (String) listePersonnages.get(0).get(attribut);
         if (value == null) {
             return false;
         }
@@ -108,7 +111,7 @@ public class Game {
     }
 
     public boolean verifierElimination(ArrayList<String> listePersonnagesElimines) {
-        return !listePersonnagesElimines.contains(((String) personnageChoisi.get("prenom")).toLowerCase());
+        return listePersonnagesElimines.contains(((String) personnageChoisi.get("prenom")).toLowerCase());
     }
 
     public void sauvegarderPartieEnCour(String images, int ligne, int colonne) {
@@ -160,7 +163,7 @@ public class Game {
     }
 
     public int getNombrePersonnages() {
-        return listePersonnages.length;
+        return listePersonnages.size();
     }
 
 }
