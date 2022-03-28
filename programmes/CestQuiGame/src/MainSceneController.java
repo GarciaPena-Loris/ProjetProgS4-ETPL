@@ -64,6 +64,8 @@ public class MainSceneController {
     private Label questionText1;
     @FXML
     private MenuButton buttonAttribut1;
+    @FXML
+    private BorderPane borderScrollId;
 
     @FXML
     protected void initialize() {
@@ -151,7 +153,7 @@ public class MainSceneController {
                     break;
                 }
             }
-            borderPaneId.setCenter(grillePerso);
+            borderScrollId.setCenter(grillePerso);
         } else {
             borderPaneId.getChildren().clear();
             Label textePerdu = new Label("Chemin vers les images incorrect.");
