@@ -147,6 +147,9 @@ public class MainSceneController {
                     x = 0;
                     y++;
                 }
+                if (y == ligne) {
+                    break;
+                }
             }
             borderPaneId.setCenter(grillePerso);
         } else {
