@@ -87,9 +87,6 @@ public class MainSceneController {
                         colonne);
             }
 
-            System.out.println(partieEnCour.getPersonnageChoisi());
-            partieEnCour.afficheEtatPartie();
-
             GridPane grillePerso = new GridPane();
             creerGrille(grillePerso);
 
@@ -128,13 +125,13 @@ public class MainSceneController {
                 imageViewPerso.setFitHeight(125);
                 imageViewPerso.setFitWidth(90);
                 imageViewPerso
-                        .setId(nomImage.substring(0, nomImage.length() - 4) + "_" + x + "_" + y);
+                        .setId(nomImage + "_" + x + "_" + y);
                 imageViewPerso.setOnMouseClicked(afficheCibleEvent);
                 grillePerso.add(imageViewPerso, x, y);
 
                 if (!listePersonnageMort.isEmpty()) {
                     if (listePersonnageMort
-                            .contains(image.getName().substring(0, image.getName().length() - 4))) {
+                            .contains(image.getName())) {
                         File f2 = new File("images/mortpng.png");
                         Image imageMort = new Image("file:///" + f2.getAbsolutePath());
                         ImageView imageViewMort = new ImageView(imageMort);
@@ -168,26 +165,25 @@ public class MainSceneController {
             AnchorPaneId.getChildren().remove(ancienButtonAjout);
         }
 
-        if (listeAttributsChoisi.size() + 1 < listeAttributs.size()) {
-            // creer le bouton pour ajouter une question
-            MenuButton buttonAjoutQuestion = new MenuButton("Ajouter question");
-            buttonAjoutQuestion.setId("buttonAjoutQuestion");
+        // creer le bouton pour ajouter une question
+        MenuButton buttonAjoutQuestion = new MenuButton("Ajouter question");
+        buttonAjoutQuestion.setId("buttonAjoutQuestion");
 
-            // ajout les items
-            MenuItem etItem = new MenuItem("et");
-            MenuItem ouItem = new MenuItem("ou");
-            etItem.setId("" + (listeAttributsChoisi.size() + 1));
-            ouItem.setId("" + (listeAttributsChoisi.size() + 1));
-            etItem.setOnAction(AjoutQuestionEvent);
-            ouItem.setOnAction(AjoutQuestionEvent);
-            buttonAjoutQuestion.getItems().add(etItem);
-            buttonAjoutQuestion.getItems().add(ouItem);
-            // placement du bouton
-            AnchorPane.setTopAnchor(buttonAjoutQuestion, (listeAttributsChoisi.size() + 1) * 40.); // a changer
-            AnchorPane.setLeftAnchor(buttonAjoutQuestion, 5.);
+        // ajout les items
+        MenuItem etItem = new MenuItem("et");
+        MenuItem ouItem = new MenuItem("ou");
+        etItem.setId("" + (listeAttributsChoisi.size() + 1));
+        ouItem.setId("" + (listeAttributsChoisi.size() + 1));
+        etItem.setOnAction(ajoutQuestionEvent);
+        ouItem.setOnAction(ajoutQuestionEvent);
+        buttonAjoutQuestion.getItems().add(etItem);
+        buttonAjoutQuestion.getItems().add(ouItem);
+        // placement du bouton
+        AnchorPane.setTopAnchor(buttonAjoutQuestion, (listeAttributsChoisi.size() + 1) * 40.); // a changer
+        AnchorPane.setLeftAnchor(buttonAjoutQuestion, 5.);
 
-            AnchorPaneId.getChildren().add(buttonAjoutQuestion);
-        }
+        AnchorPaneId.getChildren().add(buttonAjoutQuestion);
+
     }
 
     private void deplacerValueButton(MenuButton boutonSuivant, int ligne) {
@@ -215,19 +211,18 @@ public class MainSceneController {
         int compteur = 1;
         menuButtonAttribut.getItems().clear();
         for (String attribut : listeAttributs) {
-            if (!listeAttributsChoisi.contains(attribut)) {
+            if (!partieEnCour.estQuestionBinaire(attribut)) {
+                MenuItem newAttribut = new MenuItem(attribut);
+                menuButtonAttribut.getItems().add(newAttribut);
+                newAttribut.setId(menuButtonAttribut.getId() + compteur);
+                newAttribut.setOnAction(attributSelectedEvent);
+            } else if (!listeAttributsChoisi.contains(attribut)) {
                 MenuItem newAttribut = new MenuItem(attribut);
                 menuButtonAttribut.getItems().add(newAttribut);
                 newAttribut.setId(menuButtonAttribut.getId() + compteur);
                 newAttribut.setOnAction(attributSelectedEvent);
             }
             compteur++;
-        }
-        if (listeAttributsChoisi.size() == listeAttributs.size() - 1) {
-            MenuItem attribut = new MenuItem("___");
-            menuButtonAttribut.getItems().add(attribut);
-            attribut.setId(menuButtonAttribut.getId() + compteur);
-            attribut.setOnAction(attributSelectedEvent);
         }
     }
 
@@ -353,7 +348,7 @@ public class MainSceneController {
     };
 
     @FXML
-    EventHandler<ActionEvent> AjoutQuestionEvent = new EventHandler<>() {
+    EventHandler<ActionEvent> ajoutQuestionEvent = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             MenuItem currentItem = (MenuItem) actionEvent.getSource();
@@ -661,9 +656,8 @@ public class MainSceneController {
                     listeIdPersoSelectionne.add(cibleActuel.getId());
 
                 } else {
-                    grillePerso.getChildren().remove((ImageView) borderPaneId.getScene()
-                            .lookup("#cible_" + coordonnee[1] + "_" + coordonnee[2] + "_" + coordonnee[3]));
-                    listeIdPersoSelectionne.remove(cibleActuel.getId());
+                    grillePerso.getChildren().remove(cibleActuel);
+                    listeIdPersoSelectionne.remove(coordonnee[3] + "_" + coordonnee[1] + "_" + coordonnee[2]);
                 }
             }
         }
@@ -682,8 +676,6 @@ public class MainSceneController {
             if (!personnageAtrouverElimine) {
                 listeTotalPersoElimine.addAll(nomsPerso);
                 // si tous les perso sont éliminé sauf le bon
-                System.out.println(listeTotalPersoElimine.size());
-                System.out.println(partieEnCour.getNombrePersonnages());
 
                 if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
                     // vide l'écran, affiche le personnage gagant et supprime la save.
@@ -703,7 +695,7 @@ public class MainSceneController {
 
                     // image Perso
                     File dossierImage = new File(cheminVersImages);
-                    String urlImage = dossierImage.getAbsolutePath() + "/" + imagePersonnageChoisi + ".png";
+                    String urlImage = dossierImage.getAbsolutePath() + "/" + imagePersonnageChoisi;
                     Image imagePerso = new Image("file:///" + urlImage);
                     ImageView imageViewPerso = new ImageView(imagePerso);
                     imageViewPerso.setFitHeight(125);
