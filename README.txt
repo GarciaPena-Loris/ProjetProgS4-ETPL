@@ -8,7 +8,7 @@ Pour le jeu :
 Ourvir le cmd dans le répertoire où se trouve 'programmes.jar'. (./programmes/...)
 Copier la commande : java -jar --enable-preview --module-path "../librairies/javafx-sdk-17.0.2/lib" --add-modules javafx.controls,javafx.fxml .\programmes.jar
 Exécuter la commande dans le susdit cmd.
-Sélectionner avec le bouton 'choix json' le json. ( une grille de test est disponible : "test.JSON" dans "./programmes/...".)
+Sélectionner avec le bouton 'choix json' le json.
 Sélectionner la difficulté de votre choix.
 Appuyer sur 'nouvelle partie'.
 
