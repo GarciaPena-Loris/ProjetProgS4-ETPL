@@ -1,5 +1,5 @@
 {
-    "images": "images/personnages",
+    "images": "../generateur/images/personnages",
     "ligne": "4",
     "colonne": "6",
     "personnages": {
