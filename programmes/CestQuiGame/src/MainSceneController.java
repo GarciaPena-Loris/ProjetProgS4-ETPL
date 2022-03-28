@@ -87,6 +87,9 @@ public class MainSceneController {
                         colonne);
             }
 
+            System.out.println(partieEnCour.getPersonnageChoisi());
+            partieEnCour.afficheEtatPartie();
+
             GridPane grillePerso = new GridPane();
             creerGrille(grillePerso);
 
@@ -642,8 +645,8 @@ public class MainSceneController {
             if (attendSelection) {
                 ImageView cibleActuel = (ImageView) actionEvent.getSource();
                 String[] coordonnee = cibleActuel.getId().split("_");
+                GridPane grillePerso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
                 if (!cibleActuel.getId().split("_")[0].equals("cible")) {
-                    GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
 
                     File f = new File("images/ciblepng.png");
                     Image imageCible = new Image("file:///" + f.getAbsolutePath());
@@ -652,25 +655,15 @@ public class MainSceneController {
                     imageViewCible.setFitWidth(90);
                     imageViewCible.setId("cible_" + coordonnee[1] + "_" + coordonnee[2] + "_" + coordonnee[0]);
                     imageViewCible.setOnMouseClicked(afficheCibleEvent);
-                    grilleperso.add(imageViewCible, Integer.parseInt(coordonnee[1]), Integer.parseInt(coordonnee[2]));
+                    grillePerso.add(imageViewCible, Integer.parseInt(coordonnee[1]), Integer.parseInt(coordonnee[2]));
 
                     // mettre dans la liste le perso éliminé
                     listeIdPersoSelectionne.add(cibleActuel.getId());
 
                 } else {
-                    GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
-                    File f = new File("images/personnages/" + cibleActuel.getId().split("_")[3] + ".png");
-                    Image imagePerso = new Image("file:///" + f.getAbsolutePath());
-                    ImageView imageViewPerso = new ImageView(imagePerso);
-                    imageViewPerso.setFitHeight(125);
-                    imageViewPerso.setFitWidth(90);
-                    imageViewPerso.setId(cibleActuel.getId().split("_")[3] + "_" + Integer.parseInt(coordonnee[1]) + "_"
-                            + Integer.parseInt(coordonnee[2]));
-                    imageViewPerso.setOnMouseClicked(afficheCibleEvent);
-                    grilleperso.add(imageViewPerso, Integer.parseInt(coordonnee[1]), Integer.parseInt(coordonnee[2]));
-
-                    listeIdPersoSelectionne.remove(cibleActuel.getId().split("_")[3] + "_"
-                            + Integer.parseInt(coordonnee[1]) + "_" + Integer.parseInt(coordonnee[2]));
+                    grillePerso.getChildren().remove((ImageView) borderPaneId.getScene()
+                            .lookup("#cible_" + coordonnee[1] + "_" + coordonnee[2] + "_" + coordonnee[3]));
+                    listeIdPersoSelectionne.remove(cibleActuel.getId());
                 }
             }
         }
@@ -688,7 +681,10 @@ public class MainSceneController {
 
             if (!personnageAtrouverElimine) {
                 listeTotalPersoElimine.addAll(nomsPerso);
-                //si tous les perso sont éliminé sauf le bon
+                // si tous les perso sont éliminé sauf le bon
+                System.out.println(listeTotalPersoElimine.size());
+                System.out.println(partieEnCour.getNombrePersonnages());
+
                 if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
                     // vide l'écran, affiche le personnage gagant et supprime la save.
                     borderPaneId.getChildren().clear();
@@ -697,6 +693,7 @@ public class MainSceneController {
 
                     // texte
                     AnchorPane pageFinale = new AnchorPane();
+                    String imagePersonnageChoisi = partieEnCour.getImagePersonnageChoisi();
                     String personnageChoisi = partieEnCour.getPersonnageChoisi();
                     Label texteGagner = new Label("Bravo ! Vous avez gagné ! Le personnage était bien "
                             + personnageChoisi + " :)");
@@ -706,7 +703,7 @@ public class MainSceneController {
 
                     // image Perso
                     File dossierImage = new File(cheminVersImages);
-                    String urlImage = dossierImage.getAbsolutePath() + "/" + personnageChoisi + ".png";
+                    String urlImage = dossierImage.getAbsolutePath() + "/" + imagePersonnageChoisi + ".png";
                     Image imagePerso = new Image("file:///" + urlImage);
                     ImageView imageViewPerso = new ImageView(imagePerso);
                     imageViewPerso.setFitHeight(125);
@@ -748,11 +745,11 @@ public class MainSceneController {
                     creerDernierMenuBouton(buttonAttribut1);
                     creerBoutonestimer();
 
-                    //reset ancienne grille
+                    // reset ancienne grille
                     GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
                     borderPaneId.getChildren().remove(grilleperso);
 
-                    //recreer une nouvelle
+                    // recreer une nouvelle
                     GridPane newGrillePerso = new GridPane();
                     creerGrille(newGrillePerso);
 
