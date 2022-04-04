@@ -10,6 +10,7 @@ import org.json.simple.JSONObject;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -157,7 +158,7 @@ public class pageGenerateurController {
                     || Integer.parseInt(newValue) > 0 &&
                             Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) > 1)
                     && Integer.parseInt(newValue)
-                            * Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) <= listeImages
+                            * Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) <= listeImages
                                     .size()) {
                 validerButton.setDisable(false);
             } else {
@@ -307,7 +308,6 @@ public class pageGenerateurController {
                 int y = 0; // lignes
                 int compteurImage = 0;
 
-
                 // supprime l'ancienne grille
                 GridPane grillePerso = (GridPane) middleAnchorPane.getScene().lookup("#grillePerso");
                 borderPaneId.getChildren().remove(grillePerso);
@@ -324,7 +324,7 @@ public class pageGenerateurController {
                 for (ImageView image : listeImageSelectionnees) {
                     image.setOnMouseClicked(ajouterValeurAttributPersonnageEvent);
 
-                    //on change l'id
+                    // on change l'id
                     String[] holdImageIdSplit = image.getId().split("\\*");
                     image.setId(holdImageIdSplit[0] + "*" + x + "*" + y + "*" + holdImageIdSplit[3]);
 
@@ -346,6 +346,11 @@ public class pageGenerateurController {
                 ligne = (String) spinnerLigne.getValue().toString();
                 bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText,
                         nombreImageLabel);
+
+                GridPane grillePerso = (GridPane) middleAnchorPane.getScene().lookup("#grillePerso");
+
+                //remet le bon event sur les images
+                grillePerso.getChildren().forEach(image -> image.setOnMouseClicked(ajouterValeurAttributPersonnageEvent));
             }
             ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
             explicationText.setText(
