@@ -121,15 +121,20 @@ public class MainSceneController {
             grillePerso.setHgap(colonne);
             grillePerso.setVgap(ligne);
 
+            ArrayList<String> listePrenomPersonnages = new ArrayList<>();
+            personnages.forEach((key, value) -> {
+                listePrenomPersonnages.add(((String)((JSONObject) key).get("prenom")));
+            });
+
+            for (String string : listePrenomPersonnages) {
+                System.out.println(string);
+            }
+            
             for (File image : dossierImage.listFiles(imageFiltre)) {
                 String nomImage = image.getName();
                 String urlImage = image.getAbsolutePath();
 
                 // verifie si le personnage est bien dans la liste
-                personnages.forEach((key, value) -> {
-                    if (key == "oui")
-                        System.out.println("alo");
-                });
                 Image imagePerso = new Image("file:///" + urlImage);
                 ImageView imageViewPerso = new ImageView(imagePerso);
                 imageViewPerso.setFitHeight(125);
