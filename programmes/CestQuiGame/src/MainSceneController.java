@@ -20,6 +20,7 @@ import org.json.simple.parser.*;
 import javafx.event.EventHandler;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainSceneController {
@@ -28,6 +29,7 @@ public class MainSceneController {
     private int ligne;
     private int colonne;
     private static List<String> listeAttributs;
+    private static JSONObject personnages;
 
     private static ArrayList<String> listeAttributsChoisi = new ArrayList<>();
     private static ArrayList<String> listeIdPersoSelectionne = new ArrayList<>();
@@ -76,7 +78,7 @@ public class MainSceneController {
             cheminVersImages = (String) js.get("images");
             ligne = Integer.parseInt((String) js.get("ligne"));
             colonne = Integer.parseInt((String) js.get("colonne"));
-            JSONObject personnages = (JSONObject) js.get("personnages");
+            personnages = (JSONObject) js.get("personnages");
 
             if ((String) js.get("difficulte") != null) {
                 // partie chargée
@@ -122,6 +124,12 @@ public class MainSceneController {
             for (File image : dossierImage.listFiles(imageFiltre)) {
                 String nomImage = image.getName();
                 String urlImage = image.getAbsolutePath();
+
+                // verifie si le personnage est bien dans la liste
+                personnages.forEach((key, value) -> {
+                    if (key == "oui")
+                        System.out.println("alo");
+                });
                 Image imagePerso = new Image("file:///" + urlImage);
                 ImageView imageViewPerso = new ImageView(imagePerso);
                 imageViewPerso.setFitHeight(125);
