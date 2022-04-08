@@ -30,6 +30,7 @@ public class MainSceneController {
     private int colonne;
     private static List<String> listeAttributs;
     private static JSONObject personnages;
+    private HashMap<String, String> listeImages = new HashMap<>();
 
     private static ArrayList<String> listeAttributsChoisi = new ArrayList<>();
     private static ArrayList<String> listeIdPersoSelectionne = new ArrayList<>();
@@ -46,18 +47,6 @@ public class MainSceneController {
         json = js;
     }
 
-    private static FilenameFilter imageFiltre = new FilenameFilter() {
-        @Override
-        public boolean accept(final File dir, final String name) {
-            for (final String ext : new String[] { "png", "jpg" }) {
-                if (name.endsWith("." + ext)) {
-                    return (true);
-                }
-            }
-            return (false);
-        }
-    };
-
     @FXML
     private BorderPane borderPaneId;
     @FXML
@@ -70,6 +59,7 @@ public class MainSceneController {
     private BorderPane borderScrollId;
 
     @FXML
+    @SuppressWarnings("unchecked")
     protected void initialize() {
         // Recuperer les données du JSON ici
         try {
@@ -90,6 +80,15 @@ public class MainSceneController {
                 partieEnCour = new Game(difficulte, personnages, ligne,
                         colonne);
             }
+            // on sauvegarde des le debut
+            partieEnCour.sauvegarderPartieEnCour(cheminVersImages, ligne, colonne);
+
+            // on creer la liste avec toutes les images a utiliser
+            personnages.forEach((key, value) -> {
+                String nomImage = ((String) ((JSONObject) value).get("image"));
+                File file = new File(cheminVersImages + "/" + nomImage);
+                listeImages.put(nomImage, file.getAbsolutePath());
+            });
 
             GridPane grillePerso = new GridPane();
             creerGrille(grillePerso);
@@ -106,9 +105,10 @@ public class MainSceneController {
         }
     }
 
+    int x = 0; // collones
+    int y = 0; // ligne
+
     private void creerGrille(GridPane grillePerso) {
-        int x = 0; // collones
-        int y = 0; // ligne
 
         File dossierImage = new File(cheminVersImages);
         if (dossierImage.isDirectory()) {
@@ -121,20 +121,10 @@ public class MainSceneController {
             grillePerso.setHgap(colonne);
             grillePerso.setVgap(ligne);
 
-            ArrayList<String> listePrenomPersonnages = new ArrayList<>();
-            personnages.forEach((key, value) -> {
-                listePrenomPersonnages.add(((String)((JSONObject) key).get("prenom")));
-            });
+            listeImages.forEach((key, value) -> {
+                String nomImage = key;
+                String urlImage = value;
 
-            for (String string : listePrenomPersonnages) {
-                System.out.println(string);
-            }
-            
-            for (File image : dossierImage.listFiles(imageFiltre)) {
-                String nomImage = image.getName();
-                String urlImage = image.getAbsolutePath();
-
-                // verifie si le personnage est bien dans la liste
                 Image imagePerso = new Image("file:///" + urlImage);
                 ImageView imageViewPerso = new ImageView(imagePerso);
                 imageViewPerso.setFitHeight(125);
@@ -146,7 +136,7 @@ public class MainSceneController {
 
                 if (!listePersonnageMort.isEmpty()) {
                     if (listePersonnageMort
-                            .contains(image.getName())) {
+                            .contains(nomImage)) {
                         File f2 = new File("images/mortpng.png");
                         Image imageMort = new Image("file:///" + f2.getAbsolutePath());
                         ImageView imageViewMort = new ImageView(imageMort);
@@ -163,14 +153,17 @@ public class MainSceneController {
                     y++;
                 }
                 if (y == ligne) {
-                    break;
+                    x = 0;
+                    y = 0;
+                    return;
                 }
-            }
+
+            });
             borderScrollId.setCenter(grillePerso);
         } else {
             borderPaneId.getChildren().clear();
-            Label textePerdu = new Label("Chemin vers les images incorrect.");
-            borderPaneId.setCenter(textePerdu);
+            Label texteErreur = new Label("Chemin vers les images incorrect.");
+            borderPaneId.setCenter(texteErreur);
         }
     }
 
@@ -212,7 +205,7 @@ public class MainSceneController {
 
         if (boutonSuivant.getText().equals("___") || listeAttributsChoisi.size() == 2) {
             List<String> listeValeurs = partieEnCour.getListeValeurs(
-                    ((MenuButton) borderPaneId.getScene().lookup("#buttonAttribut" + ligne)).getText());
+                    ((MenuButton) borderPaneId.getScene().lookup("#buttonAttribut" + ligne)).getText(), listeTotalPersoElimine);
             for (int i = 0; i < listeValeurs.size(); i++) {
                 MenuItem valeurs = new MenuItem(listeValeurs.get(i));
                 valeurs.setId(menuButtonValeur.getId() + i);
@@ -305,7 +298,7 @@ public class MainSceneController {
                     AnchorPaneId.getChildren().remove(valueButton);
 
                 // creation du bouton des valeurs
-                List<String> listeValeurs = partieEnCour.getListeValeurs(selectedAttribut);
+                List<String> listeValeurs = partieEnCour.getListeValeurs(selectedAttribut, listeTotalPersoElimine);
 
                 if (listeValeurs.isEmpty()) {
                     AnchorPaneId.getChildren().remove(valueButton);
@@ -597,7 +590,7 @@ public class MainSceneController {
                     }
                 }
 
-                // inverse les cileble si la réponse est fausse
+                // inverse les cibles si la réponse est fausse
                 if (reponseQuestion) {
                     GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
                     grilleperso.setId("oldGrillePerso");
@@ -632,7 +625,7 @@ public class MainSceneController {
                         }
                     }
 
-                    borderPaneId.setCenter(newGrilleperso);
+                    borderScrollId.setCenter(newGrilleperso);
                 }
             }
             AnchorPane.setTopAnchor(validationText, (listeQuestion.size() * 40.) + 20.);
@@ -678,6 +671,43 @@ public class MainSceneController {
         }
     };
 
+    private void afficheFinPartie(String texteDeFin) {
+        // vide l'écran, affiche le personnage gagant et supprime la save.
+        borderPaneId.getChildren().clear();
+        File fileSave = new File("CestQuiGame/bin/save.json");
+        fileSave.delete();
+
+        // texte
+        AnchorPane pageFinale = new AnchorPane();
+        String imagePersonnageChoisi = partieEnCour.getImagePersonnageChoisi();
+        Label texte = new Label(texteDeFin);
+        AnchorPane.setTopAnchor(texte, 210.);
+        AnchorPane.setLeftAnchor(texte, 360.);
+        AnchorPane.setRightAnchor(texte, 350.);
+
+        // image Perso
+        File dossierImage = new File(cheminVersImages);
+        String urlImage = dossierImage.getAbsolutePath() + "/" + imagePersonnageChoisi;
+        Image imagePerso = new Image("file:///" + urlImage);
+        ImageView imageViewPerso = new ImageView(imagePerso);
+        imageViewPerso.setFitHeight(125);
+        imageViewPerso.setFitWidth(90);
+        AnchorPane.setTopAnchor(imageViewPerso, 240.);
+        AnchorPane.setLeftAnchor(imageViewPerso, 500.);
+        AnchorPane.setRightAnchor(imageViewPerso, 500.);
+
+        // bouton quitter
+        Button buttonQuitter = new Button("Quitter");
+        buttonQuitter.setId("buttonRejouer");
+        buttonQuitter.setOnAction(quitterEvent);
+        AnchorPane.setTopAnchor(buttonQuitter, 400.);
+        AnchorPane.setLeftAnchor(buttonQuitter, 500.);
+        AnchorPane.setRightAnchor(buttonQuitter, 500.);
+
+        pageFinale.getChildren().addAll(texte, imageViewPerso, buttonQuitter);
+        borderPaneId.setCenter(pageFinale);
+    }
+
     EventHandler<ActionEvent> verifierEliminationEvent = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
@@ -685,51 +715,17 @@ public class MainSceneController {
             ArrayList<String> nomsPerso = new ArrayList<>();
             for (String perso : listeIdPersoSelectionne) {
                 nomsPerso.add(perso.split("_")[0]);
+                // change valeur etat perso
+                partieEnCour.tuerPersonnage(perso.split("_")[0]);
             }
             boolean personnageAtrouverElimine = partieEnCour.verifierElimination(nomsPerso);
 
             if (!personnageAtrouverElimine) {
                 listeTotalPersoElimine.addAll(nomsPerso);
-                // si tous les perso sont éliminé sauf le bon
-
+                // si tous les perso sont éliminé sauf le bon c'est gagné !!
                 if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
-                    // vide l'écran, affiche le personnage gagant et supprime la save.
-                    borderPaneId.getChildren().clear();
-                    File fileSave = new File("CestQuiGame/bin/save.json");
-                    fileSave.delete();
-
-                    // texte
-                    AnchorPane pageFinale = new AnchorPane();
-                    String imagePersonnageChoisi = partieEnCour.getImagePersonnageChoisi();
-                    String personnageChoisi = partieEnCour.getPersonnageChoisi();
-                    Label texteGagner = new Label("Bravo ! Vous avez gagné ! Le personnage était bien "
-                            + personnageChoisi + " :)");
-                    AnchorPane.setTopAnchor(texteGagner, 210.);
-                    AnchorPane.setLeftAnchor(texteGagner, 360.);
-                    AnchorPane.setRightAnchor(texteGagner, 350.);
-
-                    // image Perso
-                    File dossierImage = new File(cheminVersImages);
-                    String urlImage = dossierImage.getAbsolutePath() + "/" + imagePersonnageChoisi;
-                    Image imagePerso = new Image("file:///" + urlImage);
-                    ImageView imageViewPerso = new ImageView(imagePerso);
-                    imageViewPerso.setFitHeight(125);
-                    imageViewPerso.setFitWidth(90);
-                    AnchorPane.setTopAnchor(imageViewPerso, 240.);
-                    AnchorPane.setLeftAnchor(imageViewPerso, 500.);
-                    AnchorPane.setRightAnchor(imageViewPerso, 500.);
-
-                    // bouton quitter
-                    Button buttonQuitter = new Button("Quitter");
-                    buttonQuitter.setId("buttonRejouer");
-                    buttonQuitter.setOnAction(quitterEvent);
-                    AnchorPane.setTopAnchor(buttonQuitter, 400.);
-                    AnchorPane.setLeftAnchor(buttonQuitter, 500.);
-                    AnchorPane.setRightAnchor(buttonQuitter, 500.);
-
-                    pageFinale.getChildren().addAll(texteGagner, imageViewPerso, buttonQuitter);
-                    borderPaneId.setCenter(pageFinale);
-
+                    afficheFinPartie("Bravo ! Vous avez gagné ! Le personnage était bien "
+                            + partieEnCour.getPersonnageChoisi() + " :)");
                 } else {
                     // enleve tous les boutons
                     AnchorPaneId.getChildren().clear();
@@ -760,32 +756,13 @@ public class MainSceneController {
                     GridPane newGrillePerso = new GridPane();
                     creerGrille(newGrillePerso);
 
-                    // affiche les tete de mort
-                    for (String perso : listeIdPersoSelectionne) {
-
-                        // change valeur etat perso
-                        partieEnCour.tuerPersonnage(perso.split("_")[0]);
-
-                        int i = Integer.parseInt(perso.split("_")[1]);
-                        int j = Integer.parseInt(perso.split("_")[2]);
-
-                        File f2 = new File("images/mortpng.png");
-                        Image imageMort = new Image("file:///" + f2.getAbsolutePath());
-                        ImageView imageViewMort = new ImageView(imageMort);
-                        imageViewMort.setFitHeight(125);
-                        imageViewMort.setFitWidth(90);
-                        imageViewMort.setId("mort_" + i + "_" + j);
-                        newGrillePerso.add(imageViewMort, i, j);
-                    }
                     partieEnCour.sauvegarderPartieEnCour(cheminVersImages, ligne, colonne);
                     listeIdPersoSelectionne.clear();
                 }
             } else {
-                borderPaneId.getChildren().clear();
-
-                Label textePerdu = new Label("Vous avez perdu car vous avez éliminé "
+                //c'est perdu
+                afficheFinPartie("Vous avez perdu car vous avez éliminé "
                         + partieEnCour.getPersonnageChoisi() + ", dommage... :(");
-                borderPaneId.setCenter(textePerdu);
             }
         }
     };
