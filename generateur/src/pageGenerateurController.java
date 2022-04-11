@@ -39,9 +39,9 @@ import javafx.stage.WindowEvent;
 
 public class pageGenerateurController {
 
-    private String cheminVersImage;
-    private String ligne;
-    private String colonne;
+    private static String cheminVersImage;
+    private static String ligne;
+    private static String colonne;
 
     private String cheminJson;
 
@@ -54,13 +54,13 @@ public class pageGenerateurController {
     private int nombreImagesSelectionnees = 0;
     private int nombreImagesNecessaires;
     private ArrayList<ImageView> listeImages = new ArrayList<>();
-    private ArrayList<ImageView> listeImageSelectionnees = new ArrayList<>();
+    private static ArrayList<ImageView> listeImageSelectionnees = new ArrayList<>();
     private static ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
     private static ArrayList<Label> listeAttributsLabel = new ArrayList<>();
     private static ArrayList<Label> listeSupprLabel = new ArrayList<>();
 
-    private int etape = 0;
+    private static int etape = 0;
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
         @Override
@@ -697,12 +697,10 @@ public class pageGenerateurController {
         // sauvegarde du generateur
         JSONObject generateurSave = new JSONObject();
         if (etape >= 1) {
-            System.out.println("etape 1");
             generateurSave.put("cheminVersImage", String.valueOf(cheminVersImage));
             generateurSave.put("etape", 1);
         }
         if (etape >= 2) {
-            System.out.println("etape 2");
             generateurSave.put("ligne", String.valueOf(ligne));
             generateurSave.put("colonne", String.valueOf(colonne));
 
@@ -719,25 +717,23 @@ public class pageGenerateurController {
             generateurSave.put("etape", 2);
         }
         if (etape >= 3) {
-            System.out.println("etape 3");
             int i = 0;
             JSONObject JlisteAttributsStrings = new JSONObject();
             for (String attribut : listeAttributsStrings) {
                 JlisteAttributsStrings.put(String.valueOf(i), attribut);
                 i++;
             }
-            generateurSave.put("listeAttributsStrings", JlisteAttributsStrings);
+            generateurSave.put("listeAttributsStrings", listeAttributsStrings);
             generateurSave.put("etape", 3);
         }
         if (etape >= 4) {
-            System.out.println("etape 4");
             int i = 0;
             JSONObject JlistePersonnages = new JSONObject();
             for (JSONObject attribut : listePersonnages) {
                 JlistePersonnages.put(String.valueOf(i), attribut);
                 i++;
             }
-            generateurSave.put("listeAttributsStrings", JlistePersonnages);
+            generateurSave.put("listePersonnages", JlistePersonnages);
             generateurSave.put("etape", 4);
         }
 
