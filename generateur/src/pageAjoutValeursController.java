@@ -5,7 +5,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -18,16 +21,19 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import javafx.event.EventHandler;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.json.simple.JSONObject;
 
 public class pageAjoutValeursController implements Initializable {
 
+    private static HashMap<String, ArrayList<String>> valeursDejaDonneesMap = new HashMap<String, ArrayList<String>>();
     private static String nomImage;
     private static String urlImage;
     private static String xGrille;
@@ -83,6 +89,7 @@ public class pageAjoutValeursController implements Initializable {
 
         int i = 1;
         // pour chaque attributs, créer un text field et un label
+        // & une suggestion basé sur les autres valeurs d'attributs
         for (String attribut : listeAttributs) {
             Label label = new Label(attribut + " : ");
             label.setId("label" + i);
@@ -99,6 +106,23 @@ public class pageAjoutValeursController implements Initializable {
             textField.setLayoutX(textLabel.getBoundsInLocal().getWidth() + 22);
             textField.setLayoutY(67 + (60 * i));
 
+            MenuButton menu = new MenuButton();
+            menu.setId("menu" + i);
+            menu.setFont(new Font("Reem Kufi Regular", 21));
+            menu.setPrefWidth(50);
+            menu.setLayoutX(textLabel.getBoundsInLocal().getWidth() + 270);
+            menu.setLayoutY(67 + (60 * i));
+            if((valeursDejaDonneesMap.containsKey(attribut))){
+                menu.setOpacity(1);
+                for (String valeurs:  valeursDejaDonneesMap.get(attribut)) {
+                    MenuItem item = new MenuItem();
+                    item.setId(""+i);
+                    item.setText(valeurs);
+                    item.setOnAction(setValeurOnTextField);
+                    menu.getItems().add(item);
+                }
+            }
+
             if (!(i == listeAttributs.size()))
                 textField.focusedProperty().addListener(verifierTextListener);
             else {
@@ -111,7 +135,7 @@ public class pageAjoutValeursController implements Initializable {
                 });
             }
 
-            informationsPaneId.getChildren().addAll(label, textField);
+            informationsPaneId.getChildren().addAll(label, textField, menu);
 
             informationsPaneId.setPrefHeight(informationsPaneId.getPrefHeight() + 60);
             if ((textLabel.getBoundsInLocal().getWidth() + 22 + 235) > informationsPaneId.getPrefWidth())
@@ -146,6 +170,18 @@ public class pageAjoutValeursController implements Initializable {
             }
         }
     };
+    
+//Met la valeur choisi dans le TextField
+    EventHandler<ActionEvent> setValeurOnTextField = new EventHandler<ActionEvent>(){
+        @Override
+        public void handle(ActionEvent event){
+            String source = ((MenuItem)event.getSource()).getId();
+            ((TextField)anchorPaneId.getScene().lookup("#field"+source)).setText(((MenuItem)event.getSource()).getText());
+            verifierAttributsTousRemplis();
+        }
+    };
+
+
 
     @FXML
     void validerButtonEvent(ActionEvent event) {
@@ -160,7 +196,18 @@ public class pageAjoutValeursController implements Initializable {
         int i = 1;
         for (String attribut : listeAttributs) {
             personnageMap.put(String.valueOf(attribut.toLowerCase()),
-                    String.valueOf(((TextField) scene.lookup("#field" + i)).getText()).toLowerCase());
+            String.valueOf(((TextField) scene.lookup("#field" + i)).getText()).toLowerCase());
+            
+            if(valeursDejaDonneesMap.containsKey(attribut) && !(valeursDejaDonneesMap.get(attribut).contains(String.valueOf(((TextField) scene.lookup("#field" + i)).getText()).toLowerCase()))){
+                valeursDejaDonneesMap.get(attribut).add(String.valueOf(((TextField) scene.lookup("#field" + i)).getText()).toLowerCase());
+            }
+            if (!(valeursDejaDonneesMap.containsKey(attribut))){
+                valeursDejaDonneesMap.put(attribut,new ArrayList<>());
+                if (!(valeursDejaDonneesMap.get(attribut)
+                        .contains(String.valueOf(((TextField) scene.lookup("#field" + i)).getText()).toLowerCase()))){
+                            valeursDejaDonneesMap.get(attribut).add(String.valueOf(((TextField) scene.lookup("#field" + i)).getText()).toLowerCase());
+                    }
+                }
             i++;
         }
         // passe personnage a la page principale et ferme la feunetre:
