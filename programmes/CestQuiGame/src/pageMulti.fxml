@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane fx:id="anchorPaneId" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="263.0" prefWidth="504.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pageMultiController">
+   <children>
+      <RadioButton fx:id="hostPinButton" layoutX="47.0" layoutY="68.0" mnemonicParsing="false" onAction="#hostPartie" prefHeight="17.0" prefWidth="131.0" text="Créer la partie" />
+      <RadioButton fx:id="invitePinButton" layoutX="316.0" layoutY="68.0" mnemonicParsing="false" onAction="#rejoindrePartie" prefHeight="17.0" prefWidth="131.0" text="Rejoindre une partie" />
+      <TextField fx:id="pseudoTextField" layoutX="173.0" layoutY="14.0" promptText="Pseudo" />
+      <Button fx:id="choixJsonButton" disable="true" layoutX="14.0" layoutY="107.0" mnemonicParsing="false" onAction="#choixJsonMulti" text="Choix du Json" />
+      <Separator layoutX="219.0" layoutY="51.0" orientation="VERTICAL" prefHeight="161.0" prefWidth="57.0" />
+      <TextField fx:id="IPTextField" disable="true" layoutX="262.0" layoutY="107.0" promptText="IP de connection" />
+      <Button fx:id="startButton" disable="true" layoutX="194.0" layoutY="223.0" mnemonicParsing="false" onAction="#startGame" opacity="0.0" />
+   </children>
+</AnchorPane>
