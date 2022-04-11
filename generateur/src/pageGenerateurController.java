@@ -10,6 +10,7 @@ import org.json.simple.JSONObject;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -45,13 +46,18 @@ public class pageGenerateurController {
 
     private static boolean estValeursAjoutable = false;
     private static Boolean estOuvertAttribut = false;
+    private boolean estNombreImagesCustomsSelectionnees = false;
+    private boolean estImageCliquable = false;
     private static int nombrePersonnageTotal = 0;
     private static int nombrePersonnageTermines = 0;
-    private ArrayList<Image> listeImages = new ArrayList<>();
+    private int nombreImagesSelectionnees = 0;
+    private int nombreImagesNecessaires;
+    private ArrayList<ImageView> listeImages = new ArrayList<>();
     private static ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
     private static ArrayList<Label> listeAttributsLabel = new ArrayList<>();
     private static ArrayList<Label> listeSupprLabel = new ArrayList<>();
+    private ArrayList<ImageView> listeImageSelectionnees = new ArrayList<>();
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
         @Override
@@ -108,6 +114,9 @@ public class pageGenerateurController {
     private Button validerButton;
 
     @FXML
+    private Label nombreImageLabel;
+
+    @FXML
     protected void initialize() {
         MainAnchorPane.setMaxHeight(Screen.getPrimary().getBounds().getHeight() - 80);
         MainAnchorPane.setMinHeight(Screen.getPrimary().getBounds().getHeight() - 80);
@@ -120,19 +129,51 @@ public class pageGenerateurController {
         topAnchorPane.getChildren().add(logoVimage);
         borderPaneId.setPrefHeight(Screen.getPrimary().getBounds().getHeight() - 500);
         spinnerColonne.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
-            if (Integer.parseInt(newValue)
-                    * Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) >= listeImages.size()) {
+            if ((Integer.parseInt(newValue) > 1 &&
+                    Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) > 0
+                    || Integer.parseInt(newValue) > 0 &&
+                            Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) > 1)
+                    && Integer.parseInt(newValue)
+                            * Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) <= listeImages
+                                    .size()) {
                 validerButton.setDisable(false);
             } else {
                 validerButton.setDisable(true);
             }
+            if (Integer.parseInt(newValue)
+                    * Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) == listeImages
+                            .size()) {
+                validerButton.setText("Passer aux attributs");
+                validerButton.setOnAction(validerButtonEvent);
+                estNombreImagesCustomsSelectionnees = false;
+            } else {
+                validerButton.setText("Passer à la selection d'images");
+                validerButton.setOnAction(selectionImageEvent);
+                estNombreImagesCustomsSelectionnees = true;
+            }
         });
         spinnerLigne.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
-            if (Integer.parseInt(newValue)
-                    * Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) >= listeImages.size()) {
+            if ((Integer.parseInt(newValue) > 1 &&
+                    Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) > 0
+                    || Integer.parseInt(newValue) > 0 &&
+                            Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) > 1)
+                    && Integer.parseInt(newValue)
+                            * Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) <= listeImages
+                                    .size()) {
                 validerButton.setDisable(false);
             } else {
                 validerButton.setDisable(true);
+            }
+            if (Integer.parseInt(newValue)
+                    * Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) == listeImages
+                            .size()) {
+                validerButton.setText("Passer aux attributs");
+                validerButton.setOnAction(validerButtonEvent);
+                estNombreImagesCustomsSelectionnees = false;
+            } else {
+                validerButton.setText("Passer à la selection d'images");
+                validerButton.setOnAction(selectionImageEvent);
+                estNombreImagesCustomsSelectionnees = true;
             }
         });
     }
@@ -159,13 +200,13 @@ public class pageGenerateurController {
                     String nomImage = image.getName();
                     String urlImage = image.getAbsolutePath();
                     Image imagePerso = new Image("file:///" + urlImage);
-                    listeImages.add(imagePerso);
                     ImageView imageViewPerso = new ImageView(imagePerso);
+                    listeImages.add(imageViewPerso);
                     imageViewPerso.setFitHeight(175);
                     imageViewPerso.setFitWidth(145);
                     imageViewPerso
                             .setId(nomImage + "*" + x + "*" + y + "*" + urlImage);
-                    imageViewPerso.setOnMouseClicked(ajouterValeurAttributPersonnage);
+                    imageViewPerso.setOnMouseClicked(selectionnerPersonnageEvent);
                     grillePerso.add(imageViewPerso, x, y);
                     compteurImage++;
 
@@ -176,8 +217,10 @@ public class pageGenerateurController {
                     }
                 }
 
-                if (compteurImage >= 3) {
+                if (compteurImage >= 2) {
                     nombrePersonnageTotal = compteurImage;
+                    nombreImageLabel.setText(nombreImageLabel.getText() + " " + compteurImage + " images)");
+                    nombreImageLabel.setVisible(true);
                     cheminVersImage = selectedDirectory.getAbsolutePath();
                     borderPaneId.getChildren().clear();
                     errorText.setOpacity(0);
@@ -198,31 +241,139 @@ public class pageGenerateurController {
         }
     }
 
-    @FXML
-    void validerButtonEvent(ActionEvent event) {
-        colonne = (String) spinnerColonne.getValue().toString();
-        ligne = (String) spinnerLigne.getValue().toString();
-        ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
-        explicationText.setText(
-                "Cliquez sur le bouton 'Ajouter des attributs' pour définir les attributs commun de vos personnages :");
+    EventHandler<ActionEvent> selectionImageEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            colonne = (String) spinnerColonne.getValue().toString();
+            ligne = (String) spinnerLigne.getValue().toString();
+            nombreImagesNecessaires = Integer.parseInt(ligne) * Integer.parseInt(colonne);
+            bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText,
+                    nombreImageLabel);
 
-        bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
-        Button buttonAjoutAttribut = new Button("Ajouter des attributs");
-        buttonAjoutAttribut.setId("ajoutAttributButton");
-        buttonAjoutAttribut.setOnAction(ajoutAttributEvent);
-        buttonAjoutAttribut.setPrefHeight(66);
-        buttonAjoutAttribut.setFont(new Font("Calibri", 19));
-        pageAttributController.setBtnAttribut(buttonAjoutAttribut);
-        pageAttributController.setBtnValider(validerButton);
+            explicationText.setText(
+                    "Cliquez sur les " + nombreImagesNecessaires + " images ci-dessus que vous souhaitez utiliser.");
+            validerButton.setDisable(true);
+            validerButton.setText("Passer aux attributs");
+            validerButton.setOnAction(validerButtonEvent);
 
-        AnchorPane.setTopAnchor(buttonAjoutAttribut, 85.);
-        AnchorPane.setLeftAnchor(buttonAjoutAttribut, 60.);
-        bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
+            estImageCliquable = true;
+        }
+    };
 
-        validerButton.setText("Passer aux valeurs");
-        validerButton.setOnAction(ajoutValeurEvent);
-        validerButton.setDisable(true);
-    }
+    EventHandler<MouseEvent> selectionnerPersonnageEvent = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+            if (estImageCliquable && nombreImagesSelectionnees < nombreImagesNecessaires) {
+                ImageView cibleActuel = (ImageView) mouseEvent.getSource();
+                String[] cibleSplit = cibleActuel.getId().split("\\*");
+
+                File checkFile = new File("images/check.png");
+                Image checkImage = new Image("file:///" + checkFile.getAbsolutePath());
+                ImageView checkVimage = new ImageView(checkImage);
+                checkVimage.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+                        ImageView checkActuel = (ImageView) mouseEvent.getSource();
+                        GridPane grillePerso = (GridPane) middleAnchorPane.getScene().lookup("#grillePerso");
+                        listeImageSelectionnees.remove(cibleActuel);
+
+                        grillePerso.getChildren().remove(checkActuel);
+                        nombreImagesSelectionnees--;
+                        validerButton.setDisable(true);
+                    }
+                });
+                checkVimage.setId(cibleActuel.getId() + "cible");
+                checkVimage.setFitHeight(175.);
+                checkVimage.setFitWidth(145.);
+
+                listeImageSelectionnees.add(cibleActuel);
+
+                GridPane grillePerso = (GridPane) middleAnchorPane.getScene().lookup("#grillePerso");
+                grillePerso.add(checkVimage, Integer.parseInt(cibleSplit[1]), Integer.parseInt(cibleSplit[2]));
+
+                nombreImagesSelectionnees++;
+            }
+            if (nombreImagesSelectionnees == nombreImagesNecessaires) {
+                validerButton.setDisable(false);
+            }
+        }
+    };
+
+    EventHandler<ActionEvent> validerButtonEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            if (estNombreImagesCustomsSelectionnees) {
+                // regenere la grille avec les images selectionnées
+                int x = 0; // colonne
+                int y = 0; // lignes
+                int compteurImage = 0;
+
+                // supprime l'ancienne grille
+                GridPane grillePerso = (GridPane) middleAnchorPane.getScene().lookup("#grillePerso");
+                borderPaneId.getChildren().remove(grillePerso);
+
+                GridPane newGrillePerso = new GridPane();
+                newGrillePerso.setId("grillePerso");
+                newGrillePerso.setGridLinesVisible(true);
+                newGrillePerso.setMaxSize(900, 10000);
+                newGrillePerso.setHgap(2);
+                newGrillePerso.setVgap(2);
+
+                listeImages = listeImageSelectionnees;
+
+                for (ImageView image : listeImageSelectionnees) {
+                    image.setOnMouseClicked(ajouterValeurAttributPersonnageEvent);
+
+                    // on change l'id
+                    String[] holdImageIdSplit = image.getId().split("\\*");
+                    image.setId(holdImageIdSplit[0] + "*" + x + "*" + y + "*" + holdImageIdSplit[3]);
+
+                    newGrillePerso.add(image, x, y);
+                    compteurImage++;
+                    x++;
+                    if (x == Integer.parseInt(colonne)) {
+                        x = 0;
+                        y++;
+                        if (y == Integer.parseInt(ligne)) {
+                            break;
+                        }
+                    }
+                }
+                nombrePersonnageTotal = compteurImage;
+                borderPaneId.setCenter(newGrillePerso);
+            } else {
+                colonne = (String) spinnerColonne.getValue().toString();
+                ligne = (String) spinnerLigne.getValue().toString();
+                bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText,
+                        nombreImageLabel);
+
+                GridPane grillePerso = (GridPane) middleAnchorPane.getScene().lookup("#grillePerso");
+
+                //remet le bon event sur les images
+                grillePerso.getChildren().forEach(image -> image.setOnMouseClicked(ajouterValeurAttributPersonnageEvent));
+            }
+            ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
+            explicationText.setText(
+                    "Cliquez sur le bouton 'Ajouter des attributs' pour définir les attributs commun de vos personnages :");
+
+            bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
+            Button buttonAjoutAttribut = new Button("Ajouter des attributs");
+            buttonAjoutAttribut.setId("ajoutAttributButton");
+            buttonAjoutAttribut.setOnAction(ajoutAttributEvent);
+            buttonAjoutAttribut.setPrefHeight(66);
+            buttonAjoutAttribut.setFont(new Font("Calibri", 19));
+            pageAttributController.setBtnAttribut(buttonAjoutAttribut);
+            pageAttributController.setBtnValider(validerButton);
+
+            AnchorPane.setTopAnchor(buttonAjoutAttribut, 85.);
+            AnchorPane.setLeftAnchor(buttonAjoutAttribut, 60.);
+            bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
+
+            validerButton.setText("Passer aux valeurs");
+            validerButton.setOnAction(ajoutValeurEvent);
+            validerButton.setDisable(true);
+        }
+    };
 
     EventHandler<ActionEvent> ajoutAttributEvent = new EventHandler<ActionEvent>() {
         @Override
@@ -282,7 +433,7 @@ public class pageGenerateurController {
         return listeSupprLabel;
     }
 
-    EventHandler<MouseEvent> ajouterValeurAttributPersonnage = new EventHandler<MouseEvent>() {
+    EventHandler<MouseEvent> ajouterValeurAttributPersonnageEvent = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent mouseEvent) {
             if (estValeursAjoutable) {
