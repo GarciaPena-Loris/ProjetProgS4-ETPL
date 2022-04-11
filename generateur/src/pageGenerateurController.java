@@ -4,13 +4,13 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.json.simple.JSONObject;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -19,6 +19,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
@@ -53,11 +54,13 @@ public class pageGenerateurController {
     private int nombreImagesSelectionnees = 0;
     private int nombreImagesNecessaires;
     private ArrayList<ImageView> listeImages = new ArrayList<>();
+    private ArrayList<ImageView> listeImageSelectionnees = new ArrayList<>();
     private static ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
     private static ArrayList<Label> listeAttributsLabel = new ArrayList<>();
     private static ArrayList<Label> listeSupprLabel = new ArrayList<>();
-    private ArrayList<ImageView> listeImageSelectionnees = new ArrayList<>();
+
+    private int etape = 0;
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
         @Override
@@ -234,6 +237,10 @@ public class pageGenerateurController {
                     spinnerLigne.setOpacity(1);
                     spinnerColonne.setDisable(false);
                     spinnerLigne.setDisable(false);
+
+                    //save
+                    etape = 1;
+                    sauvegarderPartieEnCour();
                 } else {
                     errorText.setOpacity(1);
                 }
@@ -319,8 +326,6 @@ public class pageGenerateurController {
                 newGrillePerso.setHgap(2);
                 newGrillePerso.setVgap(2);
 
-                listeImages = listeImageSelectionnees;
-
                 for (ImageView image : listeImageSelectionnees) {
                     image.setOnMouseClicked(ajouterValeurAttributPersonnageEvent);
 
@@ -352,6 +357,10 @@ public class pageGenerateurController {
                 //remet le bon event sur les images
                 grillePerso.getChildren().forEach(image -> image.setOnMouseClicked(ajouterValeurAttributPersonnageEvent));
             }
+            //save 
+            etape = 2;
+            sauvegarderPartieEnCour();
+
             ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
             explicationText.setText(
                     "Cliquez sur le bouton 'Ajouter des attributs' pour définir les attributs commun de vos personnages :");
@@ -433,6 +442,27 @@ public class pageGenerateurController {
         return listeSupprLabel;
     }
 
+    EventHandler<ActionEvent> ajoutValeurEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            etape = 3;
+            sauvegarderPartieEnCour();
+
+            estValeursAjoutable = true;
+            ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(1);
+
+            explicationText.setText(
+                    "Cliquez sur les images des personnages pour définir les valeurs de leurs attributs.");
+
+            bottomAnchorPane.getChildren().remove((Button) bottomAnchorPane.getScene().lookup("#ajoutAttributButton"));
+
+            validerButton.setText("Passer au Json");
+            validerButton.setOnAction(passerAuJsonEvent);
+            validerButton.setDisable(true);
+
+        }
+    };
+
     EventHandler<MouseEvent> ajouterValeurAttributPersonnageEvent = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent mouseEvent) {
@@ -469,27 +499,9 @@ public class pageGenerateurController {
         }
     };
 
-    EventHandler<ActionEvent> ajoutValeurEvent = new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
-            estValeursAjoutable = true;
-            ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(1);
-
-            explicationText.setText(
-                    "Cliquez sur les images des personnages pour définir les valeurs de leurs attributs.");
-
-            bottomAnchorPane.getChildren().remove((Button) bottomAnchorPane.getScene().lookup("#ajoutAttributButton"));
-
-            validerButton.setText("Passer au Json");
-            validerButton.setOnAction(passerAuJsonEvent);
-            validerButton.setDisable(true);
-
-        }
-    };
 
     // getter Pour les valeurs de chaques perso
-    public static void addValeursPersonnage(JSONObject e, String x, String y, GridPane grillePerso,
-            Button validerButton) {
+    public static void addValeursPersonnage(JSONObject e, String x, String y, Button validerButton, GridPane grillePerso) {
         listePersonnages.add(e);
 
         File checkFile = new File("images/check.png");
@@ -502,6 +514,11 @@ public class pageGenerateurController {
 
         nombrePersonnageTermines++;
         estValeursAjoutable = true;
+
+        //save
+        etape = 4;
+        sauvegarderPartieEnCour();
+
         if (nombrePersonnageTermines == nombrePersonnageTotal) {
             estValeursAjoutable = false;
             validerButton.setDisable(false);
@@ -538,6 +555,9 @@ public class pageGenerateurController {
         @Override
         public void handle(ActionEvent event) {
             estValeursAjoutable = false;
+
+            etape = 5;
+            sauvegarderPartieEnCour();
 
             ((GridPane) MainAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
             explicationText.setText(
@@ -671,6 +691,63 @@ public class pageGenerateurController {
             }
         }
     };
+
+    @SuppressWarnings("unchecked")
+    public static void sauvegarderPartieEnCour() {
+        // sauvegarde du generateur
+        JSONObject generateurSave = new JSONObject();
+        if (etape >= 1) {
+            System.out.println("etape 1");
+            generateurSave.put("cheminVersImage", String.valueOf(cheminVersImage));
+            generateurSave.put("etape", 1);
+        }
+        if (etape >= 2) {
+            System.out.println("etape 2");
+            generateurSave.put("ligne", String.valueOf(ligne));
+            generateurSave.put("colonne", String.valueOf(colonne));
+
+            int i = 0;
+            JSONObject JlisteImageSelectionnees = new JSONObject();
+            for (ImageView imagesSelectionnes : listeImageSelectionnees) {
+                JSONObject detailsImage = new JSONObject();
+                detailsImage.put("url", imagesSelectionnes.getImage().getUrl());
+                detailsImage.put("id", imagesSelectionnes.getId());
+                JlisteImageSelectionnees.put(String.valueOf(i), detailsImage);
+                i++;
+            }
+            generateurSave.put("listeImageSelectionnees", JlisteImageSelectionnees);
+            generateurSave.put("etape", 2);
+        }
+        if (etape >= 3) {
+            System.out.println("etape 3");
+            int i = 0;
+            JSONObject JlisteAttributsStrings = new JSONObject();
+            for (String attribut : listeAttributsStrings) {
+                JlisteAttributsStrings.put(String.valueOf(i), attribut);
+                i++;
+            }
+            generateurSave.put("listeAttributsStrings", JlisteAttributsStrings);
+            generateurSave.put("etape", 3);
+        }
+        if (etape >= 4) {
+            System.out.println("etape 4");
+            int i = 0;
+            JSONObject JlistePersonnages = new JSONObject();
+            for (JSONObject attribut : listePersonnages) {
+                JlistePersonnages.put(String.valueOf(i), attribut);
+                i++;
+            }
+            generateurSave.put("listeAttributsStrings", JlistePersonnages);
+            generateurSave.put("etape", 4);
+        }
+
+        try (FileWriter file = new FileWriter(new File("bin/save.json"))) {
+            file.write(generateurSave.toJSONString());
+            System.out.println("saved");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     EventHandler<ActionEvent> fermerGenerateurEvent = new EventHandler<ActionEvent>() {
         @Override

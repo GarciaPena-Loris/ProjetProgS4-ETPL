@@ -187,8 +187,8 @@ public class pageAjoutValeursController implements Initializable {
         }
         if (!estDejaPresent) {
             listePersonnage.add(personnageMap);
-            pageGenerateurController.addValeursPersonnage(personnage, xGrille, yGrille, grillePersoCheck,
-                    boutonValider);
+            pageGenerateurController page = new pageGenerateurController();
+            page.addValeursPersonnage(personnage, xGrille, yGrille, boutonValider, grillePersoCheck);
             ((Stage) anchorPaneId.getScene().getWindow()).close();
         }
     }

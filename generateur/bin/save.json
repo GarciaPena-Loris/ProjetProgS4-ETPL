@@ -1,0 +1,15 @@
+{
+    "etape": 4,
+    "ligne": "null",
+    "listeImageSelectionnees": {},
+    "cheminVersImage": "null",
+    "colonne": "null",
+    "listeAttributsStrings": {
+        "0": {
+            "image": "avatar-cowboy.png",
+            "couleur": "jaune",
+            "etat": "vivant",
+            "prenom": "cowboy"
+        }
+    }
+}
