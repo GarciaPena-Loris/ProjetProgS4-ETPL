@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
@@ -14,7 +13,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -26,14 +24,13 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.json.simple.JSONObject;
 
 public class pageAjoutValeursController implements Initializable {
 
-    private static HashMap<String, ArrayList<String>> valeursDejaDonneesMap = new HashMap<String, ArrayList<String>>();
+    public static HashMap<String, ArrayList<String>> valeursDejaDonneesMap = new HashMap<String, ArrayList<String>>();
     private static String nomImage;
     private static String urlImage;
     private static String xGrille;

@@ -209,10 +209,10 @@ public class pageGenerateurController {
     @SuppressWarnings("unchecked")
     void chargerGenerateurEvent(ActionEvent event) {
         // chargar partie
-        System.out.println("Chargement...");
-        File save = new File("bin/save.json");
         try {
-            JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(save.getAbsolutePath()));
+            File save = new File("bin/save.json");
+            FileReader fsave = new FileReader(save.getAbsolutePath());
+            JSONObject js = (JSONObject) new JSONParser().parse(fsave);
             long etapeChargée = (long) js.get("etape");
             HashMap<String, String> imagesCoordonneesMap = new HashMap<>();
 
@@ -250,11 +250,15 @@ public class pageGenerateurController {
                     String[] xy = imagesCoordonneesMap.get(((JSONObject) value).get("image")).split("-");
                     addValeursPersonnage((JSONObject) value, xy[0], xy[1], validerButton);
                 });
+                ((JSONObject) js.get("valeursDejaDonneesMap")).forEach((key, value) -> {
+                    pageAjoutValeursController.valeursDejaDonneesMap.put((String) key, (ArrayList<String>) value);
+                });
                 etape = 4;
             }
             if (etapeChargée == 5) {
                 passerAuJsonEvent.handle(new ActionEvent());
             }
+            fsave.close();
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
@@ -769,6 +773,9 @@ public class pageGenerateurController {
                             "Votre Json a été correctement généré !");
                     explicationText.setFill(Color.GREEN);
 
+                    File fileSave = new File("bin/save.json");
+                    fileSave.delete();
+
                 } catch (IOException e) {
                     e.printStackTrace();
                     explicationText.setText(
@@ -833,6 +840,11 @@ public class pageGenerateurController {
                 JlistePersonnages.put(String.valueOf(i), attribut);
                 i++;
             }
+            JSONObject JvaleursDejaDonneesMap = new JSONObject();
+            pageAjoutValeursController.valeursDejaDonneesMap.forEach((key, value) -> {
+                JvaleursDejaDonneesMap.put(key, value);
+            });
+            generateurSave.put("valeursDejaDonneesMap", JvaleursDejaDonneesMap);
             generateurSave.put("listePersonnages", JlistePersonnages);
             generateurSave.put("etape", 4);
         }
@@ -842,7 +854,6 @@ public class pageGenerateurController {
 
         try (FileWriter file = new FileWriter(new File("bin/save.json"))) {
             file.write(generateurSave.toJSONString());
-            System.out.println("saved");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -851,8 +862,6 @@ public class pageGenerateurController {
     EventHandler<ActionEvent> fermerGenerateurEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
-            File fileSave = new File("bin/save.json");
-            fileSave.delete();
             ((Stage) bottomAnchorPane.getScene().getWindow()).close();
             System.exit(0);
         }
