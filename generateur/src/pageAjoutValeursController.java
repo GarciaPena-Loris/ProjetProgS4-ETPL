@@ -38,20 +38,18 @@ public class pageAjoutValeursController implements Initializable {
     private static String urlImage;
     private static String xGrille;
     private static String yGrille;
-    private static GridPane grillePersoCheck;
     private static Button boutonValider;
     private static ArrayList<String> listeAttributs;
     private static ArrayList<HashMap<String, String>> listePersonnage = new ArrayList<>();
     private boolean labelAlreadyDisplayed = false;
 
     public pageAjoutValeursController(String nomImageController, String urlImageController,
-            ArrayList<String> listeAttributsString, String x, String y, GridPane grillePerso, Button validerButton) {
+            ArrayList<String> listeAttributsString, String x, String y, Button validerButton) {
         nomImage = nomImageController;
         urlImage = urlImageController;
         listeAttributs = listeAttributsString;
         xGrille = x;
         yGrille = y;
-        grillePersoCheck = grillePerso;
         boutonValider = validerButton;
     }
 
@@ -234,8 +232,8 @@ public class pageAjoutValeursController implements Initializable {
         }
         if (!estDejaPresent) {
             listePersonnage.add(personnageMap);
-            pageGenerateurController.addValeursPersonnage(personnage, xGrille, yGrille, grillePersoCheck,
-                    boutonValider);
+            pageGenerateurController page = new pageGenerateurController();
+            page.addValeursPersonnage(personnage, xGrille, yGrille, boutonValider);
             ((Stage) anchorPaneId.getScene().getWindow()).close();
         }
     }

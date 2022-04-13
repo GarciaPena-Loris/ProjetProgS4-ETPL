@@ -1,24 +1,30 @@
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
@@ -38,9 +44,9 @@ import javafx.stage.WindowEvent;
 
 public class pageGenerateurController {
 
-    private String cheminVersImage;
-    private String ligne;
-    private String colonne;
+    private static String cheminVersImage;
+    private static String ligne;
+    private static String colonne;
 
     private String cheminJson;
 
@@ -51,13 +57,16 @@ public class pageGenerateurController {
     private static int nombrePersonnageTotal = 0;
     private static int nombrePersonnageTermines = 0;
     private int nombreImagesSelectionnees = 0;
-    private int nombreImagesNecessaires;
+    private int nombreImagesNecessaires = -1;
     private ArrayList<ImageView> listeImages = new ArrayList<>();
+    private static ArrayList<ImageView> listeImageSelectionnees = new ArrayList<>();
     private static ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
     private static ArrayList<Label> listeAttributsLabel = new ArrayList<>();
     private static ArrayList<Label> listeSupprLabel = new ArrayList<>();
-    private ArrayList<ImageView> listeImageSelectionnees = new ArrayList<>();
+
+    private static int etape = 0;
+    private static GridPane grillePerso;
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
         @Override
@@ -70,6 +79,16 @@ public class pageGenerateurController {
             return (false);
         }
     };
+
+    private boolean isSaveJsonFile() {
+        File dir = new File("bin");
+        File[] matches = dir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.startsWith("save");
+            }
+        });
+        return matches.length != 0;
+    }
 
     @FXML
     private AnchorPane MainAnchorPane;
@@ -117,10 +136,18 @@ public class pageGenerateurController {
     private Label nombreImageLabel;
 
     @FXML
+    private Button chargerGenerateurButton;
+
+    @FXML
     protected void initialize() {
         MainAnchorPane.setMaxHeight(Screen.getPrimary().getBounds().getHeight() - 80);
         MainAnchorPane.setMinHeight(Screen.getPrimary().getBounds().getHeight() - 80);
         MainAnchorPane.setPrefHeight(Screen.getPrimary().getBounds().getHeight() - 80);
+
+        if (isSaveJsonFile()) {
+            chargerGenerateurButton.setVisible(true);
+        }
+
         File logoFile = new File("images/logoGenerateur.png");
         Image logoImage = new Image("file:///" + logoFile.getAbsolutePath());
         ImageView logoVimage = new ImageView(logoImage);
@@ -179,9 +206,73 @@ public class pageGenerateurController {
     }
 
     @FXML
+    @SuppressWarnings("unchecked")
+    void chargerGenerateurEvent(ActionEvent event) {
+        // chargar partie
+        System.out.println("Chargement...");
+        File save = new File("bin/save.json");
+        try {
+            JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(save.getAbsolutePath()));
+            long etapeChargée = (long) js.get("etape");
+            HashMap<String, String> imagesCoordonneesMap = new HashMap<>();
+
+            if (etapeChargée >= 1) {
+                cheminVersImage = (String) js.get("cheminVersImage");
+                etape = 1;
+                choixImageEvent(new ActionEvent());
+            }
+            if (etapeChargée >= 2) {
+                ligne = (String) js.get("ligne");
+                colonne = (String) js.get("colonne");
+                ((JSONObject) js.get("listeImageSelectionnees")).forEach((key, value) -> {
+                    ImageView iv = new ImageView(new Image((String) ((JSONObject) value).get("url")));
+                    String id = (String) ((JSONObject) value).get("id");
+                    iv.setId(id);
+                    listeImageSelectionnees.add(iv);
+                    String[] idSplit = id.split("\\*");
+                    String xy = idSplit[1] + "-" + idSplit[2];
+                    imagesCoordonneesMap.put(idSplit[0], xy);
+                });
+                etape = 2;
+                estNombreImagesCustomsSelectionnees = true;
+                nombreImageLabel.setVisible(false);
+                validerButtonEvent.handle(new ActionEvent());
+            }
+            if (etapeChargée >= 3) {
+                ((JSONArray) js.get("listeAttributsStrings")).forEach(attribut -> {
+                    listeAttributsStrings.add((String) attribut);
+                });
+                etape = 3;
+                ajoutValeurEvent.handle(new ActionEvent());
+            }
+            if (etapeChargée >= 4) {
+                ((JSONObject) js.get("listePersonnages")).forEach((key, value) -> {
+                    String[] xy = imagesCoordonneesMap.get(((JSONObject) value).get("image")).split("-");
+                    addValeursPersonnage((JSONObject) value, xy[0], xy[1], validerButton);
+                });
+                etape = 4;
+            }
+            if (etapeChargée == 5) {
+                passerAuJsonEvent.handle(new ActionEvent());
+            }
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+        chargerGenerateurButton.setVisible(false);
+
+    }
+
+    @FXML
     void choixImageEvent(ActionEvent event) {
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        File selectedDirectory = directoryChooser.showDialog(MainAnchorPane.getScene().getWindow());
+        File selectedDirectory;
+        if (etape < 1) {
+            chargerGenerateurButton.setVisible(false);
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            selectedDirectory = directoryChooser.showDialog(MainAnchorPane.getScene().getWindow());
+        } else {
+            selectedDirectory = new File(cheminVersImage);
+        }
 
         if (selectedDirectory != null) {
             int compteurImage = 0;
@@ -189,7 +280,7 @@ public class pageGenerateurController {
             if (selectedDirectory.isDirectory()) {
                 int x = 0; // colonne
                 int y = 0; // lignes
-                GridPane grillePerso = new GridPane();
+                grillePerso = new GridPane();
                 grillePerso.setId("grillePerso");
                 grillePerso.setGridLinesVisible(true);
                 grillePerso.setMaxSize(900, 10000);
@@ -234,6 +325,12 @@ public class pageGenerateurController {
                     spinnerLigne.setOpacity(1);
                     spinnerColonne.setDisable(false);
                     spinnerLigne.setDisable(false);
+
+                    // save
+                    if (etape < 1) {
+                        etape = 1;
+                        sauvegarderPartieEnCour();
+                    }
                 } else {
                     errorText.setOpacity(1);
                 }
@@ -274,7 +371,6 @@ public class pageGenerateurController {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
                         ImageView checkActuel = (ImageView) mouseEvent.getSource();
-                        GridPane grillePerso = (GridPane) middleAnchorPane.getScene().lookup("#grillePerso");
                         listeImageSelectionnees.remove(cibleActuel);
 
                         grillePerso.getChildren().remove(checkActuel);
@@ -288,7 +384,6 @@ public class pageGenerateurController {
 
                 listeImageSelectionnees.add(cibleActuel);
 
-                GridPane grillePerso = (GridPane) middleAnchorPane.getScene().lookup("#grillePerso");
                 grillePerso.add(checkVimage, Integer.parseInt(cibleSplit[1]), Integer.parseInt(cibleSplit[2]));
 
                 nombreImagesSelectionnees++;
@@ -309,17 +404,14 @@ public class pageGenerateurController {
                 int compteurImage = 0;
 
                 // supprime l'ancienne grille
-                GridPane grillePerso = (GridPane) middleAnchorPane.getScene().lookup("#grillePerso");
                 borderPaneId.getChildren().remove(grillePerso);
 
-                GridPane newGrillePerso = new GridPane();
-                newGrillePerso.setId("grillePerso");
-                newGrillePerso.setGridLinesVisible(true);
-                newGrillePerso.setMaxSize(900, 10000);
-                newGrillePerso.setHgap(2);
-                newGrillePerso.setVgap(2);
-
-                listeImages = listeImageSelectionnees;
+                grillePerso = new GridPane();
+                grillePerso.setId("grillePerso");
+                grillePerso.setGridLinesVisible(true);
+                grillePerso.setMaxSize(900, 10000);
+                grillePerso.setHgap(2);
+                grillePerso.setVgap(2);
 
                 for (ImageView image : listeImageSelectionnees) {
                     image.setOnMouseClicked(ajouterValeurAttributPersonnageEvent);
@@ -327,8 +419,10 @@ public class pageGenerateurController {
                     // on change l'id
                     String[] holdImageIdSplit = image.getId().split("\\*");
                     image.setId(holdImageIdSplit[0] + "*" + x + "*" + y + "*" + holdImageIdSplit[3]);
+                    image.setFitHeight(175);
+                    image.setFitWidth(145);
 
-                    newGrillePerso.add(image, x, y);
+                    grillePerso.add(image, x, y);
                     compteurImage++;
                     x++;
                     if (x == Integer.parseInt(colonne)) {
@@ -340,19 +434,24 @@ public class pageGenerateurController {
                     }
                 }
                 nombrePersonnageTotal = compteurImage;
-                borderPaneId.setCenter(newGrillePerso);
+                borderPaneId.setCenter(grillePerso);
             } else {
                 colonne = (String) spinnerColonne.getValue().toString();
                 ligne = (String) spinnerLigne.getValue().toString();
                 bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText,
                         nombreImageLabel);
 
-                GridPane grillePerso = (GridPane) middleAnchorPane.getScene().lookup("#grillePerso");
-
-                //remet le bon event sur les images
-                grillePerso.getChildren().forEach(image -> image.setOnMouseClicked(ajouterValeurAttributPersonnageEvent));
+                // remet le bon event sur les images
+                grillePerso.getChildren()
+                        .forEach(image -> image.setOnMouseClicked(ajouterValeurAttributPersonnageEvent));
             }
-            ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
+            // save
+            if (etape < 2) {
+                etape = 2;
+                sauvegarderPartieEnCour();
+            }
+
+            grillePerso.setOpacity(0.5);
             explicationText.setText(
                     "Cliquez sur le bouton 'Ajouter des attributs' pour définir les attributs commun de vos personnages :");
 
@@ -433,6 +532,29 @@ public class pageGenerateurController {
         return listeSupprLabel;
     }
 
+    EventHandler<ActionEvent> ajoutValeurEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            if (etape < 3) {
+                etape = 3;
+                sauvegarderPartieEnCour();
+            }
+
+            estValeursAjoutable = true;
+            grillePerso.setOpacity(1);
+
+            explicationText.setText(
+                    "Cliquez sur les images des personnages pour définir les valeurs de leurs attributs.");
+
+            bottomAnchorPane.getChildren().remove((Button) bottomAnchorPane.getScene().lookup("#ajoutAttributButton"));
+
+            validerButton.setText("Passer au Json");
+            validerButton.setOnAction(passerAuJsonEvent);
+            validerButton.setDisable(true);
+
+        }
+    };
+
     EventHandler<MouseEvent> ajouterValeurAttributPersonnageEvent = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent mouseEvent) {
@@ -443,8 +565,7 @@ public class pageGenerateurController {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("pageAjoutValeurs.fxml"));
 
                     pageAjoutValeursController controller = new pageAjoutValeursController(cibleSplit[0], cibleSplit[3],
-                            listeAttributsStrings, cibleSplit[1], cibleSplit[2],
-                            (GridPane) middleAnchorPane.getScene().lookup("#grillePerso"), validerButton);
+                            listeAttributsStrings, cibleSplit[1], cibleSplit[2], validerButton);
                     loader.setController(controller);
 
                     Parent parent = (Parent) loader.load();
@@ -469,27 +590,8 @@ public class pageGenerateurController {
         }
     };
 
-    EventHandler<ActionEvent> ajoutValeurEvent = new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
-            estValeursAjoutable = true;
-            ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(1);
-
-            explicationText.setText(
-                    "Cliquez sur les images des personnages pour définir les valeurs de leurs attributs.");
-
-            bottomAnchorPane.getChildren().remove((Button) bottomAnchorPane.getScene().lookup("#ajoutAttributButton"));
-
-            validerButton.setText("Passer au Json");
-            validerButton.setOnAction(passerAuJsonEvent);
-            validerButton.setDisable(true);
-
-        }
-    };
-
     // getter Pour les valeurs de chaques perso
-    public static void addValeursPersonnage(JSONObject e, String x, String y, GridPane grillePerso,
-            Button validerButton) {
+    public static void addValeursPersonnage(JSONObject e, String x, String y, Button validerButton) {
         listePersonnages.add(e);
 
         File checkFile = new File("images/check.png");
@@ -502,6 +604,11 @@ public class pageGenerateurController {
 
         nombrePersonnageTermines++;
         estValeursAjoutable = true;
+
+        // save
+        etape = 4;
+        sauvegarderPartieEnCour();
+
         if (nombrePersonnageTermines == nombrePersonnageTotal) {
             estValeursAjoutable = false;
             validerButton.setDisable(false);
@@ -539,7 +646,12 @@ public class pageGenerateurController {
         public void handle(ActionEvent event) {
             estValeursAjoutable = false;
 
-            ((GridPane) MainAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
+            if (etape < 5) {
+                etape = 5;
+                sauvegarderPartieEnCour();
+            }
+
+            grillePerso.setOpacity(0.5);
             explicationText.setText(
                     "Donnez un nom pour votre fichier Json et selectionnez son dossier de destination :");
 
@@ -672,9 +784,75 @@ public class pageGenerateurController {
         }
     };
 
+    @SuppressWarnings("unchecked")
+    public static void sauvegarderPartieEnCour() {
+        // sauvegarde du generateur
+        JSONObject generateurSave = new JSONObject();
+        if (etape >= 1) {
+            generateurSave.put("cheminVersImage", String.valueOf(cheminVersImage));
+            generateurSave.put("etape", 1);
+        }
+        if (etape >= 2) {
+            generateurSave.put("ligne", String.valueOf(ligne));
+            generateurSave.put("colonne", String.valueOf(colonne));
+
+            int i = 0;
+            JSONObject JlisteImageSelectionnees = new JSONObject();
+            if (listeImageSelectionnees.isEmpty()) {
+                grillePerso.getChildren()
+                        .forEach(image -> {
+                            if (image instanceof ImageView) {
+                                listeImageSelectionnees.add((ImageView) image);
+                            }
+                        });
+            }
+            for (ImageView imagesSelectionnes : listeImageSelectionnees) {
+                JSONObject detailsImage = new JSONObject();
+                detailsImage.put("url", imagesSelectionnes.getImage().getUrl());
+                detailsImage.put("id", imagesSelectionnes.getId());
+                JlisteImageSelectionnees.put(String.valueOf(i), detailsImage);
+                i++;
+            }
+            generateurSave.put("listeImageSelectionnees", JlisteImageSelectionnees);
+            generateurSave.put("etape", 2);
+        }
+        if (etape >= 3) {
+            int i = 0;
+            JSONObject JlisteAttributsStrings = new JSONObject();
+            for (String attribut : listeAttributsStrings) {
+                JlisteAttributsStrings.put(String.valueOf(i), attribut);
+                i++;
+            }
+            generateurSave.put("listeAttributsStrings", listeAttributsStrings);
+            generateurSave.put("etape", 3);
+        }
+        if (etape >= 4) {
+            int i = 0;
+            JSONObject JlistePersonnages = new JSONObject();
+            for (JSONObject attribut : listePersonnages) {
+                JlistePersonnages.put(String.valueOf(i), attribut);
+                i++;
+            }
+            generateurSave.put("listePersonnages", JlistePersonnages);
+            generateurSave.put("etape", 4);
+        }
+        if (etape >= 5) {
+            generateurSave.put("etape", 5);
+        }
+
+        try (FileWriter file = new FileWriter(new File("bin/save.json"))) {
+            file.write(generateurSave.toJSONString());
+            System.out.println("saved");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     EventHandler<ActionEvent> fermerGenerateurEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
+            File fileSave = new File("bin/save.json");
+            fileSave.delete();
             ((Stage) bottomAnchorPane.getScene().getWindow()).close();
             System.exit(0);
         }

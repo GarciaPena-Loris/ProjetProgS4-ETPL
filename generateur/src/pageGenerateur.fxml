@@ -74,6 +74,11 @@
                         <Font name="SansSerif Regular" size="15.0" />
                      </font>
                   </Label>
+                  <Button fx:id="chargerGenerateurButton" layoutX="392.0" layoutY="89.0" mnemonicParsing="false" onAction="#chargerGenerateurEvent" prefHeight="66.0" prefWidth="173.0" text="Charger anciennes données" textAlignment="CENTER" textFill="#2d8a36" visible="false" wrapText="true">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Button>
                </children>
             </AnchorPane>
          </items>
