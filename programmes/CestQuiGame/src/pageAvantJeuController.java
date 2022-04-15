@@ -48,7 +48,7 @@ public class pageAvantJeuController {
 
     @FXML
     private Label jsonNameLabel;
-    
+
     @FXML
     private Label difficulteName;
 
@@ -155,25 +155,23 @@ public class pageAvantJeuController {
             buttonnouvellepartie.setDisable(false);
     }
 
-
-    //Boutton Multijoueur
-
+    // Boutton Multijoueur
     @FXML
-    void chargerMulti(ActionEvent event) throws IOException{
+    void chargerMulti(ActionEvent event) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageMulti.fxml"));
-            Parent root1 = (Parent) fxmlLoader.load();
-            Stage stage = new Stage();
-            stage.setTitle("QuiEstCe? - Multijoueur");
-            File logo = new File("images/logoQuiEstCe.png");
-            stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
-            stage.setScene(new Scene(root1));
-            stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
-                @Override
-                public void handle(WindowEvent event) {
-                    anchorPaneButtonId.getScene().lookup("#multiButton").setDisable(false);
-                }
-            });
-            stage.show();
-            multiButton.setDisable(true);
+        Parent root1 = (Parent) fxmlLoader.load();
+        Stage stage = new Stage();
+        stage.setTitle("QuiEstCe? - Multi-joueur");
+        File logo = new File("images/logoQuiEstCe.png");
+        stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
+        stage.setScene(new Scene(root1));
+        stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                anchorPaneButtonId.getScene().lookup("#multiButton").setDisable(false);
+            }
+        });
+        stage.show();
+        ((Stage) jsonNameLabel.getScene().getWindow()).close();
     }
 }

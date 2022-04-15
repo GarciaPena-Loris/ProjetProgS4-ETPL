@@ -1,5 +1,5 @@
 {
-    "images": "images/personnages",
+    "images": "F:/DossierLoris/MonProfil/MesDocumentEcole/Fac/S4/ProjetProgS4-ETPL/generateur/images/personnages",
     "ligne": "4",
     "colonne": "6",
     "personnages": {
@@ -129,7 +129,7 @@
             "prenom": "Manu",
             "genre": "homme",
             "etat": "vivant",
-            "cheveux": "brun",
+            "cheveux": "chatain",
             "lunettes": "non",
             "chauve": "non",
             "moustache/barbe": "oui",
@@ -162,7 +162,7 @@
             "prenom": "Jeremie",
             "genre": "homme",
             "etat": "vivant",
-            "cheveux": "brun",
+            "cheveux": "chatain",
             "lunettes": "non",
             "chauve": "non",
             "moustache/barbe": "non",
@@ -195,7 +195,7 @@
             "prenom": "Oscar",
             "genre": "homme",
             "etat": "vivant",
-            "cheveux": "brun",
+            "cheveux": "chatain",
             "lunettes": "non",
             "chauve": "non",
             "moustache/barbe": "non",
@@ -213,11 +213,11 @@
             "chapeau": "non"
         },
         "19": {
-            "image": "marina.jpg",
-            "prenom": "Marina",
+            "image": "maria.jpg",
+            "prenom": "Maria",
             "genre": "femme",
             "etat": "vivant",
-            "cheveux": "brun",
+            "cheveux": "chatain",
             "lunettes": "non",
             "chauve": "non",
             "moustache/barbe": "non",

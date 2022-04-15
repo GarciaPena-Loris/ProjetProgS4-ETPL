@@ -666,6 +666,7 @@ public class MainSceneController {
                     imageViewPerso.setOnMouseClicked(afficheCibleEvent);
                     grilleperso.add(imageViewPerso, Integer.parseInt(coordonnee[1]), Integer.parseInt(coordonnee[2]));
 
+                    grilleperso.getChildren().remove(cibleActuel);
                     listeIdPersoSelectionne.remove(cibleActuel.getId().split("_")[3] + "_"
                             + Integer.parseInt(coordonnee[1]) + "_" + Integer.parseInt(coordonnee[2]));
                 }
@@ -685,7 +686,7 @@ public class MainSceneController {
 
             if (!personnageAtrouverElimine) {
                 listeTotalPersoElimine.addAll(nomsPerso);
-                //si tous les perso sont éliminé sauf le bon
+                // si tous les perso sont éliminé sauf le bon
                 if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
                     // vide l'écran, affiche le personnage gagant et supprime la save.
                     borderPaneId.getChildren().clear();
@@ -745,11 +746,11 @@ public class MainSceneController {
                     creerDernierMenuBouton(buttonAttribut1);
                     creerBoutonestimer();
 
-                    //reset ancienne grille
+                    // reset ancienne grille
                     GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
                     borderPaneId.getChildren().remove(grilleperso);
 
-                    //recreer une nouvelle
+                    // recreer une nouvelle
                     GridPane newGrillePerso = new GridPane();
                     creerGrille(newGrillePerso);
 
