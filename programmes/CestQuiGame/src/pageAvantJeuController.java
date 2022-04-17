@@ -168,7 +168,8 @@ public class pageAvantJeuController {
         stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
-                anchorPaneButtonId.getScene().lookup("#multiButton").setDisable(false);
+                System.out.println("Fenetre fermé");
+                System.exit(0);
             }
         });
         stage.show();

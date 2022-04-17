@@ -10,26 +10,28 @@
 
 <AnchorPane fx:id="anchorPaneId" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="272.0" prefWidth="504.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pageMultiController">
    <children>
+      <Button fx:id="cancelButton" layoutX="183.0" layoutY="222.0" mnemonicParsing="false" onAction="#cancelConnexionEvent" prefHeight="26.0" prefWidth="137.0" text="Annuler la recherche" visible="false" />
+      <Text fx:id="ipClientText" layoutX="15.0" layoutY="57.0" strokeType="OUTSIDE" strokeWidth="0.0" text="-" visible="false" wrappingWidth="371.1885986328125" />
       <Text fx:id="ipText2" layoutX="252.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text=" Vote adresse IP est :" visible="false" AnchorPane.rightAnchor="15.0">
          <font>
             <Font size="15.0" />
          </font>
       </Text>
-      <Button fx:id="startButton" layoutX="173.0" layoutY="229.0" mnemonicParsing="false" text="Recherche..." />
-      <Text fx:id="ipText1" layoutX="14.0" layoutY="32.0" strokeType="OUTSIDE" strokeWidth="0.0" text="En attente d'adversaire..." visible="false" AnchorPane.leftAnchor="15.0">
+      <Button fx:id="startButton" disable="true" layoutX="182.0" layoutY="223.0" mnemonicParsing="false" text="Recherche..." AnchorPane.leftAnchor="182.0" />
+      <Text fx:id="ipText1" layoutX="14.0" layoutY="32.0" strokeType="OUTSIDE" strokeWidth="0.0" visible="false" AnchorPane.leftAnchor="15.0">
          <font>
             <Font size="15.0" />
          </font>
       </Text>
-      <AnchorPane fx:id="earlyPane" prefHeight="220.0" prefWidth="504.0" AnchorPane.bottomAnchor="43.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane fx:id="earlyPane" layoutX="-1.0" layoutY="7.0" prefHeight="207.0" prefWidth="504.0" AnchorPane.bottomAnchor="36.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="7.0">
          <children>
-            <TextField fx:id="IPTextField" disable="true" layoutX="268.0" layoutY="110.0" promptText="IP de connection" />
-            <Separator layoutX="224.0" layoutY="55.0" orientation="VERTICAL" prefHeight="161.0" prefWidth="57.0" />
-            <TextField fx:id="pseudoTextField" layoutX="178.0" layoutY="14.0" promptText="Pseudo" />
-            <RadioButton fx:id="hostPinButton" layoutX="68.0" layoutY="63.0" mnemonicParsing="false" onAction="#hostPartie" prefHeight="17.0" prefWidth="131.0" text="Créer la partie" />
-            <RadioButton fx:id="invitePinButton" layoutX="310.0" layoutY="63.0" mnemonicParsing="false" onAction="#rejoindrePartie" prefHeight="17.0" prefWidth="131.0" text="Rejoindre une partie" />
-            <Button fx:id="choixJsonButton" disable="true" layoutX="23.0" layoutY="110.0" mnemonicParsing="false" onAction="#choixJsonMulti" text="Choix du Json" />
+            <TextField fx:id="IPTextField" disable="true" layoutX="299.0" layoutY="102.0" promptText="IP de connection" />
+            <Separator layoutX="223.0" layoutY="34.0" orientation="VERTICAL" prefHeight="161.0" prefWidth="57.0" />
+            <RadioButton fx:id="hostPinButton" layoutX="68.0" layoutY="54.0" mnemonicParsing="false" onAction="#hostPartie" prefHeight="17.0" prefWidth="131.0" text="Créer la partie" />
+            <RadioButton fx:id="invitePinButton" layoutX="308.0" layoutY="54.0" mnemonicParsing="false" onAction="#rejoindrePartie" prefHeight="17.0" prefWidth="131.0" text="Rejoindre une partie" />
+            <Button fx:id="choixJsonButton" disable="true" layoutX="68.0" layoutY="102.0" mnemonicParsing="false" onAction="#choixJsonMulti" text="Choix du Json" />
          </children>
       </AnchorPane>
+      <Button fx:id="retryButton" layoutX="187.0" layoutY="188.0" mnemonicParsing="false" onAction="#relancerConnexionEvent" text="Relancer la recherche" visible="false" />
    </children>
 </AnchorPane>

@@ -8,12 +8,18 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class pageMultiController {
 
@@ -36,33 +42,54 @@ public class pageMultiController {
     private RadioButton invitePinButton;
 
     @FXML
-    private TextField pseudoTextField;
+    private Button startButton, cancelButton, retryButton;
 
     @FXML
-    private Button startButton;
-
-    @FXML
-    private Text ipText1, ipText2;
+    private Text ipText1, ipText2, ipClientText;
 
     private String jsonPath;
 
     private GameServer gameServer;
-    public static GameClient gameClient;
+    private GameClient gameClient;
+    private boolean estPartieLancee = false;
+    private boolean estServeurConnecte = false;
 
     @FXML
     protected void initialize() {
-        pseudoTextField.textProperty().addListener(new ChangeListener<String>() {
+        IPTextField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> arg0, String oldPropertyValue,
                     String newPropertyValue) {
-                if (jsonPath != null && !pseudoTextField.getText().isEmpty()) {
+                String[] ipSlpit = IPTextField.getText().split("\\.");
+                if (ipSlpit.length == 4) {
                     startButton.setDisable(false);
                 } else {
                     startButton.setDisable(true);
                 }
             }
         });
+    }
 
+    private void fermerFenettreEvent() {
+        ((Stage) ipText1.getScene().getWindow())
+                .setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
+                    @Override
+                    public void handle(WindowEvent event) {
+                        try {
+                            System.out.println("Fermetures sockets");
+                            if (gameClient != null) {
+                                gameClient.stopSocket();
+                            }
+                            if (gameServer != null) {
+                                gameServer.stopSocket();
+                            }
+                            System.exit(0);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            System.err.println("Fermeture socket impossible");
+                        }
+                    }
+                });
     }
 
     @FXML
@@ -76,11 +103,7 @@ public class pageMultiController {
             jsonPath = selectedFile.getAbsolutePath();
             String jsonNom = selectedFile.getName();
             choixJsonButton.setText(jsonNom);
-            if (!pseudoTextField.getText().isEmpty()) {
-                startButton.setDisable(false);
-            } else {
-                startButton.setDisable(true);
-            }
+            startButton.setDisable(false);
         }
     }
 
@@ -91,6 +114,13 @@ public class pageMultiController {
         IPTextField.setDisable(true);
         startButton.setText("Recherche d'adversaire");
         startButton.setOnAction(rechercheAdversaireEvent);
+        if (jsonPath != null) {
+            startButton.setDisable(false);
+        }
+        else {
+            startButton.setDisable(true);
+        }
+        fermerFenettreEvent();
     }
 
     @FXML
@@ -100,35 +130,87 @@ public class pageMultiController {
         IPTextField.setDisable(false);
         startButton.setText("Rechercher une partie");
         startButton.setOnAction(recherchePartieEvent);
+        if (!IPTextField.getText().equals("")) {
+            startButton.setDisable(false);
+        }
+        fermerFenettreEvent();
     }
 
+    @FXML
+    void relancerConnexionEvent(ActionEvent actionEvent) {
+        System.out.println("Relancement cherche serveur");
+        recherchePartieEvent.handle(new ActionEvent());
+    }
+
+    @FXML
+    void cancelConnexionEvent(ActionEvent actionEvent) {
+        System.out.println("Annulation recherche serveur");
+        ipText1.setVisible(false);
+        ipText2.setVisible(false);
+        earlyPane.setVisible(true);
+        cancelButton.setVisible(false);
+        retryButton.setVisible(false);
+        startButton.setVisible(true);
+        startButton.setDisable(true);
+        String[] ipSlpit = IPTextField.getText().split("\\.");
+        if (ipSlpit.length == 4) {
+            startButton.setDisable(false);
+        }
+    }
+
+    // cote serveur
     EventHandler<ActionEvent> rechercheAdversaireEvent = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
-            ipText1.setVisible(true);
-            ipText2.setVisible(true);
-            earlyPane.setVisible(false);
-
             try {
-                // creation du serveur
-                Thread threadServeur = new Thread(() -> {
-                    gameServer = new GameServer();
-                    try {
-                        gameServer.ecouterMessage();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-                threadServeur.start();
+                ipText1.setVisible(true);
+                ipText1.setText("En attente d'adversaire...");
+                ipText2.setVisible(true);
+                earlyPane.setVisible(false);
 
+                // affiche l'ip du serveur
                 InetAddress inetadr = InetAddress.getLocalHost();
                 ipText2.setText(ipText2.getText() + " " + (String) inetadr.getHostAddress());
                 startButton.setDisable(true);
                 startButton.setText("Lancer partie");
+                AnchorPane.setLeftAnchor(startButton, 210.);
                 startButton.setOnAction(startGameHost);
+
+                // creation du serveur
+                gameServer = new GameServer();
+
+                // attente de connexion du client
+                Thread threadServeur = new Thread(() -> {
+                    while (true) {
+                        try {
+                            String ipClient = gameServer.connexionClient();
+                            ipClientText.setText("-" + ipClient);
+                            ipClientText.setVisible(true);
+                            ipText1.setText("Client connecté :");
+                            startButton.setDisable(false);
+                            gameServer.envoyerMessage("connected");
+                            if (gameServer.ecouterMessage().equals("close")) {
+                                System.out.println("Client disconected");
+                                ipClientText.setText("");
+                                ipText1.setText("En attente d'adversaire...");
+                                startButton.setDisable(true);
+                            }
+                        } catch (IOException e) {
+                            if (e.getMessage().equals("Socket is closed")) {
+                                System.out.println("Socket serveur fermé");
+                                ipText1.setVisible(false);
+                                ipText2.setVisible(false);
+                                earlyPane.setVisible(true);
+                                break;
+                            }
+                        }
+                    }
+                });
+                threadServeur.start();
 
             } catch (UnknownHostException e) {
                 e.printStackTrace();
+                ipText2.setText(ipText2.getText() + " erreur");
             }
         }
     };
@@ -139,45 +221,126 @@ public class pageMultiController {
             ipText1.setVisible(true);
             ipText1.setText("En attente de connexion au serveur...");
             earlyPane.setVisible(false);
+            startButton.setVisible(false);
 
-            gameClient = new GameClient(IPTextField.getText());
-
+            gameClient = new GameClient();
             Thread ecouteClient = new Thread(() -> {
+                // creer les bouton pour relancer la recherche et annuler
+                retryButton.setVisible(true);
+                retryButton.setDisable(true);
+                cancelButton.setVisible(true);
+                cancelButton.setDisable(true);
+
                 try {
-                    gameClient.ecouterMessage();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    String etat = gameClient.connectionServeur(IPTextField.getText());
+                    System.out.println("Etat : " + etat);
+                    if (etat.equals("error")) {
+                        ipText1.setText("Serveur non connecté...");
+                        // active les boutons si le serveur n'est pas trouvé
+                        retryButton.setDisable(false);
+                        cancelButton.setDisable(false);
+                    } else if (etat.equals("ok")) {
+                        estServeurConnecte = true;
+                        retryButton.setVisible(false);
+                        cancelButton.setVisible(false);
+                    } else {
+                        System.out.println("Message incorrect : " + etat);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Probleme de creation du client");
+                }
+
+                // verifie si le serveur est bien connecté
+                if (estServeurConnecte) {
+                    try {
+                        String messageRecu = gameClient.ecouterMessage();
+                        if (messageRecu.equals("connected")) {
+                            ipText1.setText("Connecté au serveur !  En attente du lancement de la partie...");
+                            if (retryButton != null)
+                                retryButton.setVisible(false);
+
+                            System.out.println("en attente du debut de la partie");
+                            // attente debut de la partie
+                            String attenteDebutPartie = gameClient.ecouterMessage();
+                            if (attenteDebutPartie.equals("start")) {
+                                lancerPartieClient();
+                            } else if (attenteDebutPartie.equals("close")) {
+                                estServeurConnecte = false;
+                                ipText1.setVisible(true);
+                                ipText1.setText("Serveur deconnecté...");
+                                ipText2.setVisible(false);
+                                earlyPane.setVisible(true);
+                                startButton.setVisible(true);
+                                startButton.setDisable(false);
+                                retryButton.setVisible(false);
+                                cancelButton.setVisible(false);
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
             ecouteClient.start();
-
-            // creer le bouton de fermeture de connexion
-            Button boutonExit = new Button("Fermer la connexion");
-            boutonExit.setOnAction(fermerClient);
-            AnchorPane.setLeftAnchor(boutonExit, 176.);
-            AnchorPane.setBottomAnchor(boutonExit, 50.);
-            anchorPaneId.getChildren().add(boutonExit);
-
-            startButton.setDisable(true);
-            startButton.setOnAction(startGameHost);
-        }
-    };
-
-    EventHandler<ActionEvent> fermerClient = new EventHandler<>() {
-        @Override
-        public void handle(ActionEvent actionEvent) {
-            try {
-                gameClient.envoyerMessage("close");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     };
 
     EventHandler<ActionEvent> startGameHost = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
+            System.out.println("Debut de la partie cote serveur");
+            try {
+                gameServer.envoyerMessage("start");
+                String str = "serveur";
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainScene.fxml"));
+                MainSceneControllerMulti controller = new MainSceneControllerMulti(str);
+                fxmlLoader.setController(controller);
+                Parent parent = (Parent) fxmlLoader.load();
+                Stage stage = new Stage();
+                stage.setTitle("Qui est ce ? - Serveur");
+                File logo = new File("images/iconeGenerateur.png");
+                stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
+                stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                    @Override
+                    public void handle(WindowEvent event) {
+                        // fermer cote client
+                        System.out.println("Jeu cote serveur fermé !");
+                    }
+                });
+                stage.setScene(new Scene(parent));
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     };
+
+    private void lancerPartieClient() {
+        System.out.println("Debut partie client");
+        try {
+
+            String str = "client";
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainScene.fxml"));
+            MainSceneControllerMulti controller = new MainSceneControllerMulti(str);
+            fxmlLoader.setController(controller);
+            Parent parent = (Parent) fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Qui est ce ? - Client");
+            File logo = new File("images/iconeGenerateur.png");
+            stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
+            stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                @Override
+                public void handle(WindowEvent event) {
+                    // fermer cote client
+                    System.out.println("Jeu cote client fermé !");
+                }
+            });
+            stage.setScene(new Scene(parent));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }
