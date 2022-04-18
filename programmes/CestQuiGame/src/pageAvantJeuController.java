@@ -28,7 +28,7 @@ import javafx.stage.WindowEvent;
 
 public class pageAvantJeuController {
     private static String difficulte;
-    private static String jsonName;
+    private static String jsonPath;
 
     private boolean isSaveJsonFile() {
         File dir = new File("CestQuiGame/bin");
@@ -96,7 +96,7 @@ public class pageAvantJeuController {
         File selectedFile = fc.showOpenDialog(null);
 
         if (selectedFile != null) {
-            jsonName = selectedFile.getAbsolutePath();
+            jsonPath = selectedFile.getAbsolutePath();
             String jsonNom = selectedFile.getName();
             estNouvellePartiePossible();
             jsonNameLabel.setText(jsonNom);
@@ -106,7 +106,7 @@ public class pageAvantJeuController {
     @FXML
     void nouvellepartie(ActionEvent event) throws IOException {
         MainSceneController.setDifficulte(difficulteName.getText());
-        MainSceneController.setJson(jsonName);
+        MainSceneController.setJson(jsonPath);
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainScene.fxml"));
         Parent root1 = (Parent) fxmlLoader.load();
         Stage stage = new Stage();
@@ -151,7 +151,7 @@ public class pageAvantJeuController {
     }
 
     private void estNouvellePartiePossible() {
-        if (difficulte != null && jsonName != null)
+        if (difficulte != null && jsonPath != null)
             buttonnouvellepartie.setDisable(false);
     }
 
@@ -161,7 +161,7 @@ public class pageAvantJeuController {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageMulti.fxml"));
         Parent root1 = (Parent) fxmlLoader.load();
         Stage stage = new Stage();
-        stage.setTitle("QuiEstCe? - Multi-joueur");
+        stage.setTitle("QuiEstCe? - Multi-joueur - initialisation");
         File logo = new File("images/logoQuiEstCe.png");
         stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
         stage.setScene(new Scene(root1));

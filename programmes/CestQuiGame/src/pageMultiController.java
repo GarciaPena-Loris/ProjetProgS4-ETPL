@@ -116,8 +116,7 @@ public class pageMultiController {
         startButton.setOnAction(rechercheAdversaireEvent);
         if (jsonPath != null) {
             startButton.setDisable(false);
-        }
-        else {
+        } else {
             startButton.setDisable(true);
         }
         fermerFenettreEvent();
@@ -224,6 +223,7 @@ public class pageMultiController {
             startButton.setVisible(false);
 
             gameClient = new GameClient();
+
             Thread ecouteClient = new Thread(() -> {
                 // creer les bouton pour relancer la recherche et annuler
                 retryButton.setVisible(true);
@@ -262,7 +262,9 @@ public class pageMultiController {
                             System.out.println("en attente du debut de la partie");
                             // attente debut de la partie
                             String attenteDebutPartie = gameClient.ecouterMessage();
-                            if (attenteDebutPartie.equals("start")) {
+                            String[] msgSplit = attenteDebutPartie.split("\\*");
+                            if (msgSplit.length == 2 && msgSplit[0].equals("start")) {
+                                jsonPath = msgSplit[1];
                                 lancerPartieClient();
                             } else if (attenteDebutPartie.equals("close")) {
                                 estServeurConnecte = false;
@@ -274,6 +276,8 @@ public class pageMultiController {
                                 startButton.setDisable(false);
                                 retryButton.setVisible(false);
                                 cancelButton.setVisible(false);
+                            } else {
+                                System.err.println("Message incorrect recu : " + attenteDebutPartie);
                             }
                         }
                     } catch (IOException e) {
@@ -288,27 +292,32 @@ public class pageMultiController {
     EventHandler<ActionEvent> startGameHost = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
-            System.out.println("Debut de la partie cote serveur");
             try {
-                gameServer.envoyerMessage("start");
-                String str = "serveur";
+                System.out.println("Debut de la partie cote serveur");
+                MainSceneController.setDifficulte("multi");
+                MainSceneController.setJson(jsonPath);
+
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainScene.fxml"));
-                MainSceneControllerMulti controller = new MainSceneControllerMulti(str);
-                fxmlLoader.setController(controller);
-                Parent parent = (Parent) fxmlLoader.load();
+                Parent root;
+                root = (Parent) fxmlLoader.load();
                 Stage stage = new Stage();
-                stage.setTitle("Qui est ce ? - Serveur");
-                File logo = new File("images/iconeGenerateur.png");
+                stage.setTitle("QuiEstCe? - Multi-joueur - Serveur");
+                File logo = new File("images/logoQuiEstCe.png");
                 stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
-                stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                stage.setScene(new Scene(root));
+                stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
                     @Override
                     public void handle(WindowEvent event) {
-                        // fermer cote client
-                        System.out.println("Jeu cote serveur fermé !");
+                        System.out.println("Fenetre fermé cote serveur");
+                        // arreter la partie cote client
+                        // a faire
                     }
                 });
-                stage.setScene(new Scene(parent));
                 stage.show();
+                // envoyer le json au client
+                gameServer.envoyerMessage("start*" + jsonPath);
+
+                ((Stage) anchorPaneId.getScene().getWindow()).close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -316,27 +325,29 @@ public class pageMultiController {
     };
 
     private void lancerPartieClient() {
-        System.out.println("Debut partie client");
         try {
+            System.out.println("Debut partie client");
+            MainSceneController.setDifficulte("multi");
+            MainSceneController.setJson(jsonPath);
 
-            String str = "client";
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainScene.fxml"));
-            MainSceneControllerMulti controller = new MainSceneControllerMulti(str);
-            fxmlLoader.setController(controller);
-            Parent parent = (Parent) fxmlLoader.load();
+            Parent root;
+            root = (Parent) fxmlLoader.load();
             Stage stage = new Stage();
-            stage.setTitle("Qui est ce ? - Client");
-            File logo = new File("images/iconeGenerateur.png");
+            stage.setTitle("QuiEstCe? - Multi-joueur - Client");
+            File logo = new File("images/logoQuiEstCe.png");
             stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
-            stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            stage.setScene(new Scene(root));
+            stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
                 @Override
                 public void handle(WindowEvent event) {
-                    // fermer cote client
-                    System.out.println("Jeu cote client fermé !");
+                    System.out.println("Fenetre fermé cote client");
+                    // arreter la partie cote client
+                    // a faire
                 }
             });
-            stage.setScene(new Scene(parent));
             stage.show();
+            ((Stage) anchorPaneId.getScene().getWindow()).close();
         } catch (IOException e) {
             e.printStackTrace();
         }
