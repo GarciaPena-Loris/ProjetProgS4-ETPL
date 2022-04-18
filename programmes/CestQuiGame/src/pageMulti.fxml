@@ -2,36 +2,85 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="anchorPaneId" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="272.0" prefWidth="504.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pageMultiController">
+<AnchorPane fx:id="anchorPaneId" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="272.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pageMultiController">
    <children>
-      <Button fx:id="cancelButton" layoutX="183.0" layoutY="222.0" mnemonicParsing="false" onAction="#cancelConnexionEvent" prefHeight="26.0" prefWidth="137.0" text="Annuler la recherche" visible="false" />
-      <Text fx:id="ipClientText" layoutX="15.0" layoutY="57.0" strokeType="OUTSIDE" strokeWidth="0.0" text="-" visible="false" wrappingWidth="371.1885986328125" />
-      <Text fx:id="ipText2" layoutX="252.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text=" Vote adresse IP est :" visible="false" AnchorPane.rightAnchor="15.0">
+      <SplitPane fx:id="splitPaneId" dividerPositions="0.2, 0.8" prefHeight="272.0" prefWidth="600.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="270.0" prefWidth="189.0">
+               <children>
+                  <AnchorPane prefHeight="270.0" prefWidth="236.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <Text fill="#f55454" layoutX="17.0" layoutY="108.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Consigne :" wrappingWidth="90.0">
+                           <font>
+                              <Font name="System Italic" size="18.0" />
+                           </font>
+                        </Text>
+                        <Text fx:id="consigneText" layoutX="17.0" layoutY="126.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="192.0" AnchorPane.topAnchor="125.0">
+                           <font>
+                              <Font name="System Italic" size="14.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </AnchorPane>
+               </children>
+            </AnchorPane>
+            <AnchorPane prefHeight="270.0" prefWidth="302.0">
+               <children>
+                  <ScrollPane prefHeight="270.0" prefWidth="114.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <content>
+                        <BorderPane fx:id="imagesBorderPaneId" prefHeight="268.0" prefWidth="111.0" />
+                     </content>
+                  </ScrollPane>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+               <children>
+                  <AnchorPane prefHeight="270.0" prefWidth="236.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <BorderPane fx:id="persoSelectionnePane" layoutX="73.0" layoutY="99.0" prefHeight="125.0" prefWidth="90.0" AnchorPane.rightAnchor="73.0" AnchorPane.topAnchor="99.0" />
+                        <Text fx:id="persoText" fill="#ee4a4a" layoutX="56.0" layoutY="87.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Personnage choisi :" visible="false" AnchorPane.rightAnchor="44.3125" AnchorPane.topAnchor="69.734375">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Text>
+                        <Button fx:id="validerPersonnageButton" layoutX="59.0" layoutY="231.0" mnemonicParsing="false" onAction="#validerPersonngeEvent" text="Valider personnage" AnchorPane.rightAnchor="58.0" />
+                     </children>
+                  </AnchorPane>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+      <Button fx:id="cancelButton" layoutX="183.0" layoutY="222.0" mnemonicParsing="false" onAction="#cancelConnexionEvent" prefHeight="26.0" prefWidth="137.0" text="Annuler la recherche" visible="false" AnchorPane.leftAnchor="225.0" />
+      <Text fx:id="ipClientText" layoutX="15.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="-" visible="false" wrappingWidth="216.1885986328125" AnchorPane.topAnchor="40.0" />
+      <Text fx:id="ipText2" layoutX="252.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text=" Vote adresse IP est :" visible="false" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
          <font>
             <Font size="15.0" />
          </font>
       </Text>
-      <Button fx:id="startButton" disable="true" layoutX="182.0" layoutY="223.0" mnemonicParsing="false" text="Recherche..." AnchorPane.leftAnchor="182.0" />
-      <Text fx:id="ipText1" layoutX="14.0" layoutY="32.0" strokeType="OUTSIDE" strokeWidth="0.0" visible="false" AnchorPane.leftAnchor="15.0">
+      <Text fx:id="ipText1" layoutX="14.0" layoutY="32.0" strokeType="OUTSIDE" strokeWidth="0.0" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="15.0">
          <font>
             <Font size="15.0" />
          </font>
       </Text>
-      <AnchorPane fx:id="earlyPane" layoutX="-1.0" layoutY="7.0" prefHeight="207.0" prefWidth="504.0" AnchorPane.bottomAnchor="36.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="7.0">
+      <AnchorPane fx:id="earlyPane" layoutX="-6.0" prefHeight="292.0" prefWidth="504.0" AnchorPane.bottomAnchor="-20.0" AnchorPane.leftAnchor="-6.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="0.0">
          <children>
-            <TextField fx:id="IPTextField" disable="true" layoutX="299.0" layoutY="102.0" promptText="IP de connection" />
-            <Separator layoutX="223.0" layoutY="34.0" orientation="VERTICAL" prefHeight="161.0" prefWidth="57.0" />
-            <RadioButton fx:id="hostPinButton" layoutX="68.0" layoutY="54.0" mnemonicParsing="false" onAction="#hostPartie" prefHeight="17.0" prefWidth="131.0" text="Créer la partie" />
-            <RadioButton fx:id="invitePinButton" layoutX="308.0" layoutY="54.0" mnemonicParsing="false" onAction="#rejoindrePartie" prefHeight="17.0" prefWidth="131.0" text="Rejoindre une partie" />
-            <Button fx:id="choixJsonButton" disable="true" layoutX="68.0" layoutY="102.0" mnemonicParsing="false" onAction="#choixJsonMulti" text="Choix du Json" />
+            <TextField fx:id="IPTextField" disable="true" layoutX="401.0" layoutY="102.0" prefHeight="25.0" prefWidth="129.0" promptText="IP de connection" AnchorPane.rightAnchor="70.0" />
+            <Separator layoutX="300.0" layoutY="34.0" orientation="VERTICAL" prefHeight="161.0" prefWidth="9.0" AnchorPane.leftAnchor="300.0" />
+            <RadioButton fx:id="hostPinButton" layoutX="105.0" layoutY="54.0" mnemonicParsing="false" onAction="#hostPartie" prefHeight="17.0" prefWidth="131.0" text="Créer la partie" AnchorPane.leftAnchor="105.0" AnchorPane.topAnchor="54.0" />
+            <RadioButton fx:id="invitePinButton" layoutX="400.0" layoutY="54.0" mnemonicParsing="false" onAction="#rejoindrePartie" prefHeight="17.0" prefWidth="131.0" text="Rejoindre une partie" AnchorPane.rightAnchor="69.0" AnchorPane.topAnchor="54.0" />
+            <Button fx:id="choixJsonButton" disable="true" layoutX="105.0" layoutY="102.0" mnemonicParsing="false" onAction="#choixJsonMulti" prefHeight="25.0" prefWidth="100.0" text="Choix du Json" AnchorPane.leftAnchor="105.0" />
          </children>
       </AnchorPane>
-      <Button fx:id="retryButton" layoutX="187.0" layoutY="188.0" mnemonicParsing="false" onAction="#relancerConnexionEvent" text="Relancer la recherche" visible="false" />
+      <Button fx:id="retryButton" layoutX="187.0" layoutY="188.0" mnemonicParsing="false" onAction="#relancerConnexionEvent" text="Relancer la recherche" visible="false" AnchorPane.leftAnchor="228.0" />
+      <Button fx:id="startButton" disable="true" layoutX="182.0" layoutY="223.0" mnemonicParsing="false" text="Recherche..." AnchorPane.leftAnchor="230.0" />
    </children>
 </AnchorPane>

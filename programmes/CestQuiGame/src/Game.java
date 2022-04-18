@@ -60,15 +60,15 @@ public class Game {
         return correspondPersonnage;
     }
 
-    public List<String> getListeAttributs() {
-        List<String> attributs = new ArrayList<String>(listePersonnages.get(0).keySet());
+    public ArrayList<String> getListeAttributs() {
+        ArrayList<String> attributs = new ArrayList<String>(listePersonnages.get(0).keySet());
         attributs.remove("image");
         attributs.remove("etat");
         return attributs;
     }
 
-    public List<String> getListeValeurs(String attribut) {
-        List<String> valeurs = new ArrayList<>();
+    public ArrayList<String> getListeValeurs(String attribut) {
+        ArrayList<String> valeurs = new ArrayList<>();
 
         for (JSONObject personnage : listePersonnages) {
             String value = (String) personnage.get(attribut);

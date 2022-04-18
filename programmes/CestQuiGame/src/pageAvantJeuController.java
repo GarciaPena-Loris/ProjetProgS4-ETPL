@@ -108,6 +108,7 @@ public class pageAvantJeuController {
         MainSceneController.setDifficulte(difficulteName.getText());
         MainSceneController.setJson(jsonPath);
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainScene.fxml"));
+        fxmlLoader.setController(new MainSceneController());
         Parent root1 = (Parent) fxmlLoader.load();
         Stage stage = new Stage();
         stage.setTitle("QuiEstCe?");
@@ -130,6 +131,7 @@ public class pageAvantJeuController {
             JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(file.getAbsolutePath()));
             MainSceneController.setDifficulte((String) js.get("difficulte"));
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainScene.fxml"));
+            fxmlLoader.setController(new MainSceneController());
             Parent root1 = (Parent) fxmlLoader.load();
             Stage stage = new Stage();
             stage.setTitle("QuiEstCe?");
@@ -161,6 +163,7 @@ public class pageAvantJeuController {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageMulti.fxml"));
         Parent root1 = (Parent) fxmlLoader.load();
         Stage stage = new Stage();
+        stage.setResizable(true);
         stage.setTitle("QuiEstCe? - Multi-joueur - initialisation");
         File logo = new File("images/logoQuiEstCe.png");
         stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
