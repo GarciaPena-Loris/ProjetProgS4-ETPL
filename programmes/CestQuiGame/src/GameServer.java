@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 
-public class GameServer {
+public class GameServer implements GameSocket {
     private ServerSocket serveurSocket;
     private Socket clientSocket;
     private DataInputStream in;
@@ -36,37 +36,39 @@ public class GameServer {
         return ip;
     }
 
+    public String connectionServeur(String ip) {
+        return null;
+    }
+
     public String ecouterMessage() throws IOException {
         String msg = null;
-        while (true) {
-            try {
-                System.out.println("Serveur en attente de message");
-                msg = in.readUTF();
-                System.out.println("Message reçu : " + msg);
-                if (msg.equals("close")) {
-                    System.out.println("Bouton fermeture pressed");
-                    stopSocket();
-                    System.out.println("Socket serveur fermée");
-                }
-            } catch (IOException e) {
-                System.err.println("Connexion serveur fermé");
-                System.out.println("Fermeture de la socket" + clientSocket.getLocalSocketAddress());
-                clientSocket.close();
-                return "close";
+        try {
+            System.out.println("Serveur en attente de message");
+            msg = in.readUTF();
+            System.out.println("Message reçu par le serveur : " + msg);
+            if (msg.equals("close")) {
+                System.out.println("Bouton fermeture pressed");
+                stopSocket();
+                System.out.println("Socket serveur fermée");
             }
-            break;
+        } catch (IOException e) {
+            System.err.println("Connexion serveur fermé");
+            System.out.println("Fermeture de la socket" + clientSocket.getLocalSocketAddress());
+            clientSocket.close();
+            return "close";
         }
         return msg;
     }
 
     public void envoyerMessage(String msg) throws IOException {
         out.writeUTF(msg);
+        System.out.println("Message envoyé par le serveur : " + msg);
     }
 
     public void stopSocket() throws IOException {
         if (clientSocket != null) {
             serveurSocket.close();
-            System.out.println("Socket Serveir close");
+            System.out.println("Socket Serveur close");
         }
     }
 }

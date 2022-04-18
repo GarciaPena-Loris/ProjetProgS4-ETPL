@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class GameClient {
+public class GameClient implements GameSocket {
     private Socket clientSocket;
     private DataInputStream in;
     private DataOutputStream out;
@@ -31,32 +31,33 @@ public class GameClient {
         return "ok";
     }
 
+    public String connexionClient() {
+        return null;
+    }
+
     public String ecouterMessage() throws IOException {
         String msg = null;
 
-        while (true) {
-            try {
-                System.out.println("Client en attente de message");
-                msg = in.readUTF();
-                System.out.println("Message reçu : " + msg);
-                if (msg.equals("close")) {
-                    System.out.println("Bouton fermeture pressed");
-                    stopSocket();
-                    System.out.println("Socket client fermée");
-                    break;
-                }
-            } catch (IOException e) {
-                System.err.println("Connexion client fermé");
+        try {
+            System.out.println("Client en attente de message");
+            msg = in.readUTF();
+            System.out.println("Message reçu par le client : " + msg);
+            if (msg.equals("close")) {
+                System.out.println("Bouton fermeture pressed");
                 stopSocket();
-                return "close";
+                System.out.println("Socket client fermée");
             }
-            break;
+        } catch (IOException e) {
+            System.err.println("Connexion client fermé");
+            stopSocket();
+            return "close";
         }
         return msg;
     }
 
     public void envoyerMessage(String msg) throws IOException {
         out.writeUTF(msg);
+        System.out.println("Message envoyé par le client : " + msg);
     }
 
     public void stopSocket() throws IOException {

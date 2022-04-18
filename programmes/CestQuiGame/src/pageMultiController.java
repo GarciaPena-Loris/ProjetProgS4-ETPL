@@ -9,6 +9,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
@@ -27,7 +30,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-public class pageMultiController extends UtilMultiController {
+public class pageMultiController {
 
     @FXML
     private TextField IPTextField;
@@ -36,32 +39,21 @@ public class pageMultiController extends UtilMultiController {
     private AnchorPane anchorPaneId, earlyPane;
 
     @FXML
-    private BorderPane persoSelectionnePane, imagesBorderPaneId;
-
-    @FXML
     private RadioButton hostPinButton, invitePinButton;
 
     @FXML
     private Button startButton, cancelButton, retryButton, choixJsonButton, validerPersonnageButton;
 
     @FXML
-    private SplitPane splitPaneId;
-
-    @FXML
-    private Text ipText1, ipText2, ipClientText, consigneText, persoText;
+    private Text ipText1, ipText2, ipClientText, persoText;
 
     @FXML
     private ScrollPane scrollPane;
 
     private String jsonPath;
-    private String personnageSelectionne;
-    private String personnageAdversaire;
 
-    private GameServer gameServer;
-    private GameClient gameClient;
-    private boolean estPartieLancee = false;
+    private GameSocket gameSocket;
     private boolean estServeurConnecte = false;
-    private boolean estServeur;
 
     @FXML
     protected void initialize() {
@@ -86,12 +78,7 @@ public class pageMultiController extends UtilMultiController {
                     public void handle(WindowEvent event) {
                         try {
                             System.out.println("Fermetures sockets");
-                            if (gameClient != null) {
-                                gameClient.stopSocket();
-                            }
-                            if (gameServer != null) {
-                                gameServer.stopSocket();
-                            }
+                            gameSocket.stopSocket();
                             System.exit(0);
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -166,14 +153,6 @@ public class pageMultiController extends UtilMultiController {
         }
     }
 
-    @FXML
-    void validerPersonngeEvent(ActionEvent event) throws IOException {
-        System.out.println("Envoyer le personnage a l'adversaire");
-        if (estServeur) {
-            gameServer.envoyerMessage(personnageSelectionne);
-        }
-    }
-
     // #region cote serveur
     EventHandler<ActionEvent> rechercheAdversaireEvent = new EventHandler<>() {
         @Override
@@ -183,7 +162,6 @@ public class pageMultiController extends UtilMultiController {
                 ipText1.setText("En attente d'adversaire...");
                 ipText2.setVisible(true);
                 earlyPane.setVisible(false);
-                estPartieLancee = true;
 
                 // affiche l'ip du serveur
                 InetAddress inetadr = InetAddress.getLocalHost();
@@ -194,24 +172,25 @@ public class pageMultiController extends UtilMultiController {
                 startButton.setOnAction(startGameHost);
 
                 // creation du serveur
-                gameServer = new GameServer();
+                gameSocket = new GameServer();
 
                 // attente de connexion du client
                 Thread threadServeur = new Thread(() -> {
                     while (true) {
                         try {
-                            String ipClient = gameServer.connexionClient();
+                            String ipClient = gameSocket.connexionClient();
                             ipClientText.setText("-" + ipClient);
                             ipClientText.setVisible(true);
                             ipText1.setText("Client connecté :");
                             startButton.setDisable(false);
-                            gameServer.envoyerMessage("connected");
-                            if (gameServer.ecouterMessage().equals("close")) {
+                            gameSocket.envoyerMessage("connected");
+                            if (gameSocket.ecouterMessage().equals("close")) {
                                 System.out.println("Client disconected");
                                 ipClientText.setText("");
                                 ipText1.setText("En attente d'adversaire...");
                                 startButton.setDisable(true);
                             }
+                            break;
                         } catch (IOException e) {
                             if (e.getMessage().equals("Socket is closed")) {
                                 System.out.println("Socket serveur fermé");
@@ -241,9 +220,8 @@ public class pageMultiController extends UtilMultiController {
             ipText1.setText("En attente de connexion au serveur...");
             earlyPane.setVisible(false);
             startButton.setVisible(false);
-            estServeur = false;
 
-            gameClient = new GameClient();
+            gameSocket = new GameClient();
 
             Thread ecouteClient = new Thread(() -> {
                 // creer les bouton pour relancer la recherche et annuler
@@ -253,7 +231,7 @@ public class pageMultiController extends UtilMultiController {
                 cancelButton.setDisable(true);
 
                 try {
-                    String etat = gameClient.connectionServeur(IPTextField.getText());
+                    String etat = gameSocket.connectionServeur(IPTextField.getText());
                     System.out.println("Etat : " + etat);
                     if (etat.equals("error")) {
                         ipText1.setText("Serveur non connecté...");
@@ -274,7 +252,7 @@ public class pageMultiController extends UtilMultiController {
                 // verifie si le serveur est bien connecté
                 if (estServeurConnecte) {
                     try {
-                        String messageRecu = gameClient.ecouterMessage();
+                        String messageRecu = gameSocket.ecouterMessage();
                         if (messageRecu.equals("connected")) {
                             ipText1.setText("Connecté au serveur !  En attente du lancement de la partie...");
                             if (retryButton != null)
@@ -282,7 +260,7 @@ public class pageMultiController extends UtilMultiController {
 
                             System.out.println("en attente du debut de la partie");
                             // attente debut de la partie
-                            String attenteDebutPartie = gameClient.ecouterMessage();
+                            String attenteDebutPartie = gameSocket.ecouterMessage();
                             String[] msgSplit = attenteDebutPartie.split("\\*");
                             if (msgSplit.length == 2 && msgSplit[0].equals("start")) {
                                 jsonPath = msgSplit[1];
@@ -313,118 +291,35 @@ public class pageMultiController extends UtilMultiController {
     };
     // #endregion
 
-    // #region choix du personnage
-    EventHandler<MouseEvent> choixPersonnageDebutPartie = new EventHandler<>() {
-        @Override
-        public void handle(MouseEvent mouseEvent) {
-            persoSelectionnePane.getChildren().clear();
-            ImageView imageSelected = new ImageView(((ImageView) mouseEvent.getTarget()).getImage());
-            imageSelected.setFitHeight(125);
-            imageSelected.setFitWidth(90);
-            personnageSelectionne = null; //imageSelected.getId().split("_")[0];
-            persoSelectionnePane.setCenter(imageSelected);
-            validerPersonnageButton.setVisible(true);
-            persoText.setVisible(true);
-        }
-    };
-    // #endregion
-
-    private void lancerPartie() {
-        startButton.setVisible(false);
-
-        // Recuperer les données du JSON ici
-        setJson(jsonPath);
-        setDifficulte("multi");
-        lireJson();
-
-        BorderPane mainBorder = new BorderPane();
-        mainBorder.setPrefHeight(700.);
-        mainBorder.setPrefWidth(1100.);
-        mainBorder.setId("borderPaneId");
-        AnchorPane mainAnchorPane = new AnchorPane();
-        mainAnchorPane.setPrefHeight(200);
-        mainAnchorPane.setPrefWidth(200);
-        mainAnchorPane.setId("anchorPaneId");
-        Label question = new Label("Le personnage est-il ou a-t-il :");
-        question.setId("questionText1");
-        question.setLayoutY(5.);
-        AnchorPane.setLeftAnchor(question, 5.);
-        AnchorPane.setTopAnchor(question, 5.);
-        MenuButton menu = new MenuButton("___");
-        menu.setId("buttonAttribut1");
-        menu.setLayoutX(168.);
-        menu.setLayoutY(1.);
-        mainAnchorPane.getChildren().addAll(question, menu);
-        mainBorder.setBottom(mainAnchorPane);
-
-        imagesBorderPaneId.getChildren().add(mainBorder);
-        anchorPaneId.getScene().getWindow().setWidth(1100);
-        anchorPaneId.getScene().getWindow().setHeight(730);
-
-        // injecte les differents element FXML dans le pere
-        setBorderPaneId(mainBorder);
-        setAnchorPaneId(mainAnchorPane);
-        setQuestionText1(question);
-        setButtonAttribut1(menu);
-
-        // creer la grille de jeu et les remplit les boutons
-        GridPane grillePerso = new GridPane();
-        creerGrille(grillePerso);
-        grillePerso.getChildren().forEach((image) -> {
-            image.setOnMouseClicked(choixPersonnageDebutPartie);
-        });
-        creerDernierMenuBouton(menu);
-
-        // desactive les boutons de question pour l'instant
-        menu.setVisible(false);
-        question.setVisible(false);
-
-    }
-
     EventHandler<ActionEvent> startGameHost = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             try {
                 System.out.println("Debut de la partie cote serveur");
-                ((Stage) anchorPaneId.getScene().getWindow()).setTitle("QuiEstCe? - Multi-joueur - serveur");
-                splitPaneId.setVisible(true);
-                consigneText.setText("Choisisez votre personnage :");
+
                 // envoyer le json au client
-                gameServer.envoyerMessage("start*" + jsonPath);
+                gameSocket.envoyerMessage("start*" + jsonPath);
 
-                // demarer la partie
-                lancerPartie();
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageJeuMulti.fxml"));
+                fxmlLoader.setController(
+                        new MainSceneControllerMulti(true, gameSocket, jsonPath, ipClientText.getText()));
 
-                Thread choixPersonnage = new Thread(() -> {
-                    try {
-                        String personnage = gameServer.ecouterMessage();
-                        personnageAdversaire = personnage;
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                Parent root = (Parent) fxmlLoader.load();
+                Stage stage = new Stage();
+                stage.setTitle("QuiEstCe? - Multi-joueur - (Serveur)");
+                File logo = new File("images/logoQuiEstCe.png");
+                stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
+                stage.setScene(new Scene(root));
+                stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
+                    @Override
+                    public void handle(WindowEvent event) {
+                        System.out.println("Fenetre fermé");
+                        // a faire mais dans l'idée il faut le dire au client le pauvre
                     }
                 });
-                choixPersonnage.start();
+                stage.show();
 
-                // choisi personnage
-                // envois le personnages choisi
-
-                // attend de recuperer le personnages de l'adversaire
-                /*
-                 * en boucle :
-                 * -pose une question
-                 * -attend la reponse adversaire
-                 * -elimine les personnages
-                 * -verifie les eliminations
-                 * -si c'est bon :
-                 * -confirme elimiation a l'adversaire
-                 * -attend question adversaire
-                 * -donne sa réponse
-                 * -attends confirmation adversaire
-                 * -sinon :
-                 * -envois gagner ou perdu à l'adversaire
-                 * -fin de partie
-                 */
-
+                ((Stage) anchorPaneId.getScene().getWindow()).close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -434,15 +329,28 @@ public class pageMultiController extends UtilMultiController {
     private void lancerPartieClient() {
         try {
             System.out.println("Debut partie client");
-            ((Stage) anchorPaneId.getScene().getWindow()).setTitle("QuiEstCe? - Multi-joueur - client");
-            ipText1.setText("Connecté au serveur.");
-            splitPaneId.setVisible(true);
-            consigneText.setText("Choisisez votre personnage :");
+            gameSocket.envoyerMessage("started");
 
-            // demarer la partie
-            lancerPartie();
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageJeuMulti.fxml"));
+            fxmlLoader.setController(new MainSceneControllerMulti(false, gameSocket, jsonPath, null));
 
-        } catch (Exception e) {
+            Parent root = (Parent) fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("QuiEstCe? - Multi-joueur - (Client)");
+            File logo = new File("images/logoQuiEstCe.png");
+            stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
+            stage.setScene(new Scene(root));
+            stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
+                @Override
+                public void handle(WindowEvent event) {
+                    System.out.println("Fenetre fermé");
+                    // a faire mais dans l'idée il faut le dire au serveur le pauvre
+                }
+            });
+            stage.show();
+
+            ((Stage) anchorPaneId.getScene().getWindow()).close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

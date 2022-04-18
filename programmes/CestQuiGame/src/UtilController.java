@@ -31,17 +31,22 @@ public abstract class UtilController {
     protected static String difficulte;
     protected static String json;
 
-    protected boolean attendSelection = false;  //etait static
+    protected boolean attendSelection = false; // etait static
 
     protected BorderPane borderPaneId;
     protected AnchorPane anchorPaneId;
     protected Label questionText1;
     protected MenuButton buttonAttribut1;
 
-    protected ArrayList<String> listeAttributs; //etait static
+    protected ArrayList<String> listeAttributs; // etait static
     protected ArrayList<String> listeAttributsChoisi = new ArrayList<>();
     protected ArrayList<String> listeIdPersoSelectionne = new ArrayList<>();
     protected ArrayList<String> listeTotalPersoElimine = new ArrayList<>();
+
+    private ArrayList<String> listeAttribut = new ArrayList<>();
+    private ArrayList<String> listeValeur = new ArrayList<>();
+    private ArrayList<String> listeConnecteur = new ArrayList<>();
+    private boolean aPlusieurQuestion = false;
 
     protected static FilenameFilter imageFiltre = new FilenameFilter() {
         @Override
@@ -238,6 +243,49 @@ public abstract class UtilController {
             AnchorPane.setRightAnchor(buttonValiderQuestion, 20.);
             anchorPaneId.getChildren().add(buttonValiderQuestion);
         }
+    }
+
+    protected ArrayList<String> creerListeQuestion() {
+        ArrayList<String> listeQuestion = new ArrayList<>();
+
+        // recuperer les valeurs et enleve
+        Scene scene = borderPaneId.getScene();
+
+        // cree les talbeaus attribut valeur et conecteur
+        for (int i = 1; i <= listeAttributsChoisi.size() + 1; i++) {
+            // recuperer attributs
+            MenuButton buttonAttribut = (MenuButton) scene.lookup("#buttonAttribut" + i);
+            if (buttonAttribut != null && !buttonAttribut.getText().equals("___")) {
+                MenuButton buttonValeur = (MenuButton) scene.lookup("#buttonValeur" + i);
+                listeAttribut.add(buttonAttribut.getText());
+
+                // recuperer valeurs
+                if (buttonValeur == null) {
+                    listeValeur.add("oui");
+                    listeQuestion.add(buttonAttribut.getText());
+                } else if (!buttonValeur.getText().equals("___")) {
+                    listeValeur.add(buttonValeur.getText());
+                    listeQuestion.add(buttonAttribut.getText() + " " + buttonValeur.getText());
+
+                } else {
+                    listeAttribut.remove(buttonAttribut.getText());
+                }
+
+                // recuperer connecteur
+                if (i > 1) {
+                    aPlusieurQuestion = true;
+                    Label connecteur = (Label) scene.lookup("#questionText" + i);
+                    if (connecteur != null) {
+                        String textConnecteur = connecteur.getText().substring(0, 2);
+                        listeConnecteur.add(textConnecteur);
+                        String valI = textConnecteur + " " + listeQuestion.get(i - 1);
+                        listeQuestion.remove(i - 1);
+                        listeQuestion.add(valI);
+                    }
+                }
+            }
+        }
+        return listeQuestion;
     }
 
     // #region event handler
@@ -591,49 +639,8 @@ public abstract class UtilController {
         @Override
         public void handle(ActionEvent actionEvent) {
             attendSelection = true;
-            ArrayList<String> listeQuestion = new ArrayList<>();
 
-            // recuperer les valeurs et enleve
-            Scene scene = borderPaneId.getScene();
-            ArrayList<String> listeAttribut = new ArrayList<>();
-            ArrayList<String> listeValeur = new ArrayList<>();
-            ArrayList<String> listeConnecteur = new ArrayList<>();
-
-            boolean aPlusieurQuestion = false;
-            // cree les talbeaus attribut valeur et conecteur
-            for (int i = 1; i <= listeAttributsChoisi.size() + 1; i++) {
-                // recuperer attributs
-                MenuButton buttonAttribut = (MenuButton) scene.lookup("#buttonAttribut" + i);
-                if (buttonAttribut != null && !buttonAttribut.getText().equals("___")) {
-                    MenuButton buttonValeur = (MenuButton) scene.lookup("#buttonValeur" + i);
-                    listeAttribut.add(buttonAttribut.getText());
-
-                    // recuperer valeurs
-                    if (buttonValeur == null) {
-                        listeValeur.add("oui");
-                        listeQuestion.add(buttonAttribut.getText());
-                    } else if (!buttonValeur.getText().equals("___")) {
-                        listeValeur.add(buttonValeur.getText());
-                        listeQuestion.add(buttonAttribut.getText() + " " + buttonValeur.getText());
-
-                    } else {
-                        listeAttribut.remove(buttonAttribut.getText());
-                    }
-
-                    // recuperer connecteur
-                    if (i > 1) {
-                        aPlusieurQuestion = true;
-                        Label connecteur = (Label) scene.lookup("#questionText" + i);
-                        if (connecteur != null) {
-                            String textConnecteur = connecteur.getText().substring(0, 2);
-                            listeConnecteur.add(textConnecteur);
-                            String valI = textConnecteur + " " + listeQuestion.get(i - 1);
-                            listeQuestion.remove(i - 1);
-                            listeQuestion.add(valI);
-                        }
-                    }
-                }
-            }
+            ArrayList<String> listeQuestion = creerListeQuestion();
 
             anchorPaneId.getChildren().clear();
 
