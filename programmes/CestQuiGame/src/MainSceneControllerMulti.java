@@ -71,21 +71,21 @@ public class MainSceneControllerMulti extends UtilController {
         setDifficulte("multi"); // ça sert a rien
         lireJson();
 
-        setCheminVersImages("CestQuiGame/bin/gameTamp");
     }
-
+    
     @FXML
     protected void initialize() {
         setBorderPaneId(imagesBorderPaneId);
         setAnchorPaneId(anchorPaneId);
         setButtonAttribut1(buttonAttribut1);
         setQuestionText1(questionText1);
-
+        
         if (estServeur) {
             System.out.println("Lancement controller multi serveur");
             ipText1.setText(ipClient);
         } else {
             System.out.println("Lancement controller multi client");
+            setCheminVersImages("CestQuiGame/bin/gameTamp");
             ipText1.setVisible(false);
             ipClientText.setText("Connecté au serveur");
         }
@@ -185,7 +185,7 @@ public class MainSceneControllerMulti extends UtilController {
         Label texteGagner = new Label(texte);
         texteGagner.setFont(new Font("Arial", 17));
         texteGagner.setWrapText(true);
-        AnchorPane.setTopAnchor(texteGagner, 200.);
+        AnchorPane.setTopAnchor(texteGagner, 180.);
         AnchorPane.setLeftAnchor(texteGagner, 360.);
         AnchorPane.setRightAnchor(texteGagner, 350.);
 

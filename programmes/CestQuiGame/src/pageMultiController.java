@@ -106,28 +106,55 @@ public class pageMultiController {
     }
 
     private void relancerServeur() {
-        System.out.println("Probleme reception message");
-        System.out.println("Client disconected");
-        ipClientText.setText("");
-        ipText1.setText("En attente d'adversaire...");
-        startButton.setText("Envoyer les données");
-        startButton.setOnAction(sendData);
-        startButton.setDisable(true);
-        emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
-        threadServeur.start();
-
+        Platform.runLater(() -> {
+            System.out.println("Probleme reception message");
+            System.out.println("Client disconected");
+            ipClientText.setText("");
+            ipText1.setText("En attente d'adversaire...");
+            startButton.setText("Envoyer les données");
+            startButton.setOnAction(sendData);
+            startButton.setDisable(true);
+            emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
+            lancerServeur();
+        });
     }
 
     private void relancerClient() {
-        estServeurConnecte = false;
-        ipText1.setVisible(true);
-        ipText1.setText("Serveur deconnecté...");
-        ipText2.setVisible(false);
-        earlyPane.setVisible(true);
-        startButton.setVisible(true);
-        startButton.setDisable(false);
-        retryButton.setVisible(false);
-        cancelButton.setVisible(false);
+        Platform.runLater(() -> {
+            emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
+            estServeurConnecte = false;
+            ipText1.setVisible(true);
+            ipText1.setText("Serveur deconnecté...");
+            ipText2.setVisible(false);
+            earlyPane.setVisible(true);
+            startButton.setVisible(true);
+            startButton.setDisable(false);
+            retryButton.setVisible(false);
+            cancelButton.setVisible(false);
+        });
+    }
+
+    private void lancerServeur() {
+        threadServeur = new Thread(() -> {
+            while (true) {
+                try {
+                    String ipClient = ((GameServer) gameSocket).connexionClient();
+                    ipText1.setText("Client connecté :");
+                    ipClientText.setText("-" + ipClient);
+                    ipClientText.setVisible(true);
+                    startButton.setDisable(false);
+                    gameSocket.envoyerMessage("connected");
+                    break;
+                } catch (Exception e) {
+                    if (e.getMessage().equals("Socket is closed")) {
+                        System.out.println("Socket serveur fermé");
+                        relancerServeur();
+                        break;
+                    }
+                }
+            }
+        });
+        threadServeur.start();
     }
 
     @FXML
@@ -223,26 +250,7 @@ public class pageMultiController {
                 gameSocket = new GameServer();
 
                 // attente de connexion du client
-                threadServeur = new Thread(() -> {
-                    while (true) {
-                        try {
-                            String ipClient = ((GameServer) gameSocket).connexionClient();
-                            ipText1.setText("Client connecté :");
-                            ipClientText.setText("-" + ipClient);
-                            ipClientText.setVisible(true);
-                            startButton.setDisable(false);
-                            gameSocket.envoyerMessage("connected");
-                            break;
-                        } catch (Exception e) {
-                            if (e.getMessage().equals("Socket is closed")) {
-                                System.out.println("Socket serveur fermé");
-                                relancerServeur();
-                                break;
-                            }
-                        }
-                    }
-                });
-                threadServeur.start();
+                lancerServeur();
 
             } catch (Exception e) {
                 e.printStackTrace();
