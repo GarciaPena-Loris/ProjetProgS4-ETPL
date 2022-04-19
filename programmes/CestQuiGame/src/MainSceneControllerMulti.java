@@ -153,15 +153,12 @@ public class MainSceneControllerMulti extends UtilController {
             do {
                 try {
                     question = gameSocket.ecouterMessage();
-                    if (question.equals("close")) {
-                        // another thing
-                        break;
-                    }
                     listeQuestion.add(question);
                 } catch (IOException e) {
                     e.printStackTrace();
                     afficherFinPartie(
                             "Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
+                    break;
                 }
             } while (!question.equals("end"));
 
@@ -187,7 +184,7 @@ public class MainSceneControllerMulti extends UtilController {
 
             // texte
             Label texteFin = new Label(texte);
-            if (personnageAdversaire != null) {
+            if (personnageAdversaire == null) {
                 texteFin.setText("Adversaire deconnecté :(");
             }
             texteFin.setFont(new Font("Arial", 17));
@@ -197,8 +194,7 @@ public class MainSceneControllerMulti extends UtilController {
             AnchorPane.setRightAnchor(texteFin, 350.);
 
             // bouton de fin de jeux
-            Button quitterButton = new Button();
-            quitterButton.setText("Quitter le jeu");
+            Button quitterButton = new Button("Quitter le jeu");
             quitterButton.setOnAction(quitterEvent);
             AnchorPane.setTopAnchor(quitterButton, 400.);
             AnchorPane.setLeftAnchor(quitterButton, 500.);
@@ -221,48 +217,51 @@ public class MainSceneControllerMulti extends UtilController {
     };
 
     @FXML
-    void envoyerReponseQuestion(ActionEvent event) throws IOException {
-        System.out.println(((Button) event.getSource()).getText());
+    void envoyerReponseQuestion(ActionEvent event) {
         String reponse = ((Button) event.getSource()).getText();
-        gameSocket.envoyerMessage(reponse);
-        consigneText.setText("L'adversaire procède aux éliminations...");
-        questionAnchorePaneId.setVisible(false);
-        questionEstLabel.setText("La question de l'adversaire est :");
-        Thread ecouterLaReponse = new Thread(() -> {
-            // ecouter la reponse
-            try {
-                String statutElimination;
-                statutElimination = gameSocket.ecouterMessage();
-                Platform.runLater(() -> {
-                    if (statutElimination.equals("pasGagne")) {
-                        consigneText.setText("L'adversaire a terminé, à ton tour de poser une question:");
-                        creerDernierMenuBouton(buttonAttribut1);
-                        buttonAttribut1.setDisable(false);
-                        anchorPaneId.setOpacity(1);
-                        anchorPaneId.setDisable(false);
-                        // l'inconnu
-                    } else if (statutElimination.equals("gagne")) {
-                        // l'adversaire à gagné
-                        afficherFinPartie(
-                                "Votre adversaire a trouvé votre personnage (il à été meilleur :3). Son personnage était "
-                                        + personnageAdversaire + ":");
-                        // ajouter bouton quitter
-                    } else if (statutElimination.equals("perdu")) {
-                        // l'adversaire à perdu
-                        afficherFinPartie(
-                                "Votre adversaire a perdu... il a éliminé votre personnage (quel boulet)... Vous avez donc gagné !! Son personnage était "
-                                        + personnageAdversaire + ":");
-                    } else {
-                        afficherFinPartie(
-                                "Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
-                    }
-                });
-            } catch (IOException e) {
-                e.printStackTrace();
-                afficherFinPartie("Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
-            }
-        });
-        ecouterLaReponse.start();
+        try {
+            gameSocket.envoyerMessage(reponse);
+            consigneText.setText("L'adversaire procède aux éliminations...");
+            questionAnchorePaneId.setVisible(false);
+            questionEstLabel.setText("La question de l'adversaire est :");
+            Thread ecouterLaReponse = new Thread(() -> {
+                // ecouter la reponse
+                try {
+                    String statutElimination;
+                    statutElimination = gameSocket.ecouterMessage();
+                    Platform.runLater(() -> {
+                        if (statutElimination.equals("pasGagne")) {
+                            consigneText.setText("L'adversaire a terminé, à ton tour de poser une question:");
+                            creerDernierMenuBouton(buttonAttribut1);
+                            buttonAttribut1.setDisable(false);
+                            anchorPaneId.setOpacity(1);
+                            anchorPaneId.setDisable(false);
+                            // l'inconnu
+                        } else if (statutElimination.equals("gagne")) {
+                            // l'adversaire à gagné
+                            afficherFinPartie(
+                                    "Votre adversaire a trouvé votre personnage (il à été meilleur :3). Son personnage était "
+                                            + personnageAdversaire + ":");
+                            // ajouter bouton quitter
+                        } else if (statutElimination.equals("perdu")) {
+                            // l'adversaire à perdu
+                            afficherFinPartie(
+                                    "Votre adversaire a perdu... il a éliminé votre personnage (quel boulet)... Vous avez donc gagné !! Son personnage était "
+                                            + personnageAdversaire + ":");
+                        } else {
+                            afficherFinPartie(
+                                    "Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    afficherFinPartie("Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
+                }
+            });
+            ecouterLaReponse.start();
+        } catch (IOException e) {
+            afficherFinPartie("Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
+        }
     }
 
     @FXML

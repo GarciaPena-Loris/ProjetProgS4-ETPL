@@ -109,6 +109,13 @@ public class pageMultiController {
         Platform.runLater(() -> {
             System.out.println("Probleme reception message");
             System.out.println("Client disconected");
+            if (gameSocket != null) {
+                try {
+                    gameSocket.stopSocket();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             ipClientText.setText("");
             ipText1.setText("En attente d'adversaire...");
             startButton.setText("Envoyer les données");
@@ -350,7 +357,8 @@ public class pageMultiController {
                             relancerClient();
                         }
                     } catch (IOException | ParseException e) {
-                        e.printStackTrace();
+                        System.err.println("Probleme connexion serveur");
+                        relancerClient();
                     }
                 }
             });
@@ -381,34 +389,44 @@ public class pageMultiController {
 
                             // envois toutes les images au client
                             File dossierImage = new File(cheminVersImages);
-                            gameSocket
-                                    .envoyerMessage(
-                                            "" + dossierImage.listFiles(UtilController.imageFiltre).length);
-                            if (gameSocket.ecouterMessage().equals("done")) {
-                                for (File image : dossierImage.listFiles(UtilController.imageFiltre)) {
-                                    gameSocket.envoyerMessage(image.getName());
-                                    if (gameSocket.ecouterMessage().equals("done")) {
-                                        ((GameServer) gameSocket).envoyerFichier(image);
+                            if (dossierImage.listFiles(UtilController.imageFiltre) == null) {
+                                relancerServeur();
+                                System.out.println("Chemin vers les images incorrect");
+                                Platform.runLater(() -> {
+                                    ipClientText.setText("Chemon vers les images incorrect...");
+                                });
+                            } else {
+                                gameSocket
+                                        .envoyerMessage(
+                                                "" + dossierImage.listFiles(UtilController.imageFiltre).length);
+                                if (gameSocket.ecouterMessage().equals("done")) {
+                                    for (File image : dossierImage.listFiles(UtilController.imageFiltre)) {
+                                        ipText1.setText("Envois de l'image " + image.getName() + " à :");
+
+                                        gameSocket.envoyerMessage(image.getName());
                                         if (gameSocket.ecouterMessage().equals("done")) {
+                                            ((GameServer) gameSocket).envoyerFichier(image);
+                                            if (gameSocket.ecouterMessage().equals("done")) {
+                                            } else {
+                                                relancerServeur();
+                                            }
                                         } else {
+                                            relancerServeur();
+                                        }
+                                    }
+                                    if (gameSocket.ecouterMessage().equals("end")) {
+                                        startButton.setDisable(false);
+                                        ipText1.setText("Données envoyées avec succés à :");
+
+                                        if (!gameSocket.ecouterMessage().equals("started")) {
                                             relancerServeur();
                                         }
                                     } else {
                                         relancerServeur();
                                     }
-                                }
-                                if (gameSocket.ecouterMessage().equals("end")) {
-                                    startButton.setDisable(false);
-                                    ipText1.setText("Données envoyées avec succés à :");
-
-                                    if (!gameSocket.ecouterMessage().equals("started")) {
-                                        relancerServeur();
-                                    }
                                 } else {
                                     relancerServeur();
                                 }
-                            } else {
-                                relancerServeur();
                             }
                         } else {
                             relancerServeur();

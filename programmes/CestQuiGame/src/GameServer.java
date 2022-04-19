@@ -38,20 +38,13 @@ public class GameServer implements GameSocket {
 
     public String ecouterMessage() throws IOException {
         String msg = null;
-        try {
-            System.out.println("Serveur en attente de message");
-            msg = in.readUTF();
-            System.out.println("Message reçu par le serveur : " + msg);
-            if (msg.equals("close")) {
-                System.out.println("Bouton fermeture pressed");
-                stopSocket();
-                System.out.println("Socket serveur fermée");
-            }
-        } catch (IOException e) {
-            System.err.println("Connexion serveur fermé");
-            System.out.println("Fermeture de la socket " + clientSocket.getLocalAddress());
-            clientSocket.close();
-            return "close";
+        System.out.println("Serveur en attente de message");
+        msg = in.readUTF();
+        System.out.println("Message reçu par le serveur : " + msg);
+        if (msg.equals("close")) {
+            System.out.println("Bouton fermeture pressed");
+            stopSocket();
+            System.out.println("Socket serveur fermée");
         }
         return msg;
     }
@@ -74,7 +67,6 @@ public class GameServer implements GameSocket {
 
     public void stopSocket() throws IOException {
         if (serveurSocket != null && clientSocket != null) {
-            serveurSocket.close();
             clientSocket.close();
             System.out.println("Socket Serveur close");
         }

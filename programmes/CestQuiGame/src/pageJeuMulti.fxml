@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
@@ -17,8 +18,11 @@
          <children>
             <AnchorPane fx:id="anchorPaneId" prefHeight="184.0" prefWidth="1004.0">
                <children>
-                  <Label fx:id="questionText1" layoutX="14.0" layoutY="6.0" text="Le personnage est-il ou a-t-il :" AnchorPane.bottomAnchor="67.0" AnchorPane.leftAnchor="14.0" />
-                  <MenuButton fx:id="buttonAttribut1" layoutX="187.0" layoutY="2.0" text="___" textOverrun="CLIP" wrapText="true" AnchorPane.bottomAnchor="63.0" AnchorPane.leftAnchor="187.0" />
+                  <Label fx:id="questionText1" layoutX="6.0" layoutY="6.0" text="Le personnage est-il ou a-t-il :" AnchorPane.leftAnchor="6.0" />
+                  <MenuButton fx:id="buttonAttribut1" layoutX="182.0" layoutY="1.0" text="___" textOverrun="CLIP" wrapText="true" AnchorPane.leftAnchor="182.0">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></MenuButton>
                </children>
             </AnchorPane>
          </children>
@@ -93,6 +97,9 @@
                <font>
                   <Font size="15.0" />
                </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
             </Button>
             <AnchorPane fx:id="partieReponseQuestionPane" layoutX="17.0" layoutY="404.0" prefHeight="200.0" prefWidth="168.0" visible="false">
                <children>
@@ -100,6 +107,9 @@
                      <font>
                         <Font size="13.0" />
                      </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
                   </Button>
                   <Label alignment="TOP_LEFT" layoutX="13.0" layoutY="14.0" prefHeight="44.0" prefWidth="143.0" text="La réponse à votre question est :" textFill="#f81414" wrapText="true">
                      <font>

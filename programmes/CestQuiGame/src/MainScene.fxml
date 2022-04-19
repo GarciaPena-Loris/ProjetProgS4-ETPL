@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -13,7 +14,10 @@
                 <AnchorPane fx:id="anchorPaneId" prefHeight="200.0" prefWidth="200.0">
                     <children>
                         <Label fx:id="questionText1" layoutY="5.0" text="Le personnage est-il ou a-t-il :" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0" />
-                        <MenuButton fx:id="buttonAttribut1" layoutX="168.0" layoutY="1.0" text="___" textOverrun="CLIP" wrapText="true" />
+                        <MenuButton fx:id="buttonAttribut1" layoutX="168.0" layoutY="1.0" text="___" textOverrun="CLIP" wrapText="true">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></MenuButton>
                     </children>
                 </AnchorPane>
             </children>
