@@ -19,13 +19,13 @@ public class MainSceneController extends UtilController {
     private BorderPane borderScrollId;
 
     @FXML
-    @SuppressWarnings("unchecked")
     protected void initialize() {
         //injecte les differents element FXML dans le pere
         setBorderPaneId(borderPaneId);
         setAnchorPaneId(anchorPaneId);
         setQuestionText1(questionText1);
         setButtonAttribut1(buttonAttribut1);
+        setScrollPaneId(borderScrollId);
 
         // Recuperer les données du JSON ici
         lireJson();

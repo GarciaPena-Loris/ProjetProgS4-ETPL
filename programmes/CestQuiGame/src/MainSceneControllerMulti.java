@@ -32,7 +32,7 @@ public class MainSceneControllerMulti extends UtilController {
     private AnchorPane anchorPaneId, questionAnchorePaneId, partieReponseQuestionPane;
 
     @FXML
-    private BorderPane borderPaneId, persoSelectionnePane, imagesBorderPaneId;
+    private BorderPane borderPaneId, persoSelectionnePane, borderScrollId;
 
     @FXML
     private MenuButton buttonAttribut1;
@@ -75,10 +75,11 @@ public class MainSceneControllerMulti extends UtilController {
 
     @FXML
     protected void initialize() {
-        setBorderPaneId(imagesBorderPaneId);
+        setBorderPaneId(borderPaneId);
         setAnchorPaneId(anchorPaneId);
         setButtonAttribut1(buttonAttribut1);
         setQuestionText1(questionText1);
+        setScrollPaneId(borderScrollId);
 
         if (estServeur) {
             System.out.println("Lancement controller multi serveur");
@@ -189,20 +190,20 @@ public class MainSceneControllerMulti extends UtilController {
             }
             texteFin.setFont(new Font("Arial", 17));
             texteFin.setWrapText(true);
-            AnchorPane.setTopAnchor(texteFin, 180.);
+            AnchorPane.setTopAnchor(texteFin, 150.);
             AnchorPane.setLeftAnchor(texteFin, 360.);
             AnchorPane.setRightAnchor(texteFin, 350.);
 
             // bouton de fin de jeux
             Button quitterButton = new Button("Quitter le jeu");
             quitterButton.setOnAction(quitterEvent);
-            AnchorPane.setTopAnchor(quitterButton, 400.);
+            AnchorPane.setTopAnchor(quitterButton, 420.);
             AnchorPane.setLeftAnchor(quitterButton, 500.);
             AnchorPane.setRightAnchor(quitterButton, 500.);
 
             // image Perso
             File dossierImage = new File(cheminVersImages);
-            String urlImage = dossierImage.getAbsolutePath() + "/" + personnageAdversaire + ".png";
+            String urlImage = dossierImage.getAbsolutePath() + "/" + personnageAdversaire;
             Image imagePerso = new Image("file:///" + urlImage);
             ImageView imageViewPerso = new ImageView(imagePerso);
             imageViewPerso.setFitHeight(125);

@@ -61,16 +61,16 @@ public class Game {
     }
 
 
-    public List<String> getListeAttributs() {
-        List<String> attributs = new ArrayList<String>(personnageChoisi.keySet());
+    public ArrayList<String> getListeAttributs() {
+        ArrayList<String> attributs = new ArrayList<String>(personnageChoisi.keySet());
         attributs.remove("image");
         attributs.remove("etat");
         return attributs;
     }
 
 
-    public List<String> getListeValeurs(String attribut, ArrayList<String> listePersonnagesElimines) {
-        List<String> valeurs = new ArrayList<>();
+    public ArrayList<String> getListeValeurs(String attribut, ArrayList<String> listePersonnagesElimines) {
+        ArrayList<String> valeurs = new ArrayList<>();
         for (JSONObject personnage : listePersonnages) {
             if (!listePersonnagesElimines.contains((String) personnage.get("image"))) {
                 String value = (String) personnage.get(attribut);

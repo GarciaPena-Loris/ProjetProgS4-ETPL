@@ -129,7 +129,7 @@
    <center>
       <ScrollPane prefHeight="584.0" prefWidth="604.0" BorderPane.alignment="CENTER">
          <content>
-            <BorderPane fx:id="imagesBorderPaneId" prefHeight="506.0" prefWidth="601.0" />
+            <BorderPane fx:id="borderScrollId" prefHeight="506.0" prefWidth="601.0" />
          </content>
       </ScrollPane>
    </center>

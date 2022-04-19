@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -38,11 +39,14 @@ public abstract class UtilController {
     protected AnchorPane anchorPaneId;
     protected Label questionText1;
     protected MenuButton buttonAttribut1;
+    protected BorderPane borderScrollId;
 
-    protected ArrayList<String> listeAttributs; // etait static
+    protected ArrayList<String> listeAttributs;
     protected ArrayList<String> listeAttributsChoisi = new ArrayList<>();
     protected ArrayList<String> listeIdPersoSelectionne = new ArrayList<>();
     protected ArrayList<String> listeTotalPersoElimine = new ArrayList<>();
+    private static JSONObject personnages;
+    private HashMap<String, String> listeImages = new HashMap<>();
 
     private ArrayList<String> listeAttribut = new ArrayList<>();
     private ArrayList<String> listeValeur = new ArrayList<>();
@@ -65,6 +69,7 @@ public abstract class UtilController {
         cheminVersImages = chemin;
     }
 
+    @SuppressWarnings("unchecked")
     protected void lireJson() {
         try {
             FileReader fr = new FileReader(json);
@@ -73,7 +78,7 @@ public abstract class UtilController {
             cheminVersImages = (String) js.get("images");
             ligne = Integer.parseInt((String) js.get("ligne"));
             colonne = Integer.parseInt((String) js.get("colonne"));
-            JSONObject personnages = (JSONObject) js.get("personnages");
+            personnages = (JSONObject) js.get("personnages");
 
             if ((String) js.get("difficulte") != null) {
                 // partie chargée
@@ -86,6 +91,17 @@ public abstract class UtilController {
                         colonne);
             }
             fr.close();
+
+            // on sauvegarde des le debut
+            partieEnCour.sauvegarderPartieEnCour(cheminVersImages, ligne, colonne);
+
+            // on creer la liste avec toutes les images a utiliser
+            personnages.forEach((key, value) -> {
+                String nomImage = ((String) ((JSONObject) value).get("image"));
+                File file = new File(cheminVersImages + "/" + nomImage);
+                listeImages.put(nomImage, file.getAbsolutePath());
+            });
+
             listeAttributs = partieEnCour.getListeAttributs();
 
         } catch (Exception e) {
@@ -93,19 +109,16 @@ public abstract class UtilController {
         }
     }
 
+    int x = 0; // collones
+    int y = 0; // ligne
+
     protected void creerGrille(GridPane grillePerso) {
-        int x = 0; // collones
-        int y = 0; // ligne
 
         File dossierImage = new File(cheminVersImages);
         if (dossierImage.isDirectory()) {
 
-            ArrayList<String> listePersonnageMort = new ArrayList<>();
             if (!partieEnCour.getListePersonnageMort().isEmpty()) {
-                listePersonnageMort = partieEnCour.getListePersonnageMort();
-                listeTotalPersoElimine = listePersonnageMort;
-            } else {
-                listePersonnageMort = listeTotalPersoElimine;
+                listeTotalPersoElimine = partieEnCour.getListePersonnageMort();
             }
 
             grillePerso.setId("grillePerso");
@@ -113,21 +126,22 @@ public abstract class UtilController {
             grillePerso.setHgap(colonne);
             grillePerso.setVgap(ligne);
 
-            for (File image : dossierImage.listFiles(imageFiltre)) {
-                String nomImage = image.getName();
-                String urlImage = image.getAbsolutePath();
+            listeImages.forEach((key, value) -> {
+                String nomImage = key;
+                String urlImage = value;
+
                 Image imagePerso = new Image("file:///" + urlImage);
                 ImageView imageViewPerso = new ImageView(imagePerso);
                 imageViewPerso.setFitHeight(125);
                 imageViewPerso.setFitWidth(90);
                 imageViewPerso
-                        .setId(nomImage.substring(0, nomImage.length() - 4) + "_" + x + "_" + y);
+                        .setId(nomImage + "_" + x + "_" + y);
                 imageViewPerso.setOnMouseClicked(afficheCibleEvent);
                 grillePerso.add(imageViewPerso, x, y);
 
-                if (!listePersonnageMort.isEmpty()) {
-                    if (listePersonnageMort
-                            .contains(image.getName().substring(0, image.getName().length() - 4))) {
+                if (!listeTotalPersoElimine.isEmpty()) {
+                    if (listeTotalPersoElimine
+                            .contains(nomImage)) {
                         File f2 = new File("images/mortpng.png");
                         Image imageMort = new Image("file:///" + f2.getAbsolutePath());
                         ImageView imageViewMort = new ImageView(imageMort);
@@ -143,12 +157,18 @@ public abstract class UtilController {
                     x = 0;
                     y++;
                 }
-            }
-            borderPaneId.setCenter(grillePerso);
+                if (y == ligne) {
+                    x = 0;
+                    y = 0;
+                    return;
+                }
+
+            });
+            borderScrollId.setCenter(grillePerso);
         } else {
             borderPaneId.getChildren().clear();
-            Label textePerdu = new Label("Chemin vers les images incorrect.");
-            borderPaneId.setCenter(textePerdu);
+            Label texteErreur = new Label("Chemin vers les images incorrect.");
+            borderPaneId.setCenter(texteErreur);
         }
     }
 
@@ -172,26 +192,24 @@ public abstract class UtilController {
         anchorPaneId.getChildren().add(buttonAttribut1);
 
         creerDernierMenuBouton(buttonAttribut1);
-        creerBoutonestimer();
     }
 
     protected void creerDernierMenuBouton(MenuButton menuButtonAttribut) {
         int compteur = 1;
         menuButtonAttribut.getItems().clear();
         for (String attribut : listeAttributs) {
-            if (!listeAttributsChoisi.contains(attribut)) {
+            if (!partieEnCour.estQuestionBinaire(attribut)) {
+                MenuItem newAttribut = new MenuItem(attribut);
+                menuButtonAttribut.getItems().add(newAttribut);
+                newAttribut.setId(menuButtonAttribut.getId() + compteur);
+                newAttribut.setOnAction(attributSelectedEvent);
+            } else if (!listeAttributsChoisi.contains(attribut)) {
                 MenuItem newAttribut = new MenuItem(attribut);
                 menuButtonAttribut.getItems().add(newAttribut);
                 newAttribut.setId(menuButtonAttribut.getId() + compteur);
                 newAttribut.setOnAction(attributSelectedEvent);
             }
             compteur++;
-        }
-        if (listeAttributsChoisi.size() == listeAttributs.size() - 1) {
-            MenuItem attribut = new MenuItem("___");
-            menuButtonAttribut.getItems().add(attribut);
-            attribut.setId(menuButtonAttribut.getId() + compteur);
-            attribut.setOnAction(attributSelectedEvent);
         }
     }
 
@@ -253,7 +271,8 @@ public abstract class UtilController {
 
         if (boutonSuivant.getText().equals("___") || listeAttributsChoisi.size() == 2) {
             ArrayList<String> listeValeurs = partieEnCour.getListeValeurs(
-                    ((MenuButton) borderPaneId.getScene().lookup("#buttonAttribut" + ligne)).getText());
+                    ((MenuButton) borderPaneId.getScene().lookup("#buttonAttribut" + ligne)).getText(),
+                    listeTotalPersoElimine);
             for (int i = 0; i < listeValeurs.size(); i++) {
                 MenuItem valeurs = new MenuItem(listeValeurs.get(i));
                 valeurs.setId(menuButtonValeur.getId() + i);
@@ -281,6 +300,9 @@ public abstract class UtilController {
 
     protected ArrayList<String> creerListeQuestion() {
         ArrayList<String> listeQuestion = new ArrayList<>();
+        listeAttribut = new ArrayList<>();
+        listeValeur = new ArrayList<>();
+        listeConnecteur = new ArrayList<>();
 
         // recuperer les valeurs et enleve
         Scene scene = borderPaneId.getScene();
@@ -458,7 +480,7 @@ public abstract class UtilController {
                     anchorPaneId.getChildren().remove(valueButton);
 
                 // creation du bouton des valeurs
-                ArrayList<String> listeValeurs = partieEnCour.getListeValeurs(selectedAttribut);
+                ArrayList<String> listeValeurs = partieEnCour.getListeValeurs(selectedAttribut, listeTotalPersoElimine);
 
                 if (listeValeurs.isEmpty()) {
                     anchorPaneId.getChildren().remove(valueButton);
@@ -502,47 +524,14 @@ public abstract class UtilController {
         public void handle(ActionEvent actionEvent) {
             if (anchorPaneId.getScene().lookup("#estimationTexte") == null) {
                 // recuperer les valeurs et enleve
-                Scene scene = borderPaneId.getScene();
-                ArrayList<String> listeAttribut = new ArrayList<>();
-                ArrayList<String> listeValeur = new ArrayList<>();
-                ArrayList<String> listeConnecteur = new ArrayList<>();
-
-                // vide la liste des attributs selecionné
+                creerListeQuestion();
                 listeIdPersoSelectionne.clear();
-
-                // cree les talbeaus attribut valeur et conecteur
-                for (int i = 1; i <= listeAttributsChoisi.size() + 1; i++) {
-                    // recuperer attributs
-                    MenuButton buttonAttribut = (MenuButton) scene.lookup("#buttonAttribut" + i);
-                    if (buttonAttribut != null && !buttonAttribut.getText().equals("___")) {
-                        MenuButton buttonValeur = (MenuButton) scene.lookup("#buttonValeur" + i);
-                        listeAttribut.add(buttonAttribut.getText());
-
-                        // recuperer valeurs
-                        if (buttonValeur == null) {
-                            listeValeur.add("oui");
-                        } else if (!buttonValeur.getText().equals("___")) {
-                            listeValeur.add(buttonValeur.getText());
-
-                        } else {
-                            listeAttribut.remove(buttonAttribut.getText());
-                        }
-
-                        // recuperer connecteur
-                        if (i > 1) {
-                            Label connecteur = (Label) scene.lookup("#questionText" + i);
-                            if (connecteur != null) {
-                                String textConnecteur = connecteur.getText().substring(0, 2);
-                                listeConnecteur.add(textConnecteur);
-                            }
-                        }
-                    }
-                }
 
                 if (listeAttribut.size() > 0) {
                     ArrayList<String> listePersoAEliminer = partieEnCour.personnagesAEliminer(
                             listeTotalPersoElimine, listeAttribut,
                             listeValeur, listeConnecteur);
+
                     Label estimationLabel = new Label("Elimination de "
                             + listePersoAEliminer.size()
                             + " sur " + ((partieEnCour.getNombrePersonnages() - listeTotalPersoElimine.size())));
@@ -729,7 +718,7 @@ public abstract class UtilController {
                     }
                 }
 
-                // inverse les cileble si la réponse est fausse
+                // inverse les cibles si la réponse est fausse
                 if (reponseQuestion) {
                     GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
                     grilleperso.setId("oldGrillePerso");
@@ -764,7 +753,7 @@ public abstract class UtilController {
                         }
                     }
 
-                    borderPaneId.setCenter(newGrilleperso);
+                    borderScrollId.setCenter(newGrilleperso);
                 }
             }
             AnchorPane.setTopAnchor(validationText, (listeQuestion.size() * 40.) + 20.);
@@ -791,9 +780,9 @@ public abstract class UtilController {
                 nomsPerso.add(perso.split("_")[0]);
             }
             boolean personnageAtrouverElimine = partieEnCour.verifierElimination(nomsPerso);
+            listeTotalPersoElimine.addAll(nomsPerso);
 
             if (!personnageAtrouverElimine) {
-                listeTotalPersoElimine.addAll(nomsPerso);
                 // si tous les perso sont éliminé sauf le bon
                 if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
                     // vide l'écran, affiche le personnage gagant et supprime la save.
@@ -835,31 +824,14 @@ public abstract class UtilController {
                 } else {
                     recreerAnchorPaneID();
 
-                    // reset ancienne grille
-                    GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
-                    borderPaneId.getChildren().remove(grilleperso);
-
-                    // recreer une nouvelle
-                    GridPane newGrillePerso = new GridPane();
-                    creerGrille(newGrillePerso);
-
                     // affiche les tete de mort
                     for (String perso : listeIdPersoSelectionne) {
-
                         // change valeur etat perso
                         partieEnCour.tuerPersonnage(perso.split("_")[0]);
-
-                        int i = Integer.parseInt(perso.split("_")[1]);
-                        int j = Integer.parseInt(perso.split("_")[2]);
-
-                        File f2 = new File("images/mortpng.png");
-                        Image imageMort = new Image("file:///" + f2.getAbsolutePath());
-                        ImageView imageViewMort = new ImageView(imageMort);
-                        imageViewMort.setFitHeight(125);
-                        imageViewMort.setFitWidth(90);
-                        imageViewMort.setId("mort_" + i + "_" + j);
-                        newGrillePerso.add(imageViewMort, i, j);
                     }
+                    // recreer une nouvelle
+                    GridPane grillePerso = new GridPane();
+                    creerGrille(grillePerso);
                     partieEnCour.sauvegarderPartieEnCour(cheminVersImages, ligne, colonne);
                     listeIdPersoSelectionne.clear();
                 }
@@ -910,5 +882,10 @@ public abstract class UtilController {
     public void setButtonAttribut1(MenuButton buttonAttribut1) {
         this.buttonAttribut1 = buttonAttribut1;
     }
+
+    public void setScrollPaneId(BorderPane borderScrollId) {
+        this.borderScrollId = borderScrollId;
+    }
+
     // #endregion
 }
