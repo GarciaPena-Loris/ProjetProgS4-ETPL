@@ -41,22 +41,16 @@ public class GameClient implements GameSocket {
     public String ecouterMessage() throws IOException {
         String msg = null;
 
-        try {
-            System.out.println("Client en attente de message");
-            msg = in.readUTF();
-            System.out.println("Message reçu par le client : " + msg);
-            if (msg.equals("close")) {
-                System.out.println("Bouton fermeture pressed");
-                stopSocket();
-                System.out.println("Socket client fermée");
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            System.err.println("Connexion client fermé");
+        System.out.println("Client en attente de message");
+        msg = in.readUTF();
+        System.out.println("Message reçu par le client : " + msg);
+        if (msg.equals("close")) {
+            System.out.println("Bouton fermeture pressed");
             stopSocket();
-            return "close";
+            System.out.println("Socket client fermée");
         }
         return msg;
+
     }
 
     public void envoyerMessage(String msg) throws IOException {

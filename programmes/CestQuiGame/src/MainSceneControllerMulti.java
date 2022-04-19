@@ -72,14 +72,14 @@ public class MainSceneControllerMulti extends UtilController {
         lireJson();
 
     }
-    
+
     @FXML
     protected void initialize() {
         setBorderPaneId(imagesBorderPaneId);
         setAnchorPaneId(anchorPaneId);
         setButtonAttribut1(buttonAttribut1);
         setQuestionText1(questionText1);
-        
+
         if (estServeur) {
             System.out.println("Lancement controller multi serveur");
             ipText1.setText(ipClient);
@@ -123,7 +123,7 @@ public class MainSceneControllerMulti extends UtilController {
             } catch (IOException e) {
                 e.printStackTrace();
                 afficherFinPartie(
-                        "Adversaire deconncté :( Son personange était " + personnageAdversaire + ": ");
+                        "Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
             }
         });
         choixPersonnage.start();
@@ -161,7 +161,7 @@ public class MainSceneControllerMulti extends UtilController {
                 } catch (IOException e) {
                     e.printStackTrace();
                     afficherFinPartie(
-                            "Adversaire deconncté :( Son personange était " + personnageAdversaire + ": ");
+                            "Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
                 }
             } while (!question.equals("end"));
 
@@ -180,37 +180,44 @@ public class MainSceneControllerMulti extends UtilController {
     }
 
     public void afficherFinPartie(String texte) {
-        AnchorPane pageFinale = new AnchorPane();
-        // texte
-        Label texteGagner = new Label(texte);
-        texteGagner.setFont(new Font("Arial", 17));
-        texteGagner.setWrapText(true);
-        AnchorPane.setTopAnchor(texteGagner, 180.);
-        AnchorPane.setLeftAnchor(texteGagner, 360.);
-        AnchorPane.setRightAnchor(texteGagner, 350.);
+        Platform.runLater(() -> {
+            borderPaneId.getChildren().clear();
+            pageMultiController.emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
+            AnchorPane pageFinale = new AnchorPane();
 
-        // bouton de fin de jeux
-        Button quitterButton = new Button();
-        quitterButton.setText("Quitter le jeu");
-        quitterButton.setOnAction(quitterEvent);
-        anchorPaneId.getChildren().add(quitterButton);
-        AnchorPane.setTopAnchor(quitterButton, 400.);
-        AnchorPane.setLeftAnchor(quitterButton, 500.);
-        AnchorPane.setRightAnchor(quitterButton, 500.);
+            // texte
+            Label texteFin = new Label(texte);
+            if (personnageAdversaire != null) {
+                texteFin.setText("Adversaire deconnecté :(");
+            }
+            texteFin.setFont(new Font("Arial", 17));
+            texteFin.setWrapText(true);
+            AnchorPane.setTopAnchor(texteFin, 180.);
+            AnchorPane.setLeftAnchor(texteFin, 360.);
+            AnchorPane.setRightAnchor(texteFin, 350.);
 
-        // image Perso
-        File dossierImage = new File(cheminVersImages);
-        String urlImage = dossierImage.getAbsolutePath() + "/" + personnageAdversaire + ".png";
-        Image imagePerso = new Image("file:///" + urlImage);
-        ImageView imageViewPerso = new ImageView(imagePerso);
-        imageViewPerso.setFitHeight(125);
-        imageViewPerso.setFitWidth(90);
-        AnchorPane.setTopAnchor(imageViewPerso, 240.);
-        AnchorPane.setLeftAnchor(imageViewPerso, 500.);
-        AnchorPane.setRightAnchor(imageViewPerso, 500.);
+            // bouton de fin de jeux
+            Button quitterButton = new Button();
+            quitterButton.setText("Quitter le jeu");
+            quitterButton.setOnAction(quitterEvent);
+            AnchorPane.setTopAnchor(quitterButton, 400.);
+            AnchorPane.setLeftAnchor(quitterButton, 500.);
+            AnchorPane.setRightAnchor(quitterButton, 500.);
 
-        pageFinale.getChildren().addAll(texteGagner, imageViewPerso, quitterButton);
-        borderPaneId.setCenter(pageFinale);
+            // image Perso
+            File dossierImage = new File(cheminVersImages);
+            String urlImage = dossierImage.getAbsolutePath() + "/" + personnageAdversaire + ".png";
+            Image imagePerso = new Image("file:///" + urlImage);
+            ImageView imageViewPerso = new ImageView(imagePerso);
+            imageViewPerso.setFitHeight(125);
+            imageViewPerso.setFitWidth(90);
+            AnchorPane.setTopAnchor(imageViewPerso, 240.);
+            AnchorPane.setLeftAnchor(imageViewPerso, 500.);
+            AnchorPane.setRightAnchor(imageViewPerso, 500.);
+
+            pageFinale.getChildren().addAll(texteFin, imageViewPerso, quitterButton);
+            borderPaneId.setCenter(pageFinale);
+        });
     };
 
     @FXML
@@ -236,25 +243,23 @@ public class MainSceneControllerMulti extends UtilController {
                         // l'inconnu
                     } else if (statutElimination.equals("gagne")) {
                         // l'adversaire à gagné
-                        borderPaneId.getChildren().clear();
                         afficherFinPartie(
                                 "Votre adversaire a trouvé votre personnage (il à été meilleur :3). Son personnage était "
                                         + personnageAdversaire + ":");
                         // ajouter bouton quitter
                     } else if (statutElimination.equals("perdu")) {
                         // l'adversaire à perdu
-                        borderPaneId.getChildren().clear();
                         afficherFinPartie(
                                 "Votre adversaire a perdu... il a éliminé votre personnage (quel boulet)... Vous avez donc gagné !! Son personnage était "
                                         + personnageAdversaire + ":");
                     } else {
                         afficherFinPartie(
-                                "Adversaire deconncté :( Son personange était " + personnageAdversaire + ": ");
+                                "Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
                     }
                 });
             } catch (IOException e) {
                 e.printStackTrace();
-                afficherFinPartie("Adversaire deconncté :( Son personange était " + personnageAdversaire + ": ");
+                afficherFinPartie("Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
             }
         });
         ecouterLaReponse.start();
@@ -277,7 +282,6 @@ public class MainSceneControllerMulti extends UtilController {
             System.out.println("Total : " + partieEnCour.getNombrePersonnages());
             if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
                 // gagné
-                borderPaneId.getChildren().clear();
                 afficherFinPartie("Bravo ! Vous avez gagné ! Le personnage était bien "
                         + personnageAdversaire + ": ");
                 // le dire à l'adversaire
@@ -301,7 +305,6 @@ public class MainSceneControllerMulti extends UtilController {
             }
         } else {
             // perdu
-            borderPaneId.getChildren().clear();
             afficherFinPartie("Vous avez perdu car vous avez éliminé "
                     + personnageAdversaire + ", dommage... :(");
 
