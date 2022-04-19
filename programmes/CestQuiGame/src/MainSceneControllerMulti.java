@@ -1,8 +1,14 @@
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import javafx.fxml.FXML;
 import javafx.application.Platform;
@@ -55,15 +61,17 @@ public class MainSceneControllerMulti extends UtilController {
     private Thread attendPersonnageAdversaire;
     private Thread choixPersonnage;
 
-    public MainSceneControllerMulti(Boolean estServeur, GameSocket gameSocket, String jsonPath, String ipClient) {
+    public MainSceneControllerMulti(Boolean estServeur, GameSocket gameSocket, String jsonPath, String ipClient)
+            throws IOException {
         this.estServeur = estServeur;
         this.gameSocket = gameSocket;
         this.ipClient = ipClient;
 
         setJson(jsonPath);
         setDifficulte("multi"); // ça sert a rien
-        setCheminVersImages("CestQuiGame/bin/gameTamp");
         lireJson();
+
+        setCheminVersImages("CestQuiGame/bin/gameTamp");
     }
 
     @FXML
