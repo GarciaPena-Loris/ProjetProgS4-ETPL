@@ -452,9 +452,11 @@ public class pageMultiController {
 
             Thread attenteDebutPartie = new Thread(() -> {
                 try {
+                    startButton.setDisable(true);
                     if (gameSocket.ecouterMessage().equals("started")) {
                         Platform.runLater(() -> {
                             try {
+                                System.out.println("Lancement page multi");
                                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageJeuMulti.fxml"));
                                 fxmlLoader.setController(
                                         new MainSceneControllerMulti(true, gameSocket, jsonPath,
@@ -475,7 +477,10 @@ public class pageMultiController {
                                     }
                                 });
                                 stage.show();
+                                System.out.println("Page Multi showed");
+                                ((Stage) anchorPaneId.getScene().getWindow()).close();
                             } catch (IOException e) {
+                                System.out.println("Probleme dans le lancement de la partie");
                                 e.printStackTrace();
                                 relancerServeur();
                             }
@@ -489,8 +494,6 @@ public class pageMultiController {
                 }
             });
             attenteDebutPartie.start();
-
-            ((Stage) anchorPaneId.getScene().getWindow()).close();
         }
     };
 

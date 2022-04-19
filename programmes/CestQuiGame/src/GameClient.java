@@ -70,7 +70,7 @@ public class GameClient implements GameSocket {
 
     public void enregistrerImage(String nomImage) throws IOException {
         System.out.println("Recuperation du l'image " + nomImage);
-        byte[] mybytearray = new byte[10000000];
+        byte[] mybytearray = new byte[100000000];
         FileOutputStream fos = new FileOutputStream("CestQuiGame/bin/gameTamp/" + nomImage);
         BufferedOutputStream bos = new BufferedOutputStream(fos);
         int bytesRead = in.read(mybytearray, 0, mybytearray.length);

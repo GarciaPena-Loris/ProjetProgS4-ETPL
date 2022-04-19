@@ -55,7 +55,7 @@ public class GameServer implements GameSocket {
     }
 
     public void envoyerFichier(File file) throws IOException {
-        System.out.println("Envois du fichier json " + file.length());
+        System.out.println("Envois du fichier : " + file.getName());
         byte[] mybytearray = new byte[(int) file.length()];
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
         bis.read(mybytearray, 0, mybytearray.length);
