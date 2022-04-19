@@ -11,6 +11,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import javafx.application.Platform;
+import javafx.application.Preloader;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -241,8 +242,7 @@ public class pageMultiController {
 
                 // affiche l'ip du serveur
                 URL whatismyip = new URL("http://checkip.amazonaws.com");
-                BufferedReader in = new BufferedReader(new InputStreamReader(
-                        whatismyip.openStream()));
+                BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
                 String ip = in.readLine();
                 ipText2.setText(ipText2.getText() + " " + ip);
                 startButton.setDisable(true);
@@ -337,7 +337,7 @@ public class pageMultiController {
                                 gameSocket.envoyerMessage("end");
 
                                 System.out.println("En attente du lancement de la partie");
-                                ipText1.setText("Connecté au serveur !  Données reçus avec succée !");
+                                ipText1.setText("Connecté au serveur !  Données reçus avec succés !");
 
                                 String attenteDebutPartie = gameSocket.ecouterMessage();
                                 if (attenteDebutPartie.equals("start")) {
@@ -365,6 +365,7 @@ public class pageMultiController {
     };
     // #endregion
 
+    // #region sendData
     EventHandler<ActionEvent> sendData = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
@@ -395,8 +396,7 @@ public class pageMultiController {
                                 });
                             } else {
                                 gameSocket
-                                        .envoyerMessage(
-                                                "" + dossierImage.listFiles(UtilController.imageFiltre).length);
+                                        .envoyerMessage("" + dossierImage.listFiles(UtilController.imageFiltre).length);
                                 if (gameSocket.ecouterMessage().equals("done")) {
                                     for (File image : dossierImage.listFiles(UtilController.imageFiltre)) {
                                         ipText1.setText("Envois de l'image " + image.getName() + " à :");
@@ -415,10 +415,6 @@ public class pageMultiController {
                                     if (gameSocket.ecouterMessage().equals("end")) {
                                         startButton.setDisable(false);
                                         ipText1.setText("Données envoyées avec succés à :");
-
-                                        if (!gameSocket.ecouterMessage().equals("started")) {
-                                            relancerServeur();
-                                        }
                                     } else {
                                         relancerServeur();
                                     }
@@ -441,39 +437,60 @@ public class pageMultiController {
         }
     };
 
+    // #endregion
+
     EventHandler<ActionEvent> startGameHost = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
+            System.out.println("Debut de la partie cote serveur");
             try {
-                System.out.println("Debut de la partie cote serveur");
                 gameSocket.envoyerMessage("start");
-
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageJeuMulti.fxml"));
-                fxmlLoader.setController(
-                        new MainSceneControllerMulti(true, gameSocket, jsonPath, ipClientText.getText()));
-
-                Parent root = (Parent) fxmlLoader.load();
-                Stage stage = new Stage();
-                stage.setTitle("QuiEstCe? - Multi-joueur - (Serveur)");
-                File logo = new File("images/logoQuiEstCe.png");
-                stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
-                stage.setScene(new Scene(root));
-                stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
-                    @Override
-                    public void handle(WindowEvent event) {
-                        System.out.println("Fenetre fermé");
-                        emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
-                        System.exit(0);
-
-                        // a faire mais dans l'idée il faut le dire au client le pauvre
-                    }
-                });
-                stage.show();
-
-                ((Stage) anchorPaneId.getScene().getWindow()).close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                relancerServeur();
             }
+
+            Thread attenteDebutPartie = new Thread(() -> {
+                try {
+                    if (gameSocket.ecouterMessage().equals("started")) {
+                        Platform.runLater(() -> {
+                            try {
+                                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageJeuMulti.fxml"));
+                                fxmlLoader.setController(
+                                        new MainSceneControllerMulti(true, gameSocket, jsonPath,
+                                                ipClientText.getText()));
+
+                                Parent root = (Parent) fxmlLoader.load();
+                                Stage stage = new Stage();
+                                stage.setTitle("QuiEstCe? - Multi-joueur - (Serveur)");
+                                File logo = new File("images/logoQuiEstCe.png");
+                                stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
+                                stage.setScene(new Scene(root));
+                                stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
+                                    @Override
+                                    public void handle(WindowEvent event) {
+                                        System.out.println("Fenetre fermé");
+                                        emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
+                                        System.exit(0);
+                                    }
+                                });
+                                stage.show();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                relancerServeur();
+                            }
+                        });
+                    } else {
+                        relancerServeur();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    relancerServeur();
+                }
+            });
+            attenteDebutPartie.start();
+
+            ((Stage) anchorPaneId.getScene().getWindow()).close();
         }
     };
 
