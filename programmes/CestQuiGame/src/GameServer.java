@@ -36,10 +36,6 @@ public class GameServer implements GameSocket {
         return ip;
     }
 
-    public String connectionServeur(String ip) {
-        return null;
-    }
-
     public String ecouterMessage() throws IOException {
         String msg = null;
         try {
@@ -63,6 +59,17 @@ public class GameServer implements GameSocket {
     public void envoyerMessage(String msg) throws IOException {
         out.writeUTF(msg);
         System.out.println("Message envoyé par le serveur : " + msg);
+    }
+
+    public void envoyerFichier(File file) throws IOException {
+        System.out.println("Envois du fichier json " + file.length());
+        byte[] mybytearray = new byte[(int) file.length()];
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+        bis.read(mybytearray, 0, mybytearray.length);
+        OutputStream os = clientSocket.getOutputStream();
+        os.write(mybytearray, 0, mybytearray.length);
+        os.flush();
+        bis.close();
     }
 
     public void stopSocket() throws IOException {

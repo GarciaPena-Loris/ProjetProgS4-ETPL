@@ -142,8 +142,7 @@ public class Game {
     public void tuerPersonnage(String nomPersonnage) {
         for (JSONObject personnage : listePersonnages) {
             if (((String) personnage.get("prenom")).toLowerCase().equals(nomPersonnage)) {
-                JSONObject personnageATuer = (JSONObject) personnage;
-                personnageATuer.replace("etat", "mort");
+                personnage.replace("etat", "mort");
             }
         }
     }

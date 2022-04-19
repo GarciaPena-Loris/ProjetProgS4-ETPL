@@ -64,7 +64,9 @@ public abstract class UtilController {
         try {
             JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(json));
 
+            System.out.println(js);
             cheminVersImages = (String) js.get("images");
+            System.out.println("chemin ici" + cheminVersImages);
             ligne = Integer.parseInt((String) js.get("ligne"));
             colonne = Integer.parseInt((String) js.get("colonne"));
             JSONObject personnages = (JSONObject) js.get("personnages");
@@ -91,6 +93,7 @@ public abstract class UtilController {
         int x = 0; // collones
         int y = 0; // ligne
 
+        System.out.println("chemin : " +cheminVersImages);
         File dossierImage = new File(cheminVersImages);
         if (dossierImage.isDirectory()) {
 

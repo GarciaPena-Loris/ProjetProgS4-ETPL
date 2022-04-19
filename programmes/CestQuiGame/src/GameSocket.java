@@ -6,8 +6,4 @@ public interface GameSocket {
     void envoyerMessage(String msg) throws IOException;
 
     void stopSocket() throws IOException;
-
-    String connexionClient() throws IOException;
-
-    String connectionServeur(String ip);
 }

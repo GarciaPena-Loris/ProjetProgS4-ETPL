@@ -1,8 +1,15 @@
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class GameClient implements GameSocket {
     private Socket clientSocket;
@@ -31,10 +38,6 @@ public class GameClient implements GameSocket {
         return "ok";
     }
 
-    public String connexionClient() {
-        return null;
-    }
-
     public String ecouterMessage() throws IOException {
         String msg = null;
 
@@ -48,6 +51,7 @@ public class GameClient implements GameSocket {
                 System.out.println("Socket client fermée");
             }
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             System.err.println("Connexion client fermé");
             stopSocket();
             return "close";
@@ -58,6 +62,30 @@ public class GameClient implements GameSocket {
     public void envoyerMessage(String msg) throws IOException {
         out.writeUTF(msg);
         System.out.println("Message envoyé par le client : " + msg);
+    }
+
+    public void enregistrerJson() throws IOException, ParseException {
+        System.out.println("Recuperation du JSON");
+        byte[] mybytearray = new byte[1000000];
+        FileOutputStream fos = new FileOutputStream("CestQuiGame/bin/gameTamp/game.json");
+        BufferedOutputStream bos = new BufferedOutputStream(fos);
+        int bytesRead = in.read(mybytearray, 0, mybytearray.length);
+        bos.write(mybytearray, 0, bytesRead);
+        bos.close();
+        JSONObject js = (JSONObject) new JSONParser().parse(new FileReader("CestQuiGame/bin/gameTamp/game.json"));
+        js.replace("images", "CestQuiGame/bin/gameTamp");
+        System.out.println("Fichier récupéré");
+    }
+
+    public void enregistrerImage(String nomImage) throws IOException {
+        System.out.println("Recuperation du l'image " + nomImage);
+        byte[] mybytearray = new byte[10000000];
+        FileOutputStream fos = new FileOutputStream("CestQuiGame/bin/gameTamp/" + nomImage);
+        BufferedOutputStream bos = new BufferedOutputStream(fos);
+        int bytesRead = in.read(mybytearray, 0, mybytearray.length);
+        bos.write(mybytearray, 0, bytesRead);
+        bos.close();
+        System.out.println("Image récupéré");
     }
 
     public void stopSocket() throws IOException {
