@@ -1,12 +1,17 @@
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -14,10 +19,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
@@ -37,21 +44,29 @@ import javafx.stage.WindowEvent;
 
 public class pageGenerateurController {
 
-    private String cheminVersImage;
-    private String ligne;
-    private String colonne;
+    private static String cheminVersImage;
+    private static String ligne;
+    private static String colonne;
 
     private String cheminJson;
 
     private static boolean estValeursAjoutable = false;
     private static Boolean estOuvertAttribut = false;
+    private boolean estNombreImagesCustomsSelectionnees = false;
+    private boolean estImageCliquable = false;
     private static int nombrePersonnageTotal = 0;
     private static int nombrePersonnageTermines = 0;
-    private ArrayList<Image> listeImages = new ArrayList<>();
+    private int nombreImagesSelectionnees = 0;
+    private int nombreImagesNecessaires = -1;
+    private ArrayList<ImageView> listeImages = new ArrayList<>();
+    private static ArrayList<ImageView> listeImageSelectionnees = new ArrayList<>();
     private static ArrayList<JSONObject> listePersonnages = new ArrayList<>();;
     private static ArrayList<String> listeAttributsStrings = new ArrayList<>();
     private static ArrayList<Label> listeAttributsLabel = new ArrayList<>();
     private static ArrayList<Label> listeSupprLabel = new ArrayList<>();
+
+    private static int etape = 0;
+    private static GridPane grillePerso;
 
     private static FilenameFilter imageFiltre = new FilenameFilter() {
         @Override
@@ -64,6 +79,16 @@ public class pageGenerateurController {
             return (false);
         }
     };
+
+    private boolean isSaveJsonFile() {
+        File dir = new File("bin");
+        File[] matches = dir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.startsWith("save");
+            }
+        });
+        return matches.length != 0;
+    }
 
     @FXML
     private AnchorPane MainAnchorPane;
@@ -108,10 +133,21 @@ public class pageGenerateurController {
     private Button validerButton;
 
     @FXML
+    private Label nombreImageLabel;
+
+    @FXML
+    private Button chargerGenerateurButton;
+
+    @FXML
     protected void initialize() {
         MainAnchorPane.setMaxHeight(Screen.getPrimary().getBounds().getHeight() - 80);
         MainAnchorPane.setMinHeight(Screen.getPrimary().getBounds().getHeight() - 80);
         MainAnchorPane.setPrefHeight(Screen.getPrimary().getBounds().getHeight() - 80);
+
+        if (isSaveJsonFile()) {
+            chargerGenerateurButton.setVisible(true);
+        }
+
         File logoFile = new File("images/logoGenerateur.png");
         Image logoImage = new Image("file:///" + logoFile.getAbsolutePath());
         ImageView logoVimage = new ImageView(logoImage);
@@ -120,27 +156,127 @@ public class pageGenerateurController {
         topAnchorPane.getChildren().add(logoVimage);
         borderPaneId.setPrefHeight(Screen.getPrimary().getBounds().getHeight() - 500);
         spinnerColonne.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
-            if (Integer.parseInt(newValue)
-                    * Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) >= listeImages.size()) {
+            if ((Integer.parseInt(newValue) > 1 &&
+                    Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) > 0
+                    || Integer.parseInt(newValue) > 0 &&
+                            Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) > 1)
+                    && Integer.parseInt(newValue)
+                            * Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) <= listeImages
+                                    .size()) {
                 validerButton.setDisable(false);
             } else {
                 validerButton.setDisable(true);
             }
+            if (Integer.parseInt(newValue)
+                    * Integer.parseInt(spinnerLigne.getEditor().textProperty().getValue()) == listeImages
+                            .size()) {
+                validerButton.setText("Passer aux attributs");
+                validerButton.setOnAction(validerButtonEvent);
+                estNombreImagesCustomsSelectionnees = false;
+            } else {
+                validerButton.setText("Passer à la selection d'images");
+                validerButton.setOnAction(selectionImageEvent);
+                estNombreImagesCustomsSelectionnees = true;
+            }
         });
         spinnerLigne.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
-            if (Integer.parseInt(newValue)
-                    * Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) >= listeImages.size()) {
+            if ((Integer.parseInt(newValue) > 1 &&
+                    Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) > 0
+                    || Integer.parseInt(newValue) > 0 &&
+                            Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) > 1)
+                    && Integer.parseInt(newValue)
+                            * Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) <= listeImages
+                                    .size()) {
                 validerButton.setDisable(false);
             } else {
                 validerButton.setDisable(true);
+            }
+            if (Integer.parseInt(newValue)
+                    * Integer.parseInt(spinnerColonne.getEditor().textProperty().getValue()) == listeImages
+                            .size()) {
+                validerButton.setText("Passer aux attributs");
+                validerButton.setOnAction(validerButtonEvent);
+                estNombreImagesCustomsSelectionnees = false;
+            } else {
+                validerButton.setText("Passer à la selection d'images");
+                validerButton.setOnAction(selectionImageEvent);
+                estNombreImagesCustomsSelectionnees = true;
             }
         });
     }
 
     @FXML
+    @SuppressWarnings("unchecked")
+    void chargerGenerateurEvent(ActionEvent event) {
+        // chargar partie
+        try {
+            File save = new File("bin/save.json");
+            FileReader fsave = new FileReader(save.getAbsolutePath());
+            JSONObject js = (JSONObject) new JSONParser().parse(fsave);
+            long etapeChargée = (long) js.get("etape");
+            HashMap<String, String> imagesCoordonneesMap = new HashMap<>();
+
+            if (etapeChargée >= 1) {
+                cheminVersImage = (String) js.get("cheminVersImage");
+                etape = 1;
+                choixImageEvent(new ActionEvent());
+            }
+            if (etapeChargée >= 2) {
+                ligne = (String) js.get("ligne");
+                colonne = (String) js.get("colonne");
+                ((JSONObject) js.get("listeImageSelectionnees")).forEach((key, value) -> {
+                    ImageView iv = new ImageView(new Image((String) ((JSONObject) value).get("url")));
+                    String id = (String) ((JSONObject) value).get("id");
+                    iv.setId(id);
+                    listeImageSelectionnees.add(iv);
+                    String[] idSplit = id.split("\\*");
+                    String xy = idSplit[1] + "-" + idSplit[2];
+                    imagesCoordonneesMap.put(idSplit[0], xy);
+                });
+                etape = 2;
+                estNombreImagesCustomsSelectionnees = true;
+                nombreImageLabel.setVisible(false);
+                validerButtonEvent.handle(new ActionEvent());
+            }
+            if (etapeChargée >= 3) {
+                ((JSONArray) js.get("listeAttributsStrings")).forEach(attribut -> {
+                    listeAttributsStrings.add((String) attribut);
+                });
+                etape = 3;
+                ajoutValeurEvent.handle(new ActionEvent());
+            }
+            if (etapeChargée >= 4) {
+                ((JSONObject) js.get("listePersonnages")).forEach((key, value) -> {
+                    String[] xy = imagesCoordonneesMap.get(((JSONObject) value).get("image")).split("-");
+                    addValeursPersonnage((JSONObject) value, xy[0], xy[1], validerButton);
+                });
+                ((JSONObject) js.get("valeursDejaDonneesMap")).forEach((key, value) -> {
+                    pageAjoutValeursController.valeursDejaDonneesMap.put((String) key, (ArrayList<String>) value);
+                });
+                etape = 4;
+            }
+            if (etapeChargée == 5) {
+                passerAuJsonEvent.handle(new ActionEvent());
+            }
+            fsave.close();
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+        chargerGenerateurButton.setVisible(false);
+
+    }
+
+    @FXML
     void choixImageEvent(ActionEvent event) {
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        File selectedDirectory = directoryChooser.showDialog(MainAnchorPane.getScene().getWindow());
+        File selectedDirectory;
+        if (etape < 1) {
+            chargerGenerateurButton.setVisible(false);
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            selectedDirectory = directoryChooser.showDialog(MainAnchorPane.getScene().getWindow());
+        } else {
+            selectedDirectory = new File(cheminVersImage);
+        }
 
         if (selectedDirectory != null) {
             int compteurImage = 0;
@@ -148,7 +284,7 @@ public class pageGenerateurController {
             if (selectedDirectory.isDirectory()) {
                 int x = 0; // colonne
                 int y = 0; // lignes
-                GridPane grillePerso = new GridPane();
+                grillePerso = new GridPane();
                 grillePerso.setId("grillePerso");
                 grillePerso.setGridLinesVisible(true);
                 grillePerso.setMaxSize(900, 10000);
@@ -159,13 +295,13 @@ public class pageGenerateurController {
                     String nomImage = image.getName();
                     String urlImage = image.getAbsolutePath();
                     Image imagePerso = new Image("file:///" + urlImage);
-                    listeImages.add(imagePerso);
                     ImageView imageViewPerso = new ImageView(imagePerso);
+                    listeImages.add(imageViewPerso);
                     imageViewPerso.setFitHeight(175);
                     imageViewPerso.setFitWidth(145);
                     imageViewPerso
                             .setId(nomImage + "*" + x + "*" + y + "*" + urlImage);
-                    imageViewPerso.setOnMouseClicked(ajouterValeurAttributPersonnage);
+                    imageViewPerso.setOnMouseClicked(selectionnerPersonnageEvent);
                     grillePerso.add(imageViewPerso, x, y);
                     compteurImage++;
 
@@ -176,8 +312,10 @@ public class pageGenerateurController {
                     }
                 }
 
-                if (compteurImage >= 3) {
+                if (compteurImage >= 2) {
                     nombrePersonnageTotal = compteurImage;
+                    nombreImageLabel.setText(nombreImageLabel.getText() + " " + compteurImage + " images)");
+                    nombreImageLabel.setVisible(true);
                     cheminVersImage = selectedDirectory.getAbsolutePath();
                     borderPaneId.getChildren().clear();
                     errorText.setOpacity(0);
@@ -191,6 +329,12 @@ public class pageGenerateurController {
                     spinnerLigne.setOpacity(1);
                     spinnerColonne.setDisable(false);
                     spinnerLigne.setDisable(false);
+
+                    // save
+                    if (etape < 1) {
+                        etape = 1;
+                        sauvegarderPartieEnCour();
+                    }
                 } else {
                     errorText.setOpacity(1);
                 }
@@ -198,31 +342,141 @@ public class pageGenerateurController {
         }
     }
 
-    @FXML
-    void validerButtonEvent(ActionEvent event) {
-        colonne = (String) spinnerColonne.getValue().toString();
-        ligne = (String) spinnerLigne.getValue().toString();
-        ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
-        explicationText.setText(
-                "Cliquez sur le bouton 'Ajouter des attributs' pour définir les attributs commun de vos personnages :");
+    EventHandler<ActionEvent> selectionImageEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            colonne = (String) spinnerColonne.getValue().toString();
+            ligne = (String) spinnerLigne.getValue().toString();
+            nombreImagesNecessaires = Integer.parseInt(ligne) * Integer.parseInt(colonne);
+            bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText,
+                    nombreImageLabel);
 
-        bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
-        Button buttonAjoutAttribut = new Button("Ajouter des attributs");
-        buttonAjoutAttribut.setId("ajoutAttributButton");
-        buttonAjoutAttribut.setOnAction(ajoutAttributEvent);
-        buttonAjoutAttribut.setPrefHeight(66);
-        buttonAjoutAttribut.setFont(new Font("Calibri", 19));
-        pageAttributController.setBtnAttribut(buttonAjoutAttribut);
-        pageAttributController.setBtnValider(validerButton);
+            explicationText.setText(
+                    "Cliquez sur les " + nombreImagesNecessaires + " images ci-dessus que vous souhaitez utiliser.");
+            validerButton.setDisable(true);
+            validerButton.setText("Passer aux attributs");
+            validerButton.setOnAction(validerButtonEvent);
 
-        AnchorPane.setTopAnchor(buttonAjoutAttribut, 85.);
-        AnchorPane.setLeftAnchor(buttonAjoutAttribut, 60.);
-        bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
+            estImageCliquable = true;
+        }
+    };
 
-        validerButton.setText("Passer aux valeurs");
-        validerButton.setOnAction(ajoutValeurEvent);
-        validerButton.setDisable(true);
-    }
+    EventHandler<MouseEvent> selectionnerPersonnageEvent = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+            if (estImageCliquable && nombreImagesSelectionnees < nombreImagesNecessaires) {
+                ImageView cibleActuel = (ImageView) mouseEvent.getSource();
+                String[] cibleSplit = cibleActuel.getId().split("\\*");
+
+                File checkFile = new File("images/check.png");
+                Image checkImage = new Image("file:///" + checkFile.getAbsolutePath());
+                ImageView checkVimage = new ImageView(checkImage);
+                checkVimage.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+                        ImageView checkActuel = (ImageView) mouseEvent.getSource();
+                        listeImageSelectionnees.remove(cibleActuel);
+
+                        grillePerso.getChildren().remove(checkActuel);
+                        nombreImagesSelectionnees--;
+                        validerButton.setDisable(true);
+                    }
+                });
+                checkVimage.setId(cibleActuel.getId() + "cible");
+                checkVimage.setFitHeight(175.);
+                checkVimage.setFitWidth(145.);
+
+                listeImageSelectionnees.add(cibleActuel);
+
+                grillePerso.add(checkVimage, Integer.parseInt(cibleSplit[1]), Integer.parseInt(cibleSplit[2]));
+
+                nombreImagesSelectionnees++;
+            }
+            if (nombreImagesSelectionnees == nombreImagesNecessaires) {
+                validerButton.setDisable(false);
+            }
+        }
+    };
+
+    EventHandler<ActionEvent> validerButtonEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            if (estNombreImagesCustomsSelectionnees) {
+                // regenere la grille avec les images selectionnées
+                int x = 0; // colonne
+                int y = 0; // lignes
+                int compteurImage = 0;
+
+                // supprime l'ancienne grille
+                borderPaneId.getChildren().remove(grillePerso);
+
+                grillePerso = new GridPane();
+                grillePerso.setId("grillePerso");
+                grillePerso.setGridLinesVisible(true);
+                grillePerso.setMaxSize(900, 10000);
+                grillePerso.setHgap(2);
+                grillePerso.setVgap(2);
+
+                for (ImageView image : listeImageSelectionnees) {
+                    image.setOnMouseClicked(ajouterValeurAttributPersonnageEvent);
+
+                    // on change l'id
+                    String[] holdImageIdSplit = image.getId().split("\\*");
+                    image.setId(holdImageIdSplit[0] + "*" + x + "*" + y + "*" + holdImageIdSplit[3]);
+                    image.setFitHeight(175);
+                    image.setFitWidth(145);
+
+                    grillePerso.add(image, x, y);
+                    compteurImage++;
+                    x++;
+                    if (x == Integer.parseInt(colonne)) {
+                        x = 0;
+                        y++;
+                        if (y == Integer.parseInt(ligne)) {
+                            break;
+                        }
+                    }
+                }
+                nombrePersonnageTotal = compteurImage;
+                borderPaneId.setCenter(grillePerso);
+            } else {
+                colonne = (String) spinnerColonne.getValue().toString();
+                ligne = (String) spinnerLigne.getValue().toString();
+                bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText,
+                        nombreImageLabel);
+
+                // remet le bon event sur les images
+                grillePerso.getChildren()
+                        .forEach(image -> image.setOnMouseClicked(ajouterValeurAttributPersonnageEvent));
+            }
+            // save
+            if (etape < 2) {
+                etape = 2;
+                sauvegarderPartieEnCour();
+            }
+
+            grillePerso.setOpacity(0.5);
+            explicationText.setText(
+                    "Cliquez sur le bouton 'Ajouter des attributs' pour définir les attributs commun de vos personnages :");
+
+            bottomAnchorPane.getChildren().removeAll(spinnerColonne, spinnerLigne, ligneText, colonnesText);
+            Button buttonAjoutAttribut = new Button("Ajouter des attributs");
+            buttonAjoutAttribut.setId("ajoutAttributButton");
+            buttonAjoutAttribut.setOnAction(ajoutAttributEvent);
+            buttonAjoutAttribut.setPrefHeight(66);
+            buttonAjoutAttribut.setFont(new Font("Calibri", 19));
+            pageAttributController.setBtnAttribut(buttonAjoutAttribut);
+            pageAttributController.setBtnValider(validerButton);
+
+            AnchorPane.setTopAnchor(buttonAjoutAttribut, 85.);
+            AnchorPane.setLeftAnchor(buttonAjoutAttribut, 60.);
+            bottomAnchorPane.getChildren().add(buttonAjoutAttribut);
+
+            validerButton.setText("Passer aux valeurs");
+            validerButton.setOnAction(ajoutValeurEvent);
+            validerButton.setDisable(true);
+        }
+    };
 
     EventHandler<ActionEvent> ajoutAttributEvent = new EventHandler<ActionEvent>() {
         @Override
@@ -282,7 +536,30 @@ public class pageGenerateurController {
         return listeSupprLabel;
     }
 
-    EventHandler<MouseEvent> ajouterValeurAttributPersonnage = new EventHandler<MouseEvent>() {
+    EventHandler<ActionEvent> ajoutValeurEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            if (etape < 3) {
+                etape = 3;
+                sauvegarderPartieEnCour();
+            }
+
+            estValeursAjoutable = true;
+            grillePerso.setOpacity(1);
+
+            explicationText.setText(
+                    "Cliquez sur les images des personnages pour définir les valeurs de leurs attributs.");
+
+            bottomAnchorPane.getChildren().remove((Button) bottomAnchorPane.getScene().lookup("#ajoutAttributButton"));
+
+            validerButton.setText("Passer au Json");
+            validerButton.setOnAction(passerAuJsonEvent);
+            validerButton.setDisable(true);
+
+        }
+    };
+
+    EventHandler<MouseEvent> ajouterValeurAttributPersonnageEvent = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent mouseEvent) {
             if (estValeursAjoutable) {
@@ -292,8 +569,7 @@ public class pageGenerateurController {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("pageAjoutValeurs.fxml"));
 
                     pageAjoutValeursController controller = new pageAjoutValeursController(cibleSplit[0], cibleSplit[3],
-                            listeAttributsStrings, cibleSplit[1], cibleSplit[2],
-                            (GridPane) middleAnchorPane.getScene().lookup("#grillePerso"), validerButton);
+                            listeAttributsStrings, cibleSplit[1], cibleSplit[2], validerButton);
                     loader.setController(controller);
 
                     Parent parent = (Parent) loader.load();
@@ -318,27 +594,8 @@ public class pageGenerateurController {
         }
     };
 
-    EventHandler<ActionEvent> ajoutValeurEvent = new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
-            estValeursAjoutable = true;
-            ((GridPane) middleAnchorPane.getScene().lookup("#grillePerso")).setOpacity(1);
-
-            explicationText.setText(
-                    "Cliquez sur les images des personnages pour définir les valeurs de leurs attributs.");
-
-            bottomAnchorPane.getChildren().remove((Button) bottomAnchorPane.getScene().lookup("#ajoutAttributButton"));
-
-            validerButton.setText("Passer au Json");
-            validerButton.setOnAction(passerAuJsonEvent);
-            validerButton.setDisable(true);
-
-        }
-    };
-
     // getter Pour les valeurs de chaques perso
-    public static void addValeursPersonnage(JSONObject e, String x, String y, GridPane grillePerso,
-            Button validerButton) {
+    public static void addValeursPersonnage(JSONObject e, String x, String y, Button validerButton) {
         listePersonnages.add(e);
 
         File checkFile = new File("images/check.png");
@@ -351,6 +608,11 @@ public class pageGenerateurController {
 
         nombrePersonnageTermines++;
         estValeursAjoutable = true;
+
+        // save
+        etape = 4;
+        sauvegarderPartieEnCour();
+
         if (nombrePersonnageTermines == nombrePersonnageTotal) {
             estValeursAjoutable = false;
             validerButton.setDisable(false);
@@ -388,7 +650,12 @@ public class pageGenerateurController {
         public void handle(ActionEvent event) {
             estValeursAjoutable = false;
 
-            ((GridPane) MainAnchorPane.getScene().lookup("#grillePerso")).setOpacity(0.5);
+            if (etape < 5) {
+                etape = 5;
+                sauvegarderPartieEnCour();
+            }
+
+            grillePerso.setOpacity(0.5);
             explicationText.setText(
                     "Donnez un nom pour votre fichier Json et selectionnez son dossier de destination :");
 
@@ -506,6 +773,9 @@ public class pageGenerateurController {
                             "Votre Json a été correctement généré !");
                     explicationText.setFill(Color.GREEN);
 
+                    File fileSave = new File("bin/save.json");
+                    fileSave.delete();
+
                 } catch (IOException e) {
                     e.printStackTrace();
                     explicationText.setText(
@@ -520,6 +790,74 @@ public class pageGenerateurController {
             }
         }
     };
+
+    @SuppressWarnings("unchecked")
+    public static void sauvegarderPartieEnCour() {
+        // sauvegarde du generateur
+        JSONObject generateurSave = new JSONObject();
+        if (etape >= 1) {
+            generateurSave.put("cheminVersImage", String.valueOf(cheminVersImage));
+            generateurSave.put("etape", 1);
+        }
+        if (etape >= 2) {
+            generateurSave.put("ligne", String.valueOf(ligne));
+            generateurSave.put("colonne", String.valueOf(colonne));
+
+            int i = 0;
+            JSONObject JlisteImageSelectionnees = new JSONObject();
+            if (listeImageSelectionnees.isEmpty()) {
+                grillePerso.getChildren()
+                        .forEach(image -> {
+                            if (image instanceof ImageView) {
+                                listeImageSelectionnees.add((ImageView) image);
+                            }
+                        });
+            }
+            for (ImageView imagesSelectionnes : listeImageSelectionnees) {
+                JSONObject detailsImage = new JSONObject();
+                detailsImage.put("url", imagesSelectionnes.getImage().getUrl());
+                detailsImage.put("id", imagesSelectionnes.getId());
+                JlisteImageSelectionnees.put(String.valueOf(i), detailsImage);
+                i++;
+            }
+            generateurSave.put("listeImageSelectionnees", JlisteImageSelectionnees);
+            generateurSave.put("etape", 2);
+        }
+        if (etape >= 3) {
+            int i = 0;
+            JSONObject JlisteAttributsStrings = new JSONObject();
+            for (String attribut : listeAttributsStrings) {
+                JlisteAttributsStrings.put(String.valueOf(i), attribut);
+                i++;
+            }
+            generateurSave.put("listeAttributsStrings", listeAttributsStrings);
+            generateurSave.put("etape", 3);
+        }
+        if (etape >= 4) {
+            int i = 0;
+            JSONObject JlistePersonnages = new JSONObject();
+            for (JSONObject attribut : listePersonnages) {
+                JlistePersonnages.put(String.valueOf(i), attribut);
+                i++;
+            }
+            JSONObject JvaleursDejaDonneesMap = new JSONObject();
+            pageAjoutValeursController.valeursDejaDonneesMap.forEach((key, value) -> {
+                JvaleursDejaDonneesMap.put(key, value);
+            });
+            generateurSave.put("valeursDejaDonneesMap", JvaleursDejaDonneesMap);
+            generateurSave.put("listePersonnages", JlistePersonnages);
+            generateurSave.put("etape", 4);
+        }
+        if (etape >= 5) {
+            generateurSave.put("etape", 5);
+        }
+
+        try (FileWriter file = new FileWriter(new File("bin/save.json"))) {
+            file.write(generateurSave.toJSONString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     EventHandler<ActionEvent> fermerGenerateurEvent = new EventHandler<ActionEvent>() {
         @Override

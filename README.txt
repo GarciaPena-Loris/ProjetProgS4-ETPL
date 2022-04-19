@@ -1,7 +1,7 @@
 INSTRUCTIONS :
 
 /!\ version de java : java 17 /!\
-____________________________________
+__
 Pour le jeu :
 
 
@@ -16,7 +16,7 @@ Appuyer sur 'nouvelle partie'.
 
 A vous de jouer !
 
-____________________________________
+__
 Pour le générateur :
 
 
@@ -25,7 +25,7 @@ Copier la commande : java -jar --enable-preview --module-path "../librairies/jav
 Exécuter la commande dans le susdit cmd.
 Choisir un dossier contenant les images qui constiturons la future grille pour jouer au "Qui est-ce ?". (un dossier d'image est disponible : "personnage" dans "./generateur/images/personnages")
 Suivre les étapes. 
-Vous pouvez récuperer votre grille fonctionnelle (____.json) dans le dossier que vous avez choisi.
+Vous pouvez récuperer votre grille fonctionnelle (__.json) dans le dossier que vous avez choisi.
 
 
 

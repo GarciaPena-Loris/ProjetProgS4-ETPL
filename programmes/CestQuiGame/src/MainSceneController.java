@@ -6,6 +6,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
 public class MainSceneController extends UtilController {
+
     @FXML
     private BorderPane borderPaneId;
     @FXML
@@ -14,8 +15,11 @@ public class MainSceneController extends UtilController {
     private Label questionText1;
     @FXML
     private MenuButton buttonAttribut1;
+    @FXML
+    private BorderPane borderScrollId;
 
     @FXML
+    @SuppressWarnings("unchecked")
     protected void initialize() {
         //injecte les differents element FXML dans le pere
         setBorderPaneId(borderPaneId);
@@ -26,10 +30,12 @@ public class MainSceneController extends UtilController {
         // Recuperer les données du JSON ici
         lireJson();
 
+
         GridPane grillePerso = new GridPane();
         creerGrille(grillePerso);
 
         creerDernierMenuBouton(buttonAttribut1);
     }
+
 
 }

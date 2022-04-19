@@ -60,22 +60,24 @@ public class Game {
         return correspondPersonnage;
     }
 
-    public ArrayList<String> getListeAttributs() {
-        ArrayList<String> attributs = new ArrayList<String>(listePersonnages.get(0).keySet());
+
+    public List<String> getListeAttributs() {
+        List<String> attributs = new ArrayList<String>(personnageChoisi.keySet());
         attributs.remove("image");
         attributs.remove("etat");
         return attributs;
     }
 
-    public ArrayList<String> getListeValeurs(String attribut) {
-        ArrayList<String> valeurs = new ArrayList<>();
 
+    public List<String> getListeValeurs(String attribut, ArrayList<String> listePersonnagesElimines) {
+        List<String> valeurs = new ArrayList<>();
         for (JSONObject personnage : listePersonnages) {
-            String value = (String) personnage.get(attribut);
-            if (value != null)
-                if (!valeurs.contains(value))
-                    valeurs.add(value);
-
+            if (!listePersonnagesElimines.contains((String) personnage.get("image"))) {
+                String value = (String) personnage.get(attribut);
+                if (value != null)
+                    if (!valeurs.contains(value))
+                        valeurs.add(value);
+            }
         }
         return valeurs;
     }
@@ -85,7 +87,8 @@ public class Game {
             ArrayList<String> listConnecteurs) {
         ArrayList<String> listePersoAEliminer = new ArrayList<>();
         for (JSONObject personnage : listePersonnages) {
-            if (!listePersonnagesElimines.contains(((String) personnage.get("prenom")).toLowerCase())) {
+            String nomImage = personnage.get("image").toString();
+            if (!listePersonnagesElimines.contains((nomImage))) {
                 boolean correspondPersonnage = personnage.get(listeAttribut.get(0)).equals(listeValeurs.get(0));
                 for (int i = 1; i < listeAttribut.size(); i++) {
                     if (listConnecteurs.get(i - 1).equals("et")) {
@@ -95,7 +98,7 @@ public class Game {
                     }
                 }
                 if (correspondPersonnage) {
-                    listePersoAEliminer.add(((String) personnage.get("prenom")).toLowerCase());
+                    listePersoAEliminer.add((nomImage));
                 }
             }
         }
@@ -111,9 +114,11 @@ public class Game {
     }
 
     public boolean verifierElimination(ArrayList<String> listePersonnagesElimines) {
-        return listePersonnagesElimines.contains(((String) personnageChoisi.get("prenom")).toLowerCase());
+        String nomImage = personnageChoisi.get("image").toString();
+        return listePersonnagesElimines.contains((nomImage));
     }
 
+    @SuppressWarnings("unchecked")
     public void sauvegarderPartieEnCour(String images, int ligne, int colonne) {
         // sauvegarde de la partie
         JSONObject partieSave = new JSONObject();
@@ -141,8 +146,9 @@ public class Game {
 
     public void tuerPersonnage(String nomPersonnage) {
         for (JSONObject personnage : listePersonnages) {
-            if (((String) personnage.get("prenom")).toLowerCase().equals(nomPersonnage)) {
-                personnage.replace("etat", "mort");
+            if ((personnage.get("image").toString()).equals(nomPersonnage)) {
+                JSONObject personnageATuer = (JSONObject) personnage;
+                personnageATuer.replace("etat", "mort");
             }
         }
     }
@@ -151,7 +157,7 @@ public class Game {
         ArrayList<String> listePersoMort = new ArrayList<>();
         for (JSONObject personnage : listePersonnages) {
             if (personnage.get("etat").equals("mort")) {
-                listePersoMort.add(((String) personnage.get("prenom")).toLowerCase());
+                listePersoMort.add((personnage.get("image").toString()));
             }
         }
         return listePersoMort;
@@ -159,6 +165,10 @@ public class Game {
 
     public String getPersonnageChoisi() {
         return (String) personnageChoisi.get("prenom");
+    }
+
+    public String getImagePersonnageChoisi() {
+        return personnageChoisi.get("image").toString();
     }
 
     public int getNombrePersonnages() {
