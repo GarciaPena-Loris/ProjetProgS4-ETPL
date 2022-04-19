@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -56,6 +57,7 @@ public class pageMultiController {
     private GameSocket gameSocket;
     private boolean estServeurConnecte = false;
     private String cheminVersImages;
+    private ArrayList<File> listeImages = new ArrayList<>();
 
     private Thread threadServeur;
 
@@ -240,6 +242,14 @@ public class pageMultiController {
                 ipText2.setVisible(true);
                 earlyPane.setVisible(false);
 
+                JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(jsonPath));
+                JSONObject personnages = (JSONObject) js.get("personnages");
+                personnages.forEach((key, value) -> {
+                    String nomImage = ((String) ((JSONObject) value).get("image"));
+                    File file = new File(cheminVersImages + "/" + nomImage);
+                    listeImages.add(file);
+                });
+
                 // affiche l'ip du serveur
                 URL whatismyip = new URL("http://checkip.amazonaws.com");
                 BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
@@ -392,13 +402,13 @@ public class pageMultiController {
                                 relancerServeur();
                                 System.out.println("Chemin vers les images incorrect");
                                 Platform.runLater(() -> {
-                                    ipClientText.setText("Chemon vers les images incorrect...");
+                                    ipClientText.setText("Chemin vers les images incorrect...");
                                 });
                             } else {
                                 gameSocket
-                                        .envoyerMessage("" + dossierImage.listFiles(UtilController.imageFiltre).length);
+                                        .envoyerMessage("" + listeImages.size());
                                 if (gameSocket.ecouterMessage().equals("done")) {
-                                    for (File image : dossierImage.listFiles(UtilController.imageFiltre)) {
+                                    for (File image : listeImages) {
                                         ipText1.setText("Envois de l'image " + image.getName() + " à :");
 
                                         gameSocket.envoyerMessage(image.getName());
