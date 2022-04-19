@@ -10,6 +10,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -23,10 +24,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class pageAvantJeuController {
     private static String difficulte;
-    private static String jsonName;
+    private static String jsonPath;
 
     private boolean isSaveJsonFile() {
         File dir = new File("CestQuiGame/bin");
@@ -39,11 +41,14 @@ public class pageAvantJeuController {
     }
 
     @FXML
+    private AnchorPane anchorPaneButtonId;
+
+    @FXML
     private AnchorPane conteneurImage;
 
     @FXML
     private Label jsonNameLabel;
-    
+
     @FXML
     private Label difficulteName;
 
@@ -58,6 +63,9 @@ public class pageAvantJeuController {
 
     @FXML
     private Button buttonnouvellepartie;
+
+    @FXML
+    private Button multiButton;
 
     @FXML
     protected void initialize() throws URISyntaxException {
@@ -88,7 +96,7 @@ public class pageAvantJeuController {
         File selectedFile = fc.showOpenDialog(null);
 
         if (selectedFile != null) {
-            jsonName = selectedFile.getAbsolutePath();
+            jsonPath = selectedFile.getAbsolutePath();
             String jsonNom = selectedFile.getName();
             estNouvellePartiePossible();
             jsonNameLabel.setText(jsonNom);
@@ -98,8 +106,9 @@ public class pageAvantJeuController {
     @FXML
     void nouvellepartie(ActionEvent event) throws IOException {
         MainSceneController.setDifficulte(difficulteName.getText());
-        MainSceneController.setJson(jsonName);
+        MainSceneController.setJson(jsonPath);
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainScene.fxml"));
+        fxmlLoader.setController(new MainSceneController());
         Parent root1 = (Parent) fxmlLoader.load();
         Stage stage = new Stage();
         stage.setTitle("QuiEstCe?");
@@ -122,6 +131,7 @@ public class pageAvantJeuController {
             JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(file.getAbsolutePath()));
             MainSceneController.setDifficulte((String) js.get("difficulte"));
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainScene.fxml"));
+            fxmlLoader.setController(new MainSceneController());
             Parent root1 = (Parent) fxmlLoader.load();
             Stage stage = new Stage();
             stage.setTitle("QuiEstCe?");
@@ -143,8 +153,29 @@ public class pageAvantJeuController {
     }
 
     private void estNouvellePartiePossible() {
-        if (difficulte != null && jsonName != null)
+        if (difficulte != null && jsonPath != null)
             buttonnouvellepartie.setDisable(false);
     }
 
+    // Boutton Multijoueur
+    @FXML
+    void chargerMulti(ActionEvent event) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageMulti.fxml"));
+        Parent root1 = (Parent) fxmlLoader.load();
+        Stage stage = new Stage();
+        stage.setResizable(true);
+        stage.setTitle("QuiEstCe? - Multi-joueur - initialisation");
+        File logo = new File("images/logoQuiEstCe.png");
+        stage.getIcons().add(new Image("file:///" + logo.getAbsolutePath()));
+        stage.setScene(new Scene(root1));
+        stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                System.out.println("Fenetre fermé");
+                System.exit(0);
+            }
+        });
+        stage.show();
+        ((Stage) jsonNameLabel.getScene().getWindow()).close();
+    }
 }

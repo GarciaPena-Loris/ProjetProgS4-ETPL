@@ -9,7 +9,7 @@
             "name": "Launch App",
             "request": "launch",
             "mainClass": "App",
-            "projectName": "programmes_f54ef78e",
+            "projectName": "programmes_90941272",
             "vmArgs": "--module-path \"../librairies/javafx-sdk-17.0.2/lib\" --add-modules javafx.controls,javafx.fxml"
         },
         {

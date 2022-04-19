@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.ScrollPane?>
@@ -7,14 +8,17 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="borderPaneId" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="708.0" prefWidth="1004.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainSceneController">
+<BorderPane fx:id="borderPaneId" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="708.0" prefWidth="1004.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
     <bottom>
         <VBox prefHeight="90.0" prefWidth="600.0" BorderPane.alignment="CENTER">
             <children>
-                <AnchorPane fx:id="AnchorPaneId" prefHeight="200.0" prefWidth="200.0">
+                <AnchorPane fx:id="anchorPaneId" prefHeight="200.0" prefWidth="200.0">
                     <children>
                         <Label fx:id="questionText1" layoutY="5.0" text="Le personnage est-il ou a-t-il :" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0" />
-                        <MenuButton fx:id="buttonAttribut1" layoutX="168.0" layoutY="1.0" text="___" textOverrun="CLIP" wrapText="true" />
+                        <MenuButton fx:id="buttonAttribut1" layoutX="168.0" layoutY="1.0" text="___" textOverrun="CLIP" wrapText="true">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></MenuButton>
                     </children>
                 </AnchorPane>
             </children>

@@ -1,11 +1,10 @@
 {
-
-    "images": "../generateur/images/personnages",
+    "images": "F:/DossierLoris/MonProfil/MesDocumentEcole/Fac/S4/ProjetProgS4-ETPL/generateur/images/personnages",
     "ligne": "4",
     "colonne": "6",
     "personnages": {
         "0": {
-            "image": "samuel.png",
+            "image": "samuel.jpg",
             "prenom": "Samuel",
             "genre": "homme",
             "etat": "vivant",
@@ -16,7 +15,7 @@
             "chapeau": "non"
         },
         "1": {
-            "image": "leon.png",
+            "image": "leon.jpg",
             "prenom": "Leon",
             "genre": "homme",
             "etat": "vivant",
@@ -27,7 +26,7 @@
             "chapeau": "non"
         },
         "2": {
-            "image": "simon.png",
+            "image": "simon.jpg",
             "prenom": "Simon",
             "genre": "homme",
             "etat": "vivant",
@@ -38,7 +37,7 @@
             "chapeau": "non"
         },
         "3": {
-            "image": "martin.png",
+            "image": "martin.jpg",
             "prenom": "Martin",
             "genre": "homme",
             "etat": "vivant",
@@ -49,7 +48,7 @@
             "chapeau": "oui"
         },
         "4": {
-            "image": "luc.png",
+            "image": "luc.jpg",
             "prenom": "Luc",
             "genre": "homme",
             "etat": "vivant",
@@ -60,7 +59,7 @@
             "chapeau": "non"
         },
         "5": {
-            "image": "clara.png",
+            "image": "clara.jpg",
             "prenom": "Clara",
             "genre": "femme",
             "etat": "vivant",
@@ -71,7 +70,7 @@
             "chapeau": "oui"
         },
         "6": {
-            "image": "anita.png",
+            "image": "anita.jpg",
             "prenom": "Anita",
             "genre": "femme",
             "etat": "vivant",
@@ -82,7 +81,7 @@
             "chapeau": "non"
         },
         "7": {
-            "image": "alfred.png",
+            "image": "alfred.jpg",
             "prenom": "Alfred",
             "genre": "homme",
             "etat": "vivant",
@@ -93,7 +92,7 @@
             "chapeau": "non"
         },
         "8": {
-            "image": "suzane.png",
+            "image": "suzane.jpg",
             "prenom": "Suzane",
             "genre": "femme",
             "etat": "vivant",
@@ -104,7 +103,7 @@
             "chapeau": "non"
         },
         "9": {
-            "image": "romeo.png",
+            "image": "romeo.jpg",
             "prenom": "Romeo",
             "genre": "homme",
             "etat": "vivant",
@@ -115,7 +114,7 @@
             "chapeau": "non"
         },
         "10": {
-            "image": "omar.png",
+            "image": "omar.jpg",
             "prenom": "Omar",
             "genre": "homme",
             "etat": "vivant",
@@ -126,7 +125,7 @@
             "chapeau": "non"
         },
         "11": {
-            "image": "manu.png",
+            "image": "manu.jpg",
             "prenom": "Manu",
             "genre": "homme",
             "etat": "vivant",
@@ -137,7 +136,7 @@
             "chapeau": "non"
         },
         "12": {
-            "image": "lucas.png",
+            "image": "lucas.jpg",
             "prenom": "Lucas",
             "genre": "homme",
             "etat": "vivant",
@@ -148,7 +147,7 @@
             "chapeau": "non"
         },
         "13": {
-            "image": "mario.png",
+            "image": "mario.jpg",
             "prenom": "Mario",
             "genre": "homme",
             "etat": "vivant",
@@ -159,7 +158,7 @@
             "chapeau": "non"
         },
         "14": {
-            "image": "jeremie.png",
+            "image": "jeremie.jpg",
             "prenom": "Jeremie",
             "genre": "homme",
             "etat": "vivant",
@@ -170,7 +169,7 @@
             "chapeau": "oui"
         },
         "15": {
-            "image": "max.png",
+            "image": "max.jpg",
             "prenom": "Max",
             "genre": "homme",
             "etat": "vivant",
@@ -181,7 +180,7 @@
             "chapeau": "non"
         },
         "16": {
-            "image": "timeo.png",
+            "image": "timeo.jpg",
             "prenom": "Timeo",
             "genre": "homme",
             "etat": "vivant",
@@ -192,7 +191,7 @@
             "chapeau": "non"
         },
         "17": {
-            "image": "oscar.png",
+            "image": "oscar.jpg",
             "prenom": "Oscar",
             "genre": "homme",
             "etat": "vivant",
@@ -203,7 +202,7 @@
             "chapeau": "non"
         },
         "18": {
-            "image": "eric.png",
+            "image": "eric.jpg",
             "prenom": "Eric",
             "genre": "homme",
             "etat": "vivant",
@@ -225,7 +224,7 @@
             "chapeau": "oui"
         },
         "20": {
-            "image": "tony.png",
+            "image": "tony.jpg",
             "prenom": "Tony",
             "genre": "homme",
             "etat": "vivant",
@@ -236,7 +235,7 @@
             "chapeau": "non"
         },
         "21": {
-            "image": "felix.png",
+            "image": "felix.jpg",
             "prenom": "Felix",
             "genre": "homme",
             "etat": "vivant",
@@ -247,7 +246,7 @@
             "chapeau": "oui"
         },
         "22": {
-            "image": "charlie.png",
+            "image": "charlie.jpg",
             "prenom": "Charlie",
             "genre": "homme",
             "etat": "vivant",
@@ -258,7 +257,7 @@
             "chapeau": "non"
         },
         "23": {
-            "image": "anna.png",
+            "image": "anna.jpg",
             "prenom": "Anna",
             "genre": "femme",
             "etat": "vivant",

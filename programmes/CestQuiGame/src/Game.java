@@ -60,6 +60,7 @@ public class Game {
         return correspondPersonnage;
     }
 
+
     public List<String> getListeAttributs() {
         List<String> attributs = new ArrayList<String>(personnageChoisi.keySet());
         attributs.remove("image");
@@ -67,9 +68,9 @@ public class Game {
         return attributs;
     }
 
+
     public List<String> getListeValeurs(String attribut, ArrayList<String> listePersonnagesElimines) {
         List<String> valeurs = new ArrayList<>();
-
         for (JSONObject personnage : listePersonnages) {
             if (!listePersonnagesElimines.contains((String) personnage.get("image"))) {
                 String value = (String) personnage.get(attribut);

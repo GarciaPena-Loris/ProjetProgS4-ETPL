@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pageAvantJeuController">
@@ -15,19 +14,35 @@
          <items>
             <AnchorPane fx:id="conteneurImage" minHeight="0.0" minWidth="0.0" prefHeight="360.0" prefWidth="598.0">
             </AnchorPane>
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+            <AnchorPane fx:id="anchorPaneButtonId" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
-                  <Button fx:id="buttonchoixjson" layoutX="14.0" layoutY="51.0" mnemonicParsing="false" onAction="#choixjson" prefHeight="30.0" prefWidth="129.0" text="Choix du json" />
+                  <Button fx:id="buttonchoixjson" layoutX="14.0" layoutY="51.0" mnemonicParsing="false" onAction="#choixjson" prefHeight="30.0" prefWidth="129.0" text="Choix du json">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></Button>
                   <MenuButton fx:id="buttonchoixdifficulte" layoutX="14.0" layoutY="11.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="129.0" text="Choix difficultée">
                      <items>
                         <MenuItem mnemonicParsing="false" onAction="#choixdifficulte" text="Facile" />
                         <MenuItem mnemonicParsing="false" onAction="#choixdifficulte" text="Normal" />
                      </items>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
                   </MenuButton>
-                  <Button fx:id="buttonnouvellepartie" disable="true" layoutX="448.0" layoutY="10.0" mnemonicParsing="false" onAction="#nouvellepartie" prefHeight="30.0" prefWidth="137.0" text="Nouvelle partie" />
-                  <Button fx:id="buttonchargerpartie" layoutX="448.0" layoutY="50.0" mnemonicParsing="false" onAction="#chargerpartie" prefHeight="30.0" prefWidth="137.0" text="Charger partie" />
+                  <Button fx:id="buttonnouvellepartie" disable="true" layoutX="448.0" layoutY="11.0" mnemonicParsing="false" onAction="#nouvellepartie" prefHeight="30.0" prefWidth="137.0" text="Nouvelle partie">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></Button>
+                  <Button fx:id="buttonchargerpartie" layoutX="448.0" layoutY="51.0" mnemonicParsing="false" onAction="#chargerpartie" prefHeight="30.0" prefWidth="137.0" text="Charger partie">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></Button>
                   <Label fx:id="jsonNameLabel" layoutX="153.0" layoutY="57.0" prefHeight="18.0" prefWidth="189.0" />
                   <Label fx:id="difficulteName" layoutX="153.0" layoutY="17.0" prefHeight="18.0" prefWidth="189.0" />
+                  <Button fx:id="multiButton" layoutX="230.0" layoutY="11.0" mnemonicParsing="false" onAction="#chargerMulti" prefHeight="30.0" prefWidth="137.0" text="Multi-joueur">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></Button>
                </children>
             </AnchorPane>
          </items>
