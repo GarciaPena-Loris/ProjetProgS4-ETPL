@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -10,29 +11,19 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
-public class MainSceneControllerMulti extends UtilMultiController {
-    private boolean estServeur;
-    private static GameSocket gameSocket;
-    private String jsonPath;
-    private String ipClient;
-
-    private String personnageSelectionne;
-    private String personnageAdversaire;
-    private boolean estPersonnageSelectionne;
-    private boolean estPersonnageRecu;
-
-    private Thread attendPersonnageAdversaire;
-    private Thread choixPersonnage;
-
+public class MainSceneControllerMulti extends UtilController {
     @FXML
-    private AnchorPane anchorPaneId;
+    private AnchorPane anchorPaneId, questionAnchorePaneId, partieReponseQuestionPane;
 
     @FXML
     private BorderPane borderPaneId, persoSelectionnePane, imagesBorderPaneId;
@@ -41,51 +32,32 @@ public class MainSceneControllerMulti extends UtilMultiController {
     private MenuButton buttonAttribut1;
 
     @FXML
-    private Label consigneText, ipClientText, ipText1, questionText1;
+    private Label consigneText, ipClientText, ipText1, questionText1, questionEstLabel, reponseLabel,
+            questionAdveraireLabel, reponseBinaireLabel;
 
     @FXML
     private Text persoText;
 
     @FXML
-    private Button validerPersonnageButton;
+    private Button validerPersonnageButton, validerEliminationsButton;
 
-    @FXML
-    private Label questionEstLabel;
+    private boolean estServeur;
+    private GameSocket gameSocket;
+    private String ipClient;
 
-    @FXML
-    private Label reponseLabel;
+    private String personnageSelectionne;
+    private String personnageAdversaire;
+    private String reponse = "";
 
-    @FXML
-    private Label questionAdveraireLabel;
+    private boolean estPersonnageSelectionne;
+    private boolean estPersonnageRecu;
 
-    @FXML
-    private AnchorPane questionAnchorePaneId;
-
-    // demarer la partie
-
-    // choisi personnage
-    // envois le personnages choisi
-    // attend de recuperer le personnages de l'adversaire
-    /*
-     * en boucle cote serveur :
-     * -pose une question
-     * -attend la reponse adversaire
-     * -elimine les personnages
-     * -verifie les eliminations
-     * -si c'est bon :
-     * -confirme elimiation a l'adversaire
-     * -attend question adversaire
-     * -donne sa réponse
-     * -attends confirmation adversaire
-     * -sinon :
-     * -envois gagner ou perdu à l'adversaire
-     * -fin de partie
-     */
+    private Thread attendPersonnageAdversaire;
+    private Thread choixPersonnage;
 
     public MainSceneControllerMulti(Boolean estServeur, GameSocket gameSocket, String jsonPath, String ipClient) {
         this.estServeur = estServeur;
         this.gameSocket = gameSocket;
-        this.jsonPath = jsonPath;
         this.ipClient = ipClient;
 
         setJson(jsonPath);
@@ -120,7 +92,7 @@ public class MainSceneControllerMulti extends UtilMultiController {
         consigneText.setText("Choisisez votre personnage :");
 
         // desactiver les boutons de question pour le moment
-        anchorPaneId.setVisible(false);
+        anchorPaneId.setOpacity(0);
 
         choixPersonnage = new Thread(() -> {
             try {
@@ -131,7 +103,9 @@ public class MainSceneControllerMulti extends UtilMultiController {
 
                 while (true) {
                     if (estPersonnageSelectionne) {
-                        demarerPartie();
+                        Platform.runLater(() -> {
+                            demarerPartie();
+                        });
                         System.out.println("break");
                         break;
                     }
@@ -139,60 +113,240 @@ public class MainSceneControllerMulti extends UtilMultiController {
 
             } catch (IOException e) {
                 e.printStackTrace();
+                afficherFinPartie(
+                        "Adversaire deconncté :( Son personange était " + personnageAdversaire + ": ");
             }
         });
         choixPersonnage.start();
     }
 
+    @Override
+    protected void creerBoutonValider() {
+        Button ancienButtonValider = (Button) borderPaneId.getScene().lookup("#buttonValiderQuestion");
+        if (ancienButtonValider != null) {
+            anchorPaneId.getChildren().remove(ancienButtonValider);
+        }
+        if (buttonAttribut1.getText() != "___") {
+            Button buttonValiderQuestion = new Button("Envoyer question");
+            buttonValiderQuestion.setId("buttonValiderQuestion");
+            buttonValiderQuestion.setOnAction(envoyerQuestionEvent);
+
+            AnchorPane.setBottomAnchor(buttonValiderQuestion, 15.);
+            AnchorPane.setRightAnchor(buttonValiderQuestion, 20.);
+            anchorPaneId.getChildren().add(buttonValiderQuestion);
+        }
+    }
+
+    private void attendreQuestion() {
+        Thread attenteQuestion = new Thread(() -> {
+            String question = "";
+            ArrayList<String> listeQuestion = new ArrayList<>();
+            do {
+                try {
+                    question = gameSocket.ecouterMessage();
+                    if (question.equals("close")) {
+                        // another thing
+                        break;
+                    }
+                    listeQuestion.add(question);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    afficherFinPartie(
+                            "Adversaire deconncté :( Son personange était " + personnageAdversaire + ": ");
+                }
+            } while (!question.equals("end"));
+
+            for (String qt : listeQuestion) {
+                if (!qt.equals("end"))
+                    reponse += qt + "\n";
+            }
+            Platform.runLater(() -> {
+                questionAdveraireLabel.setText(reponse);
+                questionAnchorePaneId.setVisible(true);
+                consigneText.setText("Veuillez repondre à la question de l'adversaire :");
+                reponse = "";
+            });
+        });
+        attenteQuestion.start();
+    }
+
+    public void afficherFinPartie(String texte) {
+        AnchorPane pageFinale = new AnchorPane();
+        // texte
+        Label texteGagner = new Label(texte);
+        texteGagner.setFont(new Font("Arial", 17));
+        texteGagner.setWrapText(true);
+        AnchorPane.setTopAnchor(texteGagner, 200.);
+        AnchorPane.setLeftAnchor(texteGagner, 360.);
+        AnchorPane.setRightAnchor(texteGagner, 350.);
+
+        // bouton de fin de jeux
+        Button quitterButton = new Button();
+        quitterButton.setText("Quitter le jeu");
+        quitterButton.setOnAction(quitterEvent);
+        anchorPaneId.getChildren().add(quitterButton);
+        AnchorPane.setTopAnchor(quitterButton, 400.);
+        AnchorPane.setLeftAnchor(quitterButton, 500.);
+        AnchorPane.setRightAnchor(quitterButton, 500.);
+
+        // image Perso
+        File dossierImage = new File(cheminVersImages);
+        String urlImage = dossierImage.getAbsolutePath() + "/" + personnageAdversaire + ".png";
+        Image imagePerso = new Image("file:///" + urlImage);
+        ImageView imageViewPerso = new ImageView(imagePerso);
+        imageViewPerso.setFitHeight(125);
+        imageViewPerso.setFitWidth(90);
+        AnchorPane.setTopAnchor(imageViewPerso, 240.);
+        AnchorPane.setLeftAnchor(imageViewPerso, 500.);
+        AnchorPane.setRightAnchor(imageViewPerso, 500.);
+
+        pageFinale.getChildren().addAll(texteGagner, imageViewPerso, quitterButton);
+        borderPaneId.setCenter(pageFinale);
+    };
+
     @FXML
-    void envoyerReponseQuestion(ActionEvent event) {
+    void envoyerReponseQuestion(ActionEvent event) throws IOException {
         System.out.println(((Button) event.getSource()).getText());
+        String reponse = ((Button) event.getSource()).getText();
+        gameSocket.envoyerMessage(reponse);
+        consigneText.setText("L'adversaire procède aux éliminations...");
+        questionAnchorePaneId.setVisible(false);
+        questionEstLabel.setText("La question de l'adversaire est :");
+        Thread ecouterLaReponse = new Thread(() -> {
+            // ecouter la reponse
+            try {
+                String statutElimination;
+                statutElimination = gameSocket.ecouterMessage();
+                Platform.runLater(() -> {
+                    if (statutElimination.equals("pasGagne")) {
+                        consigneText.setText("L'adversaire a terminé, à ton tour de poser une question:");
+                        creerDernierMenuBouton(buttonAttribut1);
+                        buttonAttribut1.setDisable(false);
+                        anchorPaneId.setOpacity(1);
+                        anchorPaneId.setDisable(false);
+                        // l'inconnu
+                    } else if (statutElimination.equals("gagne")) {
+                        // l'adversaire à gagné
+                        borderPaneId.getChildren().clear();
+                        afficherFinPartie(
+                                "Votre adversaire a trouvé votre personnage (il à été meilleur :3). Son personnage était "
+                                        + personnageAdversaire + ":");
+                        // ajouter bouton quitter
+                    } else if (statutElimination.equals("perdu")) {
+                        // l'adversaire à perdu
+                        borderPaneId.getChildren().clear();
+                        afficherFinPartie(
+                                "Votre adversaire a perdu... il a éliminé votre personnage (quel boulet)... Vous avez donc gagné !! Son personnage était "
+                                        + personnageAdversaire + ":");
+                    } else {
+                        afficherFinPartie(
+                                "Adversaire deconncté :( Son personange était " + personnageAdversaire + ": ");
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+                afficherFinPartie("Adversaire deconncté :( Son personange était " + personnageAdversaire + ": ");
+            }
+        });
+        ecouterLaReponse.start();
+    }
+
+    @FXML
+    void validerEliminationsEvent(ActionEvent event) throws IOException {
+        System.out.println("Verifier les éliminations");
+        ArrayList<String> nomsPerso = new ArrayList<>();
+        for (String perso : listeIdPersoSelectionne) {
+            nomsPerso.add(perso.split("_")[0]);
+        }
+        // ajoute a la liste des personnages mort les personnages selectionnées
+        listeTotalPersoElimine.addAll(nomsPerso);
+        listeIdPersoSelectionne.clear();
+
+        boolean personnageAtrouverElimine = listeTotalPersoElimine.contains(personnageAdversaire);
+        if (!personnageAtrouverElimine) {
+            System.out.println("Total elimine : " + listeTotalPersoElimine.size());
+            System.out.println("Total : " + partieEnCour.getNombrePersonnages());
+            if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
+                // gagné
+                borderPaneId.getChildren().clear();
+                afficherFinPartie("Bravo ! Vous avez gagné ! Le personnage était bien "
+                        + personnageAdversaire + ": ");
+                // le dire à l'adversaire
+                gameSocket.envoyerMessage("gagne");
+            } else {
+                // pas gagné
+                partieReponseQuestionPane.setVisible(false);
+                consigneText.setText("Ton adversaire choisi une question...");
+                // recreer la grille
+                GridPane grillePerso = new GridPane();
+                creerGrille(grillePerso);
+                grillePerso.getChildren().forEach((image) -> {
+                    image.setOnMouseClicked(afficheCibleEventV2);
+                });
+                recreerAnchorPaneID();
+                creerDernierMenuBouton(buttonAttribut1);
+
+                attendreQuestion();
+                // le dire à l'adversaire
+                gameSocket.envoyerMessage("pasGagne");
+            }
+        } else {
+            // perdu
+            borderPaneId.getChildren().clear();
+            afficherFinPartie("Vous avez perdu car vous avez éliminé "
+                    + personnageAdversaire + ", dommage... :(");
+
+            // le dire à l'adversaire
+            gameSocket.envoyerMessage("perdu");
+        }
+    }
+
+    @FXML
+    void validerPersonngeEvent(ActionEvent event) throws IOException {
+        System.out.println("Envois du personnage a l'adversaire");
+        estPersonnageSelectionne = true;
+
+        consigneText.setText("En attente de l'adversaire...");
+
+        GridPane grillePerso = new GridPane();
+        creerGrille(grillePerso);
+        grillePerso.getChildren().forEach((image) -> {
+            image.setOnMouseClicked(afficheCibleEventV2);
+        });
+
+        validerPersonnageButton.setVisible(false);
+
+        // on envoie le personnage selectionnée
+        gameSocket.envoyerMessage(personnageSelectionne);
+
+        attendPersonnageAdversaire = new Thread(() -> {
+            while (true) {
+                if (estPersonnageRecu) {
+                    Platform.runLater(() -> {
+                        demarerPartie();
+                    });
+                    System.out.println("break");
+                    break;
+                }
+            }
+        });
+        attendPersonnageAdversaire.start();
     }
 
     protected void demarerPartie() {
         choixPersonnage.interrupt();
         attendPersonnageAdversaire.interrupt();
 
-        Platform.runLater(() -> {
-            anchorPaneId.setVisible(true);
-            if (estServeur)
-                consigneText.setText("Poser la question à l'adversaire");
-            else {
-                consigneText.setText("Ton adversaire choisi une question...");
-                buttonAttribut1.setDisable(true);
-                anchorPaneId.setOpacity(0.5);
+        anchorPaneId.setOpacity(1);
+        if (estServeur)
+            consigneText.setText("Poser la question à l'adversaire");
+        else {
+            consigneText.setText("Ton adversaire choisi une question...");
+            buttonAttribut1.setDisable(true);
+            anchorPaneId.setOpacity(0);
+            attendreQuestion();
 
-                Thread attenteQuestion = new Thread(() -> {
-                    String question = "";
-                    ArrayList<String> listeQuestion = new ArrayList<>();
-                    do {
-                        try {
-                            question = gameSocket.ecouterMessage();
-                            listeQuestion.add(question);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    } while (!question.equals("fin"));
-
-                    String reponse;
-                    if (listeQuestion.size() > 2) {
-                        reponse = "Les critères de la question sont : ";
-                    } else {
-                        reponse = "Le critère de la question est : ";
-                    }
-                    for (int i = 0; i < listeQuestion.size() - 1; i++) {
-                        for (String qt : listeQuestion) {
-                            reponse += qt + "\n";
-                        }
-                    }
-                    questionAdveraireLabel.setText(reponse);
-                    questionAnchorePaneId.setVisible(true);
-                    consigneText.setText("Veuillez repondre à la question de l'adversaire :");
-                });
-                attenteQuestion.start();
-
-            }
-        });
+        }
     }
 
     // #region event handler
@@ -213,36 +367,77 @@ public class MainSceneControllerMulti extends UtilMultiController {
     };
     // #endregion
 
-    // #region envoie de la question
-
+    // #region afficher cible event 2
+    EventHandler<MouseEvent> afficheCibleEventV2 = new EventHandler<>() {
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+            afficheCibleEvent.handle(mouseEvent);
+        }
+    };
     // #endregion
 
-    // #endregion
-
-    @FXML
-    void validerPersonngeEvent(ActionEvent event) throws IOException {
-        System.out.println("Envois du personnage a l'adversaire");
-        estPersonnageSelectionne = true;
-
-        consigneText.setText("En attente de l'adversaire...");
-
-        GridPane grillePerso = new GridPane();
-        creerGrille(grillePerso);
-
-        validerPersonnageButton.setVisible(false);
-
-        // on envoie le personnage selectionnée
-        gameSocket.envoyerMessage(personnageSelectionne);
-
-        attendPersonnageAdversaire = new Thread(() -> {
-            while (true) {
-                if (estPersonnageRecu) {
-                    demarerPartie();
-                    System.out.println("break");
-                    break;
+    // #region envoyer question event
+    public EventHandler<ActionEvent> envoyerQuestionEvent = new EventHandler<>() {
+        @Override
+        public void handle(ActionEvent mouseEvent) {
+            try {
+                ArrayList<String> listeQuestion = creerListeQuestion();
+                for (String question : listeQuestion) {
+                    gameSocket.envoyerMessage(question);
                 }
+                gameSocket.envoyerMessage("end");
+                anchorPaneId.setOpacity(0);
+                anchorPaneId.setDisable(true);
+                consigneText.setText("En attente de la reponse de l'adversaire...");
+
+                Thread attenteReponse = new Thread(() -> {
+                    try {
+                        String reponse = gameSocket.ecouterMessage();
+                        if (reponse.equals("Oui") || reponse.equals("Non")) {
+                            attendSelection = true;
+                            Platform.runLater(() -> {
+                                partieReponseQuestionPane.setVisible(true);
+                                if (reponse.equals("Oui")) {
+                                    consigneText.setText(
+                                            "Veuillez éliminer les personnages qui ne correspondent pas à ce(s) critère(s): ");
+                                    reponseBinaireLabel.setText("OUI");
+                                } else {
+                                    consigneText.setText(
+                                            "Veuillez éliminer les personnages qui correspondent à ce(s) critère(s): ");
+                                    reponseBinaireLabel.setText("NON");
+                                }
+                            });
+                            // la c la folie
+                        } else {
+                            // gestion erreur
+                            System.err.println("Mauvais message reçu : " + reponse);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        afficherFinPartie(
+                                "Adversaire deconncté :( Son personange était " + personnageAdversaire + ": ");
+                    }
+                });
+                attenteReponse.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+                afficherFinPartie(
+                        "Adversaire deconncté :( Son personange était " + personnageAdversaire + ": ");
             }
-        });
-        attendPersonnageAdversaire.start();
-    }
+        }
+    };
+    // #endregion
+
+    // #region fermer fenettre
+    public EventHandler<ActionEvent> quitterEvent = new EventHandler<>() {
+        @Override
+        public void handle(ActionEvent event) {
+            ((Stage) borderPaneId.getScene().getWindow()).close();
+            pageMultiController.emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
+            System.exit(0);
+        }
+    };
+    // #endregion
+
+    // #endregion
 }

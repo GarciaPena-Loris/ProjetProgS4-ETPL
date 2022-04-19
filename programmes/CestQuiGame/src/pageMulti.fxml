@@ -11,7 +11,11 @@
 <AnchorPane fx:id="anchorPaneId" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="272.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pageMultiController">
    <children>
       <Button fx:id="cancelButton" layoutX="183.0" layoutY="222.0" mnemonicParsing="false" onAction="#cancelConnexionEvent" prefHeight="26.0" prefWidth="137.0" text="Annuler la recherche" visible="false" AnchorPane.leftAnchor="225.0" />
-      <Text fx:id="ipClientText" layoutX="15.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="-" visible="false" wrappingWidth="216.1885986328125" AnchorPane.topAnchor="40.0" />
+      <Text fx:id="ipClientText" layoutX="15.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="-" visible="false" wrappingWidth="216.1885986328125" AnchorPane.topAnchor="40.0">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Text>
       <Text fx:id="ipText2" layoutX="252.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text=" Vote adresse IP est :" visible="false" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
          <font>
             <Font size="15.0" />

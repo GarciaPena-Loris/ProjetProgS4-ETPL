@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -62,11 +63,10 @@ public abstract class UtilController {
 
     protected void lireJson() {
         try {
-            JSONObject js = (JSONObject) new JSONParser().parse(new FileReader(json));
+            FileReader fr = new FileReader(json);
+            JSONObject js = (JSONObject) new JSONParser().parse(fr);
 
-            System.out.println(js);
             cheminVersImages = (String) js.get("images");
-            System.out.println("chemin ici" + cheminVersImages);
             ligne = Integer.parseInt((String) js.get("ligne"));
             colonne = Integer.parseInt((String) js.get("colonne"));
             JSONObject personnages = (JSONObject) js.get("personnages");
@@ -81,7 +81,7 @@ public abstract class UtilController {
                 partieEnCour = new Game(difficulte, personnages, ligne,
                         colonne);
             }
-
+            fr.close();
             listeAttributs = partieEnCour.getListeAttributs();
 
         } catch (Exception e) {
@@ -93,12 +93,16 @@ public abstract class UtilController {
         int x = 0; // collones
         int y = 0; // ligne
 
-        System.out.println("chemin : " +cheminVersImages);
         File dossierImage = new File(cheminVersImages);
         if (dossierImage.isDirectory()) {
 
-            ArrayList<String> listePersonnageMort = partieEnCour.getListePersonnageMort();
-            listeTotalPersoElimine = listePersonnageMort;
+            ArrayList<String> listePersonnageMort = new ArrayList<>();
+            if (!partieEnCour.getListePersonnageMort().isEmpty()) {
+                listePersonnageMort = partieEnCour.getListePersonnageMort();
+                listeTotalPersoElimine = listePersonnageMort;
+            } else {
+                listePersonnageMort = listeTotalPersoElimine;
+            }
 
             grillePerso.setId("grillePerso");
             grillePerso.setMaxSize(100, 50);
@@ -142,6 +146,29 @@ public abstract class UtilController {
             Label textePerdu = new Label("Chemin vers les images incorrect.");
             borderPaneId.setCenter(textePerdu);
         }
+    }
+
+    protected void recreerAnchorPaneID() {
+        // enleve tous les boutons
+        anchorPaneId.getChildren().clear();
+        listeAttributsChoisi.clear();
+        attendSelection = false;
+
+        // remet les permiers boutons si on a pas éliminé le mauvais perso
+        Label questionText1 = new Label("Le personnage est-il ou a-t-il :");
+        questionText1.setId("questionText1");
+        AnchorPane.setTopAnchor(questionText1, 5.);
+        AnchorPane.setLeftAnchor(questionText1, 5.);
+        anchorPaneId.getChildren().add(questionText1);
+
+        MenuButton buttonAttribut1 = new MenuButton("___");
+        buttonAttribut1.setId("buttonAttribut1");
+        buttonAttribut1.setLayoutX(168.0);
+        buttonAttribut1.setLayoutY(1.0);
+        anchorPaneId.getChildren().add(buttonAttribut1);
+
+        creerDernierMenuBouton(buttonAttribut1);
+        creerBoutonestimer();
     }
 
     protected void creerDernierMenuBouton(MenuButton menuButtonAttribut) {
@@ -296,9 +323,9 @@ public abstract class UtilController {
     // #region selectionner les personnages a eliminer
     EventHandler<MouseEvent> afficheCibleEvent = new EventHandler<>() {
         @Override
-        public void handle(MouseEvent actionEvent) {
+        public void handle(MouseEvent mouseEvent) {
             if (attendSelection) {
-                ImageView cibleActuel = (ImageView) actionEvent.getSource();
+                ImageView cibleActuel = (ImageView) mouseEvent.getSource();
                 String[] coordonnee = cibleActuel.getId().split("_");
                 if (!cibleActuel.getId().split("_")[0].equals("cible")) {
                     GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
@@ -317,15 +344,6 @@ public abstract class UtilController {
 
                 } else {
                     GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");
-                    File f = new File("images/personnages/" + cibleActuel.getId().split("_")[3] + ".png");
-                    Image imagePerso = new Image("file:///" + f.getAbsolutePath());
-                    ImageView imageViewPerso = new ImageView(imagePerso);
-                    imageViewPerso.setFitHeight(125);
-                    imageViewPerso.setFitWidth(90);
-                    imageViewPerso.setId(cibleActuel.getId().split("_")[3] + "_" + Integer.parseInt(coordonnee[1]) + "_"
-                            + Integer.parseInt(coordonnee[2]));
-                    imageViewPerso.setOnMouseClicked(afficheCibleEvent);
-                    grilleperso.add(imageViewPerso, Integer.parseInt(coordonnee[1]), Integer.parseInt(coordonnee[2]));
 
                     grilleperso.getChildren().remove(cibleActuel);
                     listeIdPersoSelectionne.remove(cibleActuel.getId().split("_")[3] + "_"
@@ -811,26 +829,7 @@ public abstract class UtilController {
                     borderPaneId.setCenter(pageFinale);
 
                 } else {
-                    // enleve tous les boutons
-                    anchorPaneId.getChildren().clear();
-                    listeAttributsChoisi.clear();
-                    attendSelection = false;
-
-                    // remet les permiers boutons si on a pas éliminé le mauvais perso
-                    Label questionText1 = new Label("Le personnage est-il ou a-t-il :");
-                    questionText1.setId("questionText1");
-                    AnchorPane.setTopAnchor(questionText1, 5.);
-                    AnchorPane.setLeftAnchor(questionText1, 5.);
-                    anchorPaneId.getChildren().add(questionText1);
-
-                    MenuButton buttonAttribut1 = new MenuButton("___");
-                    buttonAttribut1.setId("buttonAttribut1");
-                    buttonAttribut1.setLayoutX(168.0);
-                    buttonAttribut1.setLayoutY(1.0);
-                    anchorPaneId.getChildren().add(buttonAttribut1);
-
-                    creerDernierMenuBouton(buttonAttribut1);
-                    creerBoutonestimer();
+                    recreerAnchorPaneID();
 
                     // reset ancienne grille
                     GridPane grilleperso = (GridPane) borderPaneId.getScene().lookup("#grillePerso");

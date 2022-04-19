@@ -19,18 +19,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -62,6 +55,8 @@ public class pageMultiController {
     private boolean estServeurConnecte = false;
     private String cheminVersImages;
 
+    private Thread threadServeur;
+
     @FXML
     protected void initialize() {
         IPTextField.textProperty().addListener(new ChangeListener<String>() {
@@ -78,7 +73,7 @@ public class pageMultiController {
         });
     }
 
-    public void emptyDirectory(File folder) {
+    public static void emptyDirectory(File folder) {
         for (File file : folder.listFiles()) {
             if (file.isDirectory()) {
                 emptyDirectory(file);
@@ -95,7 +90,9 @@ public class pageMultiController {
                         try {
                             emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
                             System.out.println("Fermetures sockets");
-                            gameSocket.stopSocket();
+                            if (gameSocket != null) {
+                                gameSocket.stopSocket();
+                            }
                             System.exit(0);
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -110,7 +107,24 @@ public class pageMultiController {
         System.out.println("Client disconected");
         ipClientText.setText("");
         ipText1.setText("En attente d'adversaire...");
+        startButton.setText("Envoyer les données");
+        startButton.setOnAction(sendData);
         startButton.setDisable(true);
+        emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
+        threadServeur.start();
+
+    }
+
+    private void relancerClient() {
+        estServeurConnecte = false;
+        ipText1.setVisible(true);
+        ipText1.setText("Serveur deconnecté...");
+        ipText2.setVisible(false);
+        earlyPane.setVisible(true);
+        startButton.setVisible(true);
+        startButton.setDisable(false);
+        retryButton.setVisible(false);
+        cancelButton.setVisible(false);
     }
 
     @FXML
@@ -194,70 +208,29 @@ public class pageMultiController {
                 InetAddress inetadr = InetAddress.getLocalHost();
                 ipText2.setText(ipText2.getText() + " " + (String) inetadr.getHostAddress());
                 startButton.setDisable(true);
-                startButton.setText("Lancer partie");
-                AnchorPane.setLeftAnchor(startButton, 250.);
-                startButton.setOnAction(startGameHost);
+                AnchorPane.setLeftAnchor(startButton, 240.);
+                startButton.setText("Envoyer les données");
+                startButton.setOnAction(sendData);
+                startButton.setDisable(true);
 
                 // creation du serveur
                 gameSocket = new GameServer();
 
                 // attente de connexion du client
-                Thread threadServeur = new Thread(() -> {
+                threadServeur = new Thread(() -> {
                     while (true) {
                         try {
                             String ipClient = ((GameServer) gameSocket).connexionClient();
+                            ipText1.setText("Client connecté :");
                             ipClientText.setText("-" + ipClient);
                             ipClientText.setVisible(true);
-                            ipText1.setText("Client connecté :");
-                            // startButton.setDisable(false);
+                            startButton.setDisable(false);
                             gameSocket.envoyerMessage("connected");
-                            if (gameSocket.ecouterMessage().equals("downloadable")) {
-                                // envoyer le json au client
-                                ((GameServer) gameSocket).envoyerFichier(new File(jsonPath));
-
-                                if (gameSocket.ecouterMessage().equals("done")) {
-                                    // envois toutes les images
-                                    File dossierImage = new File(cheminVersImages);
-                                    gameSocket
-                                            .envoyerMessage(
-                                                    "" + dossierImage.listFiles(UtilController.imageFiltre).length);
-                                    if (gameSocket.ecouterMessage().equals("done")) {
-                                        for (File image : dossierImage.listFiles(UtilController.imageFiltre)) {
-                                            gameSocket.envoyerMessage(image.getName());
-                                            if (gameSocket.ecouterMessage().equals("done")) {
-                                                ((GameServer) gameSocket).envoyerFichier(image);
-                                                if (gameSocket.ecouterMessage().equals("done")) {
-                                                } else {
-                                                    relancerServeur();
-                                                }
-                                            } else {
-                                                relancerServeur();
-                                            }
-                                        }
-                                        if (gameSocket.ecouterMessage().equals("end")) {
-                                            startButton.setDisable(false);
-                                            if (!gameSocket.ecouterMessage().equals("start")) {
-                                                relancerServeur();
-                                            }
-                                        } else {
-                                            relancerServeur();
-                                        }
-                                    } else {
-                                        relancerServeur();
-                                    }
-                                } else {
-                                    relancerServeur();
-                                }
-                            } else {
-                                relancerServeur();
-                            }
                             break;
                         } catch (Exception e) {
                             if (e.getMessage().equals("Socket is closed")) {
                                 System.out.println("Socket serveur fermé");
-                                ipText1.setVisible(false);
-                                ipText2.setVisible(false);
-                                earlyPane.setVisible(true);
+                                relancerServeur();
                                 break;
                             }
                         }
@@ -305,9 +278,11 @@ public class pageMultiController {
                         cancelButton.setVisible(false);
                     } else {
                         System.out.println("Message incorrect : " + etat);
+                        relancerClient();
                     }
                 } catch (Exception e) {
                     System.err.println("Probleme de creation du client");
+                    relancerClient();
                 }
 
                 // verifie si le serveur est bien connecté
@@ -315,52 +290,50 @@ public class pageMultiController {
                     try {
                         String messageRecu = gameSocket.ecouterMessage();
                         if (messageRecu.equals("connected")) {
-                            ipText1.setText("Connecté au serveur !  En attente du telechargement du JSON...");
                             if (retryButton != null)
                                 retryButton.setVisible(false);
 
-                            gameSocket.envoyerMessage("downloadable");
-                            System.out.println("En attente du telechargement des fichier...");
-                            // attente debut de la partie
-                            ((GameClient) gameSocket).enregistrerJson();
-                            gameSocket.envoyerMessage("done");
-
-                            ipText1.setText("Connecté au serveur !  En attente du telechargement des Images...");
-                            int nombreImage = Integer.parseInt(gameSocket.ecouterMessage());
-                            gameSocket.envoyerMessage("done");
-
-                            // telecharge toutes les images
-                            for (int i = 0; i < nombreImage; i++) {
-                                String nomImage = gameSocket.ecouterMessage();
+                            ipText1.setText("Connecté au serveur ! En attente de l'envois des fichiers...");
+                            if (gameSocket.ecouterMessage().equals("dataInComing")) {
+                                gameSocket.envoyerMessage("downloadable");
+                                System.out.println("En attente de l'envois des fichiers...");
+                                ipText1.setText("Connecté au serveur !  Telechargement du JSON...");
+                                // attente debut de la partie
+                                ((GameClient) gameSocket).enregistrerJson();
                                 gameSocket.envoyerMessage("done");
 
-                                ((GameClient) gameSocket).enregistrerImage(nomImage);
+                                ipText1.setText("Connecté au serveur !  Telechargement des Images...");
+                                int nombreImage = Integer.parseInt(gameSocket.ecouterMessage());
                                 gameSocket.envoyerMessage("done");
 
-                            }
-                            gameSocket.envoyerMessage("end");
+                                // telecharge toutes les images
+                                for (int i = 0; i < nombreImage; i++) {
+                                    String nomImage = gameSocket.ecouterMessage();
+                                    gameSocket.envoyerMessage("done");
 
-                            System.out.println("En attente du lancement de la partie");
-                            String attenteDebutPartie = gameSocket.ecouterMessage();
-                            if (attenteDebutPartie.equals("start")) {
-                                File json = new File("CestQuiGame/bin/gameTamp/game.json");
-                                jsonPath = json.getAbsolutePath();
-                                Platform.runLater(() -> {
-                                    lancerPartieClient();
-                                });
-                            } else if (attenteDebutPartie.equals("close")) {
-                                estServeurConnecte = false;
-                                ipText1.setVisible(true);
-                                ipText1.setText("Serveur deconnecté...");
-                                ipText2.setVisible(false);
-                                earlyPane.setVisible(true);
-                                startButton.setVisible(true);
-                                startButton.setDisable(false);
-                                retryButton.setVisible(false);
-                                cancelButton.setVisible(false);
+                                    ((GameClient) gameSocket).enregistrerImage(nomImage);
+                                    gameSocket.envoyerMessage("done");
+
+                                }
+                                gameSocket.envoyerMessage("end");
+
+                                System.out.println("En attente du lancement de la partie");
+                                ipText1.setText("Connecté au serveur !  Données reçus avec succée !");
+
+                                String attenteDebutPartie = gameSocket.ecouterMessage();
+                                if (attenteDebutPartie.equals("start")) {
+                                    jsonPath = new File("CestQuiGame/bin/gameTamp/game.json").getAbsolutePath();
+                                    Platform.runLater(() -> {
+                                        lancerPartieClient();
+                                    });
+                                } else {
+                                    relancerClient();
+                                }
                             } else {
-                                System.err.println("Message incorrect recu : " + attenteDebutPartie);
+                                relancerClient();
                             }
+                        } else {
+                            relancerClient();
                         }
                     } catch (IOException | ParseException e) {
                         e.printStackTrace();
@@ -372,12 +345,77 @@ public class pageMultiController {
     };
     // #endregion
 
+    EventHandler<ActionEvent> sendData = new EventHandler<>() {
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            Thread envoisDonnees = new Thread(() -> {
+                try {
+                    startButton.setDisable(true);
+                    startButton.setText("Lancer la partie");
+                    startButton.setOnAction(startGameHost);
+
+                    gameSocket.envoyerMessage("dataInComing");
+
+                    if (gameSocket.ecouterMessage().equals("downloadable")) {
+                        ipText1.setText("Envois du JSON à :");
+
+                        // envois le json au client
+                        ((GameServer) gameSocket).envoyerFichier(new File(jsonPath));
+
+                        if (gameSocket.ecouterMessage().equals("done")) {
+                            ipText1.setText("Envois des images à :");
+
+                            // envois toutes les images au client
+                            File dossierImage = new File(cheminVersImages);
+                            gameSocket
+                                    .envoyerMessage(
+                                            "" + dossierImage.listFiles(UtilController.imageFiltre).length);
+                            if (gameSocket.ecouterMessage().equals("done")) {
+                                for (File image : dossierImage.listFiles(UtilController.imageFiltre)) {
+                                    gameSocket.envoyerMessage(image.getName());
+                                    if (gameSocket.ecouterMessage().equals("done")) {
+                                        ((GameServer) gameSocket).envoyerFichier(image);
+                                        if (gameSocket.ecouterMessage().equals("done")) {
+                                        } else {
+                                            relancerServeur();
+                                        }
+                                    } else {
+                                        relancerServeur();
+                                    }
+                                }
+                                if (gameSocket.ecouterMessage().equals("end")) {
+                                    startButton.setDisable(false);
+                                    ipText1.setText("Données envoyées avec succés à :");
+
+                                    if (!gameSocket.ecouterMessage().equals("started")) {
+                                        relancerServeur();
+                                    }
+                                } else {
+                                    relancerServeur();
+                                }
+                            } else {
+                                relancerServeur();
+                            }
+                        } else {
+                            relancerServeur();
+                        }
+                    } else {
+                        relancerServeur();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    relancerServeur();
+                }
+            });
+            envoisDonnees.start();
+        }
+    };
+
     EventHandler<ActionEvent> startGameHost = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             try {
                 System.out.println("Debut de la partie cote serveur");
-
                 gameSocket.envoyerMessage("start");
 
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageJeuMulti.fxml"));

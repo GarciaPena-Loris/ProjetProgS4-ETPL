@@ -49,7 +49,7 @@ public class GameServer implements GameSocket {
             }
         } catch (IOException e) {
             System.err.println("Connexion serveur fermé");
-            System.out.println("Fermeture de la socket" + clientSocket.getLocalSocketAddress());
+            System.out.println("Fermeture de la socket " + clientSocket.getLocalAddress());
             clientSocket.close();
             return "close";
         }
@@ -73,8 +73,9 @@ public class GameServer implements GameSocket {
     }
 
     public void stopSocket() throws IOException {
-        if (clientSocket != null) {
+        if (serveurSocket != null && clientSocket != null) {
             serveurSocket.close();
+            clientSocket.close();
             System.out.println("Socket Serveur close");
         }
     }
