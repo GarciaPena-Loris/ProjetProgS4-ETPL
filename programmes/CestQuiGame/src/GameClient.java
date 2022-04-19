@@ -72,9 +72,6 @@ public class GameClient implements GameSocket {
         int bytesRead = in.read(mybytearray, 0, mybytearray.length);
         bos.write(mybytearray, 0, bytesRead);
         bos.close();
-        JSONObject js = (JSONObject) new JSONParser().parse(new FileReader("CestQuiGame/bin/gameTamp/game.json"));
-        js.replace("images", "CestQuiGame/bin/gameTamp");
-        System.out.println("Fichier récupéré");
     }
 
     public void enregistrerImage(String nomImage) throws IOException {

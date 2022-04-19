@@ -1,8 +1,11 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 import org.json.simple.JSONObject;
@@ -205,8 +208,11 @@ public class pageMultiController {
                 earlyPane.setVisible(false);
 
                 // affiche l'ip du serveur
-                InetAddress inetadr = InetAddress.getLocalHost();
-                ipText2.setText(ipText2.getText() + " " + (String) inetadr.getHostAddress());
+                URL whatismyip = new URL("http://checkip.amazonaws.com");
+                BufferedReader in = new BufferedReader(new InputStreamReader(
+                        whatismyip.openStream()));
+                String ip = in.readLine();
+                ipText2.setText(ipText2.getText() + " " + ip);
                 startButton.setDisable(true);
                 AnchorPane.setLeftAnchor(startButton, 240.);
                 startButton.setText("Envoyer les données");
@@ -238,7 +244,7 @@ public class pageMultiController {
                 });
                 threadServeur.start();
 
-            } catch (UnknownHostException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 ipText2.setText(ipText2.getText() + " erreur");
             }

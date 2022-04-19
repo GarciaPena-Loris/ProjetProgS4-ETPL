@@ -61,6 +61,10 @@ public abstract class UtilController {
         }
     };
 
+    protected void setCheminVersImages(String chemin) {
+        cheminVersImages = chemin;
+    }
+
     protected void lireJson() {
         try {
             FileReader fr = new FileReader(json);

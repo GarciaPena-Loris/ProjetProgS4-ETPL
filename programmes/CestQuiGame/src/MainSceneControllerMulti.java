@@ -62,6 +62,7 @@ public class MainSceneControllerMulti extends UtilController {
 
         setJson(jsonPath);
         setDifficulte("multi"); // ça sert a rien
+        setCheminVersImages("CestQuiGame/bin/gameTamp");
         lireJson();
     }
 
