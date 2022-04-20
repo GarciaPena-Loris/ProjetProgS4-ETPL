@@ -13,7 +13,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import javafx.application.Platform;
-import javafx.application.Preloader;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -94,14 +93,14 @@ public class pageMultiController {
                     public void handle(WindowEvent event) {
                         try {
                             emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
-                            System.out.println("Fermetures sockets");
+                            //System.out.println("Fermetures sockets");
                             if (gameSocket != null) {
                                 gameSocket.stopSocket();
                             }
                             System.exit(0);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            System.err.println("Fermeture socket impossible");
+                            // System.err.println("Fermeture socket impossible");
                         }
                     }
                 });
@@ -109,8 +108,8 @@ public class pageMultiController {
 
     private void relancerServeur() {
         Platform.runLater(() -> {
-            System.out.println("Probleme reception message");
-            System.out.println("Client disconected");
+            //System.out.println("Probleme reception message");
+            //System.out.println("Client disconected");
             if (gameSocket != null) {
                 try {
                     gameSocket.stopSocket();
@@ -156,7 +155,7 @@ public class pageMultiController {
                     break;
                 } catch (Exception e) {
                     if (e.getMessage().equals("Socket is closed")) {
-                        System.out.println("Socket serveur fermé");
+                        // System.out.println("Socket serveur fermé");
                         relancerServeur();
                         break;
                     }
@@ -213,13 +212,13 @@ public class pageMultiController {
 
     @FXML
     void relancerConnexionEvent(ActionEvent actionEvent) {
-        System.out.println("Relancement cherche serveur");
+        // System.out.println("Relancement cherche serveur");
         recherchePartieEvent.handle(new ActionEvent());
     }
 
     @FXML
     void cancelConnexionEvent(ActionEvent actionEvent) {
-        System.out.println("Annulation recherche serveur");
+        // System.out.println("Annulation recherche serveur");
         ipText1.setVisible(false);
         ipText2.setVisible(false);
         earlyPane.setVisible(true);
@@ -297,7 +296,7 @@ public class pageMultiController {
 
                 try {
                     String etat = ((GameClient) gameSocket).connectionServeur(IPTextField.getText());
-                    System.out.println("Etat : " + etat);
+                    // System.out.println("Etat : " + etat);
                     if (etat.equals("error")) {
                         ipText1.setText("Serveur non connecté...");
                         // active les boutons si le serveur n'est pas trouvé
@@ -308,11 +307,11 @@ public class pageMultiController {
                         retryButton.setVisible(false);
                         cancelButton.setVisible(false);
                     } else {
-                        System.out.println("Message incorrect : " + etat);
+                        // System.out.println("Message incorrect : " + etat);
                         relancerClient();
                     }
                 } catch (Exception e) {
-                    System.err.println("Probleme de creation du client");
+                    // System.err.println("Probleme de creation du client");
                     relancerClient();
                 }
 
@@ -327,7 +326,7 @@ public class pageMultiController {
                             ipText1.setText("Connecté au serveur ! En attente de l'envois des fichiers...");
                             if (gameSocket.ecouterMessage().equals("dataInComing")) {
                                 gameSocket.envoyerMessage("downloadable");
-                                System.out.println("En attente de l'envois des fichiers...");
+                                // System.out.println("En attente de l'envois des fichiers...");
                                 ipText1.setText("Connecté au serveur !  Telechargement du JSON...");
                                 // attente debut de la partie
                                 ((GameClient) gameSocket).enregistrerJson();
@@ -336,7 +335,7 @@ public class pageMultiController {
                                 // modifier le JSON
                                 FileReader fr = new FileReader("CestQuiGame/bin/gameTamp/game.json");
                                 JSONObject js = (JSONObject) new JSONParser().parse(fr);
-                                System.out.println(js.replace("images", "CestQuiGame/bin/gameTamp"));
+                                js.replace("images", "CestQuiGame/bin/gameTamp");
                                 try (FileWriter file = new FileWriter(new File("CestQuiGame/bin/gameTamp/game.json"))) {
                                     file.write(js.toJSONString());
                                     fr.close();
@@ -360,7 +359,7 @@ public class pageMultiController {
                                 }
                                 gameSocket.envoyerMessage("end");
 
-                                System.out.println("En attente du lancement de la partie");
+                                // System.out.println("En attente du lancement de la partie");
                                 ipText1.setText("Connecté au serveur !  Données reçus avec succés !");
 
                                 String attenteDebutPartie = gameSocket.ecouterMessage();
@@ -379,7 +378,7 @@ public class pageMultiController {
                             relancerClient();
                         }
                     } catch (IOException | ParseException e) {
-                        System.err.println("Probleme connexion serveur");
+                        // System.err.println("Probleme connexion serveur");
                         relancerClient();
                     }
                 }
@@ -414,7 +413,7 @@ public class pageMultiController {
                             File dossierImage = new File(cheminVersImages);
                             if (dossierImage.listFiles(UtilController.imageFiltre) == null) {
                                 relancerServeur();
-                                System.out.println("Chemin vers les images incorrect");
+                                // System.out.println("Chemin vers les images incorrect");
                                 Platform.runLater(() -> {
                                     ipClientText.setText("Chemin vers les images incorrect...");
                                 });
@@ -461,7 +460,7 @@ public class pageMultiController {
     EventHandler<ActionEvent> startGameHost = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
-            System.out.println("Debut de la partie cote serveur");
+            // System.out.println("Debut de la partie cote serveur");
             try {
                 gameSocket.envoyerMessage("start");
             } catch (IOException e1) {
@@ -475,7 +474,7 @@ public class pageMultiController {
                     if (gameSocket.ecouterMessage().equals("started")) {
                         Platform.runLater(() -> {
                             try {
-                                System.out.println("Lancement page multi");
+                                // System.out.println("Lancement page multi");
                                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageJeuMulti.fxml"));
                                 fxmlLoader.setController(
                                         new MainSceneControllerMulti(true, gameSocket, jsonPath,
@@ -490,16 +489,16 @@ public class pageMultiController {
                                 stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
                                     @Override
                                     public void handle(WindowEvent event) {
-                                        System.out.println("Fenetre fermé");
+                                        // System.out.println("Fenetre fermé");
                                         emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
                                         System.exit(0);
                                     }
                                 });
                                 stage.show();
-                                System.out.println("Page Multi showed");
+                                // System.out.println("Page Multi showed");
                                 ((Stage) anchorPaneId.getScene().getWindow()).close();
                             } catch (IOException e) {
-                                System.out.println("Probleme dans le lancement de la partie");
+                                // System.out.println("Probleme dans le lancement de la partie");
                                 e.printStackTrace();
                                 relancerServeur();
                             }
@@ -518,7 +517,7 @@ public class pageMultiController {
 
     private void lancerPartieClient() {
         try {
-            System.out.println("Debut partie client");
+            // System.out.println("Debut partie client");
             gameSocket.envoyerMessage("started");
 
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pageJeuMulti.fxml"));
@@ -533,7 +532,7 @@ public class pageMultiController {
             stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
                 @Override
                 public void handle(WindowEvent event) {
-                    System.out.println("Fenetre fermé");
+                    // System.out.println("Fenetre fermé");
                     emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
                     System.exit(0);
                     // a faire mais dans l'idée il faut le dire au serveur le pauvre

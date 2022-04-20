@@ -1,14 +1,6 @@
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.ResourceBundle;
-
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import javafx.fxml.FXML;
 import javafx.application.Platform;
@@ -68,7 +60,7 @@ public class MainSceneControllerMulti extends UtilController {
         this.ipClient = ipClient;
 
         setJson(jsonPath);
-        setDifficulte("multi"); // ça sert a rien
+        setDifficulte("multi");
         lireJson();
 
     }
@@ -82,10 +74,10 @@ public class MainSceneControllerMulti extends UtilController {
         setScrollPaneId(borderScrollId);
 
         if (estServeur) {
-            System.out.println("Lancement controller multi serveur");
+            // System.out.println("Lancement controller multi serveur");
             ipText1.setText(ipClient);
         } else {
-            System.out.println("Lancement controller multi client");
+            // System.out.println("Lancement controller multi client");
             setCheminVersImages("CestQuiGame/bin/gameTamp");
             ipText1.setVisible(false);
             ipClientText.setText("Connecté au serveur");
@@ -109,14 +101,14 @@ public class MainSceneControllerMulti extends UtilController {
                 String personnage = gameSocket.ecouterMessage();
                 personnageAdversaire = personnage;
                 estPersonnageRecu = true;
-                System.out.println("Personnage recu : " + personnageAdversaire);
+                // System.out.println("Personnage recu : " + personnageAdversaire);
 
                 while (true) {
                     if (estPersonnageSelectionne) {
                         Platform.runLater(() -> {
                             demarerPartie();
                         });
-                        System.out.println("break");
+                        // System.out.println("break");
                         break;
                     }
                 }
@@ -269,7 +261,7 @@ public class MainSceneControllerMulti extends UtilController {
 
     @FXML
     void validerEliminationsEvent(ActionEvent event) throws IOException {
-        System.out.println("Verifier les éliminations");
+        // System.out.println("Verifier les éliminations");
         ArrayList<String> nomsPerso = new ArrayList<>();
         for (String perso : listeIdPersoSelectionne) {
             nomsPerso.add(perso.split("_")[0]);
@@ -280,8 +272,6 @@ public class MainSceneControllerMulti extends UtilController {
 
         boolean personnageAtrouverElimine = listeTotalPersoElimine.contains(personnageAdversaire);
         if (!personnageAtrouverElimine) {
-            System.out.println("Total elimine : " + listeTotalPersoElimine.size());
-            System.out.println("Total : " + partieEnCour.getNombrePersonnages());
             if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
                 // gagné
                 afficherFinPartie("Bravo ! Vous avez gagné ! Le personnage était bien "
@@ -317,7 +307,7 @@ public class MainSceneControllerMulti extends UtilController {
 
     @FXML
     void validerPersonngeEvent(ActionEvent event) throws IOException {
-        System.out.println("Envois du personnage a l'adversaire");
+        // System.out.println("Envois du personnage a l'adversaire");
         estPersonnageSelectionne = true;
 
         consigneText.setText("En attente de l'adversaire...");
@@ -339,7 +329,7 @@ public class MainSceneControllerMulti extends UtilController {
                     Platform.runLater(() -> {
                         demarerPartie();
                     });
-                    System.out.println("break");
+                    //System.out.println("break");
                     break;
                 }
             }
@@ -421,10 +411,9 @@ public class MainSceneControllerMulti extends UtilController {
                                     reponseBinaireLabel.setText("NON");
                                 }
                             });
-                            // la c la folie
                         } else {
                             // gestion erreur
-                            System.err.println("Mauvais message reçu : " + reponse);
+                            // System.err.println("Mauvais message reçu : " + reponse);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
