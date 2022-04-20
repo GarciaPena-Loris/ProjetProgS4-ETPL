@@ -31,7 +31,7 @@ public class MainSceneControllerMulti extends UtilController {
 
     @FXML
     private Label consigneText, ipClientText, ipText1, questionText1, questionEstLabel, reponseLabel,
-            questionAdveraireLabel, reponseBinaireLabel;
+            questionAdveraireLabel, reponseBinaireLabel, nombrePersonnagesRestantLabel, historiqueCriteresLabel;
 
     @FXML
     private Text persoText;
@@ -82,6 +82,9 @@ public class MainSceneControllerMulti extends UtilController {
             ipText1.setVisible(false);
             ipClientText.setText("Connecté au serveur");
         }
+
+        nombrePersonnagesRestantLabel.setText(
+                "Il reste " + partieEnCour.getNombrePersonnages() + " personnages encore en vie chez l'adversaire.");
 
         // creer la grille de jeu et les remplit les boutons
         GridPane grillePerso = new GridPane();
@@ -222,32 +225,33 @@ public class MainSceneControllerMulti extends UtilController {
             Thread ecouterLaReponse = new Thread(() -> {
                 // ecouter la reponse
                 try {
-                    String statutElimination;
-                    statutElimination = gameSocket.ecouterMessage();
-                    Platform.runLater(() -> {
-                        if (statutElimination.equals("pasGagne")) {
+                    String[] statutElimination = gameSocket.ecouterMessage().split("-");
+                    if (statutElimination[0].equals("pasGagne")) {
+                        Platform.runLater(() -> {
                             consigneText.setText("L'adversaire a terminé, à ton tour de poser une question:");
                             creerDernierMenuBouton(buttonAttribut1);
                             buttonAttribut1.setDisable(false);
                             anchorPaneId.setOpacity(1);
                             anchorPaneId.setDisable(false);
-                            // l'inconnu
-                        } else if (statutElimination.equals("gagne")) {
-                            // l'adversaire à gagné
-                            afficherFinPartie(
-                                    "Votre adversaire a trouvé votre personnage (il à été meilleur :3). Son personnage était "
-                                            + personnageAdversaire + ":");
-                            // ajouter bouton quitter
-                        } else if (statutElimination.equals("perdu")) {
-                            // l'adversaire à perdu
-                            afficherFinPartie(
-                                    "Votre adversaire a perdu... il a éliminé votre personnage (quel boulet)... Vous avez donc gagné !! Son personnage était "
-                                            + personnageAdversaire + ":");
-                        } else {
-                            afficherFinPartie(
-                                    "Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
-                        }
-                    });
+                            nombrePersonnagesRestantLabel.setText("Il reste "
+                                    + (partieEnCour.getNombrePersonnages() - Integer.parseInt(statutElimination[1]))
+                                    + " personnages encore en vis chez l'adversaire.");
+                        });
+                    } else if (statutElimination[0].equals("gagne")) {
+                        // l'adversaire à gagné
+                        afficherFinPartie(
+                                "Votre adversaire a trouvé votre personnage (il à été meilleur :3). Son personnage était "
+                                        + personnageAdversaire + ":");
+                        // ajouter bouton quitter
+                    } else if (statutElimination[0].equals("perdu")) {
+                        // l'adversaire à perdu
+                        afficherFinPartie(
+                                "Votre adversaire a perdu... il a éliminé votre personnage (quel boulet)... Vous avez donc gagné !! Son personnage était "
+                                        + personnageAdversaire + ":");
+                    } else {
+                        afficherFinPartie(
+                                "Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                     afficherFinPartie("Adversaire deconnecté :( Son personange était " + personnageAdversaire + ": ");
@@ -293,7 +297,7 @@ public class MainSceneControllerMulti extends UtilController {
 
                 attendreQuestion();
                 // le dire à l'adversaire
-                gameSocket.envoyerMessage("pasGagne");
+                gameSocket.envoyerMessage("pasGagne-" + listeTotalPersoElimine.size());
             }
         } else {
             // perdu
@@ -329,7 +333,7 @@ public class MainSceneControllerMulti extends UtilController {
                     Platform.runLater(() -> {
                         demarerPartie();
                     });
-                    //System.out.println("break");
+                    // System.out.println("break");
                     break;
                 }
             }
@@ -338,9 +342,6 @@ public class MainSceneControllerMulti extends UtilController {
     }
 
     protected void demarerPartie() {
-        choixPersonnage.interrupt();
-        attendPersonnageAdversaire.interrupt();
-
         anchorPaneId.setOpacity(1);
         if (estServeur)
             consigneText.setText("Poser la question à l'adversaire");
@@ -410,10 +411,17 @@ public class MainSceneControllerMulti extends UtilController {
                                             "Veuillez éliminer les personnages qui correspondent à ce(s) critère(s): ");
                                     reponseBinaireLabel.setText("NON");
                                 }
+                                String historiqueQuestions = "";
+                                for (String qt : listeQuestion) {
+                                    historiqueQuestions += qt + "\n";
+                                }
+                                historiqueCriteresLabel.setText(historiqueQuestions);
                             });
                         } else {
                             // gestion erreur
                             // System.err.println("Mauvais message reçu : " + reponse);
+                            afficherFinPartie(
+                                    "Adversaire deconncté :( Son personange était " + personnageAdversaire + ": ");
                         }
                     } catch (IOException e) {
                         e.printStackTrace();

@@ -394,9 +394,11 @@ public class pageMultiController {
         public void handle(ActionEvent actionEvent) {
             Thread envoisDonnees = new Thread(() -> {
                 try {
-                    startButton.setDisable(true);
-                    startButton.setText("Lancer la partie");
-                    startButton.setOnAction(startGameHost);
+                    Platform.runLater(() -> {
+                        startButton.setDisable(true);
+                        startButton.setText("Lancer la partie");
+                        startButton.setOnAction(startGameHost);
+                    });
 
                     gameSocket.envoyerMessage("dataInComing");
 
