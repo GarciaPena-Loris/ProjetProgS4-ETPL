@@ -1,6 +1,5 @@
 import java.io.*;
 import java.net.*;
-import java.util.Arrays;
 import java.util.Base64;
 
 import org.json.simple.JSONObject;
@@ -83,22 +82,21 @@ public class GameServer implements GameSocket {
 
         String imageDataString = encodeImage(imageData);
         imageInFile.close();
-        System.out.println("Image Successfully Manipulated!");
+        System.out.println("Image correctement encodé !");
 
         JSONObject obj = new JSONObject();
 
-        obj.put("filename", image.getName());
+        obj.put("nomFichier", image.getName());
         obj.put("image", imageDataString);
 
         String jsonEncode = obj.toJSONString();
-        int chunkSize = 64000;
+        int tailleMax = 64000;
  
-        String[] chunks = jsonEncode.split("(?<=\\G.{" + chunkSize + "})");
+        String[] chunks = jsonEncode.split("(?<=\\G.{" + tailleMax + "})");
         for (String string : chunks) {
             out.writeUTF(string);     
         }
-        out.writeUTF("end");
-        System.out.println("File Sent!");
+        out.writeUTF("endImage");
 
         System.out.println("Envoie de l'image " + image.getName() + " terminé");
     }
