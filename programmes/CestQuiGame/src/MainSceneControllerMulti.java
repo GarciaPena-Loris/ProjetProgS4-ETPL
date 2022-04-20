@@ -99,7 +99,7 @@ public class MainSceneControllerMulti extends UtilController {
         });
         creerDernierMenuBouton(buttonAttribut1);
 
-        consigneText.setText("Choisisez votre personnage :");
+        consigneText.setText("Choisissez votre personnage :");
 
         // desactiver les boutons de question pour le moment
         anchorPaneId.setOpacity(0);
@@ -185,14 +185,15 @@ public class MainSceneControllerMulti extends UtilController {
 
             // texte
             Label texteFin = new Label(texte);
-            if (personnageAdversaire == null) {
-                texteFin.setText("Adversaire deconnecté :(");
-            }
-            texteFin.setFont(new Font("Arial", 17));
-            texteFin.setWrapText(true);
             AnchorPane.setTopAnchor(texteFin, 150.);
             AnchorPane.setLeftAnchor(texteFin, 360.);
             AnchorPane.setRightAnchor(texteFin, 350.);
+            if (personnageAdversaire == null) {
+                texteFin.setText("Adversaire deconnecté :(");
+                AnchorPane.setTopAnchor(texteFin, 200.);
+            }
+            texteFin.setFont(new Font("Arial", 17));
+            texteFin.setWrapText(true);
 
             // bouton de fin de jeux
             Button quitterButton = new Button("Quitter le jeu");

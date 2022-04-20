@@ -79,10 +79,10 @@ public class pageMultiController {
 
     public static void emptyDirectory(File folder) {
         for (File file : folder.listFiles()) {
-            if (file.isDirectory()) {
-                emptyDirectory(file);
-            }
-            file.delete();
+        if (file.isDirectory()) {
+        emptyDirectory(file);
+        }
+        file.delete();
         }
     }
 
@@ -333,14 +333,15 @@ public class pageMultiController {
 
                                 ipText1.setText("Connecté au serveur !  Telechargement des Images...");
                                 int nombreImage = Integer.parseInt(gameSocket.ecouterMessage());
+                                ipText1.setText(
+                                        "Connecté au serveur !  Telechargement des " + nombreImage + " images...");
+
                                 gameSocket.envoyerMessage("done");
 
                                 // telecharge toutes les images
                                 for (int i = 0; i < nombreImage; i++) {
-                                    String nomImage = gameSocket.ecouterMessage();
-                                    gameSocket.envoyerMessage("done");
 
-                                    ((GameClient) gameSocket).enregistrerImage(nomImage);
+                                    ((GameClient) gameSocket).enregistrerImage();
                                     gameSocket.envoyerMessage("done");
 
                                 }
@@ -391,7 +392,7 @@ public class pageMultiController {
                         ipText1.setText("Envois du JSON à :");
 
                         // envois le json au client
-                        ((GameServer) gameSocket).envoyerFichier(new File(jsonPath));
+                        ((GameServer) gameSocket).envoyerJson(new File(jsonPath));
 
                         if (gameSocket.ecouterMessage().equals("done")) {
                             ipText1.setText("Envois des images à :");
@@ -411,13 +412,8 @@ public class pageMultiController {
                                     for (File image : listeImages) {
                                         ipText1.setText("Envois de l'image " + image.getName() + " à :");
 
-                                        gameSocket.envoyerMessage(image.getName());
+                                        ((GameServer) gameSocket).envoyerImage(image);
                                         if (gameSocket.ecouterMessage().equals("done")) {
-                                            ((GameServer) gameSocket).envoyerFichier(image);
-                                            if (gameSocket.ecouterMessage().equals("done")) {
-                                            } else {
-                                                relancerServeur();
-                                            }
                                         } else {
                                             relancerServeur();
                                         }

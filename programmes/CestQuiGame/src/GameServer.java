@@ -1,5 +1,9 @@
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
+import java.util.Base64;
+
+import org.json.simple.JSONObject;
 
 public class GameServer implements GameSocket {
     private ServerSocket serveurSocket;
@@ -54,15 +58,49 @@ public class GameServer implements GameSocket {
         System.out.println("Message envoyé par le serveur : " + msg);
     }
 
-    public void envoyerFichier(File file) throws IOException {
+    public void envoyerJson(File file) throws IOException {
         System.out.println("Envois du fichier : " + file.getName());
         byte[] mybytearray = new byte[(int) file.length()];
+        System.out.println(mybytearray.length);
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
         bis.read(mybytearray, 0, mybytearray.length);
         OutputStream os = clientSocket.getOutputStream();
         os.write(mybytearray, 0, mybytearray.length);
         os.flush();
         bis.close();
+    }
+
+    public static String encodeImage(byte[] imageByteArray) {
+        return Base64.getEncoder().encodeToString(imageByteArray);
+    }
+
+    public void envoyerImage(File image) throws IOException {
+        System.out.println("Envois de l'image " + image.getName());
+
+        FileInputStream imageInFile = new FileInputStream(image);
+        byte imageData[] = new byte[(int) image.length()];
+        imageInFile.read(imageData);
+
+        String imageDataString = encodeImage(imageData);
+        imageInFile.close();
+        System.out.println("Image Successfully Manipulated!");
+
+        JSONObject obj = new JSONObject();
+
+        obj.put("filename", image.getName());
+        obj.put("image", imageDataString);
+
+        String jsonEncode = obj.toJSONString();
+        int chunkSize = 64000;
+ 
+        String[] chunks = jsonEncode.split("(?<=\\G.{" + chunkSize + "})");
+        for (String string : chunks) {
+            out.writeUTF(string);     
+        }
+        out.writeUTF("end");
+        System.out.println("File Sent!");
+
+        System.out.println("Envoie de l'image " + image.getName() + " terminé");
     }
 
     public void stopSocket() throws IOException {
