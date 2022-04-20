@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -79,10 +80,10 @@ public class pageMultiController {
 
     public static void emptyDirectory(File folder) {
         for (File file : folder.listFiles()) {
-        if (file.isDirectory()) {
-        emptyDirectory(file);
-        }
-        file.delete();
+            if (file.isDirectory()) {
+                emptyDirectory(file);
+            }
+            file.delete();
         }
     }
 
@@ -233,6 +234,7 @@ public class pageMultiController {
     }
 
     // #region cote serveur
+    @SuppressWarnings("unchecked")
     EventHandler<ActionEvent> rechercheAdversaireEvent = new EventHandler<>() {
         @Override
         public void handle(ActionEvent actionEvent) {
@@ -330,6 +332,17 @@ public class pageMultiController {
                                 // attente debut de la partie
                                 ((GameClient) gameSocket).enregistrerJson();
                                 gameSocket.envoyerMessage("done");
+
+                                // modifier le JSON
+                                FileReader fr = new FileReader("CestQuiGame/bin/gameTamp/game.json");
+                                JSONObject js = (JSONObject) new JSONParser().parse(fr);
+                                System.out.println(js.replace("images", "CestQuiGame/bin/gameTamp"));
+                                try (FileWriter file = new FileWriter(new File("CestQuiGame/bin/gameTamp/game.json"))) {
+                                    file.write(js.toJSONString());
+                                    fr.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
 
                                 ipText1.setText("Connecté au serveur !  Telechargement des Images...");
                                 int nombreImage = Integer.parseInt(gameSocket.ecouterMessage());

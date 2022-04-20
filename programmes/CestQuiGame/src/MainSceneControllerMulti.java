@@ -190,6 +190,7 @@ public class MainSceneControllerMulti extends UtilController {
             AnchorPane.setRightAnchor(texteFin, 350.);
             if (personnageAdversaire == null) {
                 texteFin.setText("Adversaire deconnecté :(");
+                AnchorPane.setLeftAnchor(texteFin, 400.);
                 AnchorPane.setTopAnchor(texteFin, 200.);
             }
             texteFin.setFont(new Font("Arial", 17));
