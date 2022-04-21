@@ -171,7 +171,7 @@ public class pageAvantJeuController {
         stage.setOnCloseRequest((EventHandler<WindowEvent>) new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
-                System.out.println("Fenetre fermé");
+                // System.out.println("Fenetre fermé");
                 System.exit(0);
             }
         });

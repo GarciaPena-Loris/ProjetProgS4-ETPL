@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.Inet4Address;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -93,7 +94,7 @@ public class pageMultiController {
                     public void handle(WindowEvent event) {
                         try {
                             emptyDirectory(new File("CestQuiGame/bin/gameTamp"));
-                            //System.out.println("Fermetures sockets");
+                            // System.out.println("Fermetures sockets");
                             if (gameSocket != null) {
                                 gameSocket.stopSocket();
                             }
@@ -108,8 +109,8 @@ public class pageMultiController {
 
     private void relancerServeur() {
         Platform.runLater(() -> {
-            //System.out.println("Probleme reception message");
-            //System.out.println("Client disconected");
+            // System.out.println("Probleme reception message");
+            // System.out.println("Client disconected");
             if (gameSocket != null) {
                 try {
                     gameSocket.stopSocket();
@@ -255,7 +256,9 @@ public class pageMultiController {
                 URL whatismyip = new URL("http://checkip.amazonaws.com");
                 BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
                 String ip = in.readLine();
-                ipText2.setText(ipText2.getText() + " " + ip);
+                in.close();
+                ipText2.setText(ipText2.getText() + " " + ip + "\n Votre IP locale est : "
+                        + Inet4Address.getLocalHost().getHostAddress());
                 startButton.setDisable(true);
                 AnchorPane.setLeftAnchor(startButton, 240.);
                 startButton.setText("Envoyer les données");
@@ -427,7 +430,9 @@ public class pageMultiController {
                                         ipText1.setText("Envois de l'image " + image.getName() + " à :");
 
                                         ((GameServer) gameSocket).envoyerImage(image);
+
                                         if (gameSocket.ecouterMessage().equals("done")) {
+                                            ipText1.setText("Image " + image.getName() + " envoyée avec succés à :");
                                         } else {
                                             relancerServeur();
                                         }
@@ -449,7 +454,7 @@ public class pageMultiController {
                         relancerServeur();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                     relancerServeur();
                 }
             });
