@@ -6,17 +6,18 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch App",
+            "request": "launch",
+            "mainClass": "App",
+            "projectName": "generateur_1a48f750",
+            //"vmArgs": "--module-path \"../librairies/javafx-sdk-17.0.2/lib\" --add-modules javafx.controls,javafx.fxml"
+            "vmArgs": "--module-path \"../librairies/javafx-linux-sdk-17.0.1/lib\" --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"
         },
-        {
-            "type": "java",
-            "name": "Launch App",
-            "request": "launch",
-            "mainClass": "App",
-            "projectName": "generateur_595c989",
-            "vmArgs": "--module-path \"../librairies/javafx-sdk-17.0.2/lib\" --add-modules javafx.controls,javafx.fxml"
-        }
     ]
 }
