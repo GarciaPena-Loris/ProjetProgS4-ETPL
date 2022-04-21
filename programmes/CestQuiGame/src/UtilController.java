@@ -347,7 +347,7 @@ public abstract class UtilController {
     // #region event handler
 
     // #region selectionner les personnages a eliminer
-    EventHandler<MouseEvent> afficheCibleEvent = new EventHandler<>() {
+    EventHandler<MouseEvent> afficheCibleEvent = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent mouseEvent) {
             if (attendSelection) {
@@ -381,7 +381,7 @@ public abstract class UtilController {
     // #endregion
 
     // #region ajouter une question
-    EventHandler<ActionEvent> AjoutQuestionEvent = new EventHandler<>() {
+    EventHandler<ActionEvent> AjoutQuestionEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             MenuItem currentItem = (MenuItem) actionEvent.getSource();
@@ -431,7 +431,7 @@ public abstract class UtilController {
     // #endregion
 
     // #region affichage valeur bouton et affichage bouton ajout question
-    EventHandler<ActionEvent> valeurSelectedEvent = new EventHandler<>() {
+    EventHandler<ActionEvent> valeurSelectedEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             MenuItem currentItem = (MenuItem) actionEvent.getSource();
@@ -453,7 +453,7 @@ public abstract class UtilController {
 
     // #region Met en texte le choix selectionné et fait apparaitre les valeusr de
     // l'attribut selectionner si valeurs y a
-    EventHandler<ActionEvent> attributSelectedEvent = new EventHandler<>() {
+    EventHandler<ActionEvent> attributSelectedEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             // changement texte attribut
@@ -571,7 +571,7 @@ public abstract class UtilController {
     // #endregion
 
     // #region supprime une question
-    EventHandler<ActionEvent> deleteQuestionEvent = new EventHandler<>() {
+    EventHandler<ActionEvent> deleteQuestionEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             Button currentButton = (Button) actionEvent.getSource();
@@ -649,7 +649,7 @@ public abstract class UtilController {
     // #endregion
 
     // #region verifier la reponse de la question
-    EventHandler<ActionEvent> validerQuestionEvent = new EventHandler<>() {
+    EventHandler<ActionEvent> validerQuestionEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             attendSelection = true;
@@ -771,7 +771,7 @@ public abstract class UtilController {
     // #endregion
 
     // #region verifie les personnages éliminé
-    EventHandler<ActionEvent> verifierEliminationEvent = new EventHandler<>() {
+    EventHandler<ActionEvent> verifierEliminationEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             // tue tous les personnages selectionné

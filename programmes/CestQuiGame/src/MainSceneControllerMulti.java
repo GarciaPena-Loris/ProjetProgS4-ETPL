@@ -119,7 +119,7 @@ public class MainSceneControllerMulti extends UtilController {
             } catch (IOException e) {
                 e.printStackTrace();
                 afficherFinPartie(
-                        "Adversaire deconnecté :( Son personange était " + getNomPersonnageAdversaire() + ": ");
+                        "Adversaire deconnecté :( Son personange était " + getNomPersonnageAdversaire() + " :  ");
             }
         });
         choixPersonnage.start();
@@ -153,7 +153,7 @@ public class MainSceneControllerMulti extends UtilController {
                 } catch (IOException e) {
                     e.printStackTrace();
                     afficherFinPartie(
-                            "Adversaire deconnecté :( Son personange était " + getNomPersonnageAdversaire() + ": ");
+                            "Adversaire deconnecté :( Son personange était " + getNomPersonnageAdversaire() + " :  ");
                     break;
                 }
             } while (!question.equals("end"));
@@ -245,25 +245,25 @@ public class MainSceneControllerMulti extends UtilController {
                         // l'adversaire à gagné
                         afficherFinPartie(
                                 "Votre adversaire a trouvé votre personnage (il à été meilleur :3). Son personnage était "
-                                        + getNomPersonnageAdversaire() + ":");
+                                        + getNomPersonnageAdversaire() + " : ");
                         // ajouter bouton quitter
                     } else if (statutElimination[0].equals("perdu")) {
                         // l'adversaire à perdu
                         afficherFinPartie(
                                 "Votre adversaire a perdu... il a éliminé votre personnage (quel boulet)... Vous avez donc gagné !! Son personnage était "
-                                        + getNomPersonnageAdversaire() + ":");
+                                        + getNomPersonnageAdversaire() + " : ");
                     } else {
                         afficherFinPartie(
-                                "Adversaire deconnecté :( Son personange était " + getNomPersonnageAdversaire() + ": ");
+                                "Adversaire deconnecté :( Son personange était " + getNomPersonnageAdversaire() + " :  ");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    afficherFinPartie("Adversaire deconnecté :( Son personange était " + getNomPersonnageAdversaire() + ": ");
+                    afficherFinPartie("Adversaire deconnecté :( Son personange était " + getNomPersonnageAdversaire() + " :  ");
                 }
             });
             ecouterLaReponse.start();
         } catch (IOException e) {
-            afficherFinPartie("Adversaire deconnecté :( Son personange était " + getNomPersonnageAdversaire() + ": ");
+            afficherFinPartie("Adversaire deconnecté :( Son personange était " + getNomPersonnageAdversaire() + " :  ");
         }
     }
 
@@ -283,7 +283,7 @@ public class MainSceneControllerMulti extends UtilController {
             if (listeTotalPersoElimine.size() == partieEnCour.getNombrePersonnages() - 1) {
                 // gagné
                 afficherFinPartie("Bravo ! Vous avez gagné ! Le personnage était bien "
-                        + getNomPersonnageAdversaire() + ": ");
+                        + getNomPersonnageAdversaire() + " :  ");
                 // le dire à l'adversaire
                 gameSocket.envoyerMessage("gagne");
             } else {
@@ -361,7 +361,7 @@ public class MainSceneControllerMulti extends UtilController {
     // #region event handler
 
     // #region choix du personnage
-    EventHandler<MouseEvent> choixPersonnageDebutPartie = new EventHandler<>() {
+    EventHandler<MouseEvent> choixPersonnageDebutPartie = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent mouseEvent) {
             persoSelectionnePane.getChildren().clear();
@@ -377,7 +377,7 @@ public class MainSceneControllerMulti extends UtilController {
     // #endregion
 
     // #region afficher cible event 2
-    EventHandler<MouseEvent> afficheCibleEventV2 = new EventHandler<>() {
+    EventHandler<MouseEvent> afficheCibleEventV2 = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent mouseEvent) {
             afficheCibleEvent.handle(mouseEvent);
@@ -386,7 +386,7 @@ public class MainSceneControllerMulti extends UtilController {
     // #endregion
 
     // #region envoyer question event
-    public EventHandler<ActionEvent> envoyerQuestionEvent = new EventHandler<>() {
+    public EventHandler<ActionEvent> envoyerQuestionEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent mouseEvent) {
             try {
@@ -425,26 +425,26 @@ public class MainSceneControllerMulti extends UtilController {
                             // gestion erreur
                             // System.err.println("Mauvais message reçu : " + reponse);
                             afficherFinPartie(
-                                    "Adversaire deconncté :( Son personange était " + getNomPersonnageAdversaire() + ": ");
+                                    "Adversaire deconncté :( Son personange était " + getNomPersonnageAdversaire() + " :  ");
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                         afficherFinPartie(
-                                "Adversaire deconncté :( Son personange était " + getNomPersonnageAdversaire() + ": ");
+                                "Adversaire deconncté :( Son personange était " + getNomPersonnageAdversaire() + " :  ");
                     }
                 });
                 attenteReponse.start();
             } catch (IOException e) {
                 e.printStackTrace();
                 afficherFinPartie(
-                        "Adversaire deconncté :( Son personange était " + getNomPersonnageAdversaire() + ": ");
+                        "Adversaire deconncté :( Son personange était " + getNomPersonnageAdversaire() + " :  ");
             }
         }
     };
     // #endregion
 
     // #region fermer fenettre
-    public EventHandler<ActionEvent> quitterEvent = new EventHandler<>() {
+    public EventHandler<ActionEvent> quitterEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
             ((Stage) borderPaneId.getScene().getWindow()).close();

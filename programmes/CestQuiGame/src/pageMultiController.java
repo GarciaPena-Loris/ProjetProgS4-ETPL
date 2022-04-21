@@ -169,7 +169,7 @@ public class pageMultiController {
     @FXML
     void choixJsonMulti(ActionEvent event) throws FileNotFoundException, IOException, ParseException {
         FileChooser fc = new FileChooser();
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json", "*.JSON");
         fc.getExtensionFilters().add(extFilter);
         File selectedFile = fc.showOpenDialog(null);
 
@@ -235,7 +235,7 @@ public class pageMultiController {
 
     // #region cote serveur
     @SuppressWarnings("unchecked")
-    EventHandler<ActionEvent> rechercheAdversaireEvent = new EventHandler<>() {
+    EventHandler<ActionEvent> rechercheAdversaireEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             try {
@@ -280,7 +280,7 @@ public class pageMultiController {
     // #endregion
 
     // #region cote client
-    EventHandler<ActionEvent> recherchePartieEvent = new EventHandler<>() {
+    EventHandler<ActionEvent> recherchePartieEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             ipText1.setVisible(true);
@@ -392,7 +392,7 @@ public class pageMultiController {
     // #endregion
 
     // #region sendData
-    EventHandler<ActionEvent> sendData = new EventHandler<>() {
+    EventHandler<ActionEvent> sendData = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             Thread envoisDonnees = new Thread(() -> {
@@ -464,7 +464,7 @@ public class pageMultiController {
 
     // #endregion
 
-    EventHandler<ActionEvent> startGameHost = new EventHandler<>() {
+    EventHandler<ActionEvent> startGameHost = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent actionEvent) {
             // System.out.println("Debut de la partie cote serveur");

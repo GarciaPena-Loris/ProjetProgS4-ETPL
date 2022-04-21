@@ -9,8 +9,9 @@
             "name": "Launch App",
             "request": "launch",
             "mainClass": "App",
-            "projectName": "programmes_eea60af9",
-            "vmArgs": "--module-path \"../librairies/javafx-sdk-17.0.2/lib\" --add-modules javafx.controls,javafx.fxml"
+            "projectName": "programmes_a022555",
+            //"vmArgs": "--module-path ./librairies/javafx-sdk-17.0.2/lib --add-modules javafx.controls,javafx.fxml"
+            "vmArgs": "--module-path \"../librairies/javafx-linux-sdk-17.0.1/lib\" --add-modules javafx.controls,javafx.fxml"
         },
         {
             "type": "java",

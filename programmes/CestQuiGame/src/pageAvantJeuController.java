@@ -91,7 +91,7 @@ public class pageAvantJeuController {
     @FXML
     void choixjson(ActionEvent event) {
         FileChooser fc = new FileChooser();
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json", "*.JSON");
         fc.getExtensionFilters().add(extFilter);
         File selectedFile = fc.showOpenDialog(null);
 
